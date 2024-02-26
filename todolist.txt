@@ -34,7 +34,7 @@ MapColors Class:
 
 Block Selector Class:
     Create Tilesets as JSON - Medium (1)
-    Block Selection GUI - Medium (2)
+    Block Selection GUI - Medium (2) -- basically done
 
 Block History Class:
     Ctrl Z for Undo - Medium (1)
