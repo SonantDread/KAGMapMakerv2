@@ -1,15 +1,17 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsItem, QMenu, QAction, QMainWindow, QVBoxLayout, QWidget, QGraphicsProxyWidget
-from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage
-from PyQt5.QtCore import Qt, QLineF, QPointF, QEvent
+from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage, QTransform
+from PyQt5.QtCore import Qt, QLineF, QPointF, QEvent, QPoint, QRectF
 from PyQt5 import *
 import Image
 from BlockSelector import BlockSelector
+from CanvasSettings import CanvasSettings
 import io
 class Canvas(QGraphicsView):
     def __init__(self):
         super(Canvas, self).__init__()
-
+        self._panning = False
+        self._last_pan_point = QPoint()
         # note: you multiply things by 8 to get a kag's block size
         self.canvas_scale = 6
         self.grid_size = 8 * self.canvas_scale
@@ -18,8 +20,8 @@ class Canvas(QGraphicsView):
         self.block_selector = BlockSelector([], "")  # Initialize with your blocks and a default selected block
 
         # Calculate the desired canvas size
-        self.width = 20
-        self.height = 20
+        self.width = 200
+        self.height = 200
 
         # Create the QGraphicsScene
         self.Canvas = QGraphicsScene(self)
@@ -51,11 +53,7 @@ class Canvas(QGraphicsView):
 
         self.current_item = pixmap_item
 
-        # proxy_widget = QGraphicsProxyWidget()
-        # proxy_widget.setWidget(self.block_selector)
-
-        # # Add the proxy_widget to the scene
-        # self.Canvas.addItem(proxy_widget)
+        self.settings = CanvasSettings(self)  # Initialize settings
 
         # Adjust the position of the proxy_widget as needed
         self.Canvas.installEventFilter(self)
@@ -94,43 +92,54 @@ class Canvas(QGraphicsView):
             self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
             # Scale the view / do the zoom
+            oldPos = self.mapToScene(event.pos())
+
             if event.angleDelta().y() > 0:
                 scaleFactor = zoomInFactor
             else:
                 scaleFactor = zoomOutFactor
-
+            # Apply the zoom and limit the zoom out
+            factor = self.transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width()
+            if factor < 1:
+                # Limit zoom out to the size of the canvas
+                self.setTransform(QTransform())
+            else:
+                self.scale(scaleFactor, scaleFactor)
+                # Ensure the position under the mouse doesn't change
+                newPos = self.mapToScene(event.pos())
+                delta = newPos - oldPos
+                self.translate(delta.x(), delta.y())
             # Limit zoom range
             currentScale = self.transform().m11()  # m11() element of the transformation matrix represents the horizontal scaling
             if (currentScale < 0.2 and scaleFactor < 1) or (currentScale > 10 and scaleFactor > 1):
                 return  # Prevent zooming out too much or zooming in too much
 
             self.scale(scaleFactor, scaleFactor)
+        else:
+            super().wheelEvent(event)
+
 
     def drawBackground(self, painter, rect):
-        # TODO: render an image throughout the background
         super(Canvas, self).drawBackground(painter, rect)
+        # Only draw the grid if the setting is enabled
+        if self.settings.show_grid:
+            # Adjust grid drawing to fill the entire rect
+            lines = []
+            start_x = rect.left() - (rect.left() % self.grid_size)
+            end_x = rect.right() + (self.grid_size - (rect.right() % self.grid_size))
+            start_y = rect.top() - (rect.top() % self.grid_size)
+            end_y = rect.bottom() + (self.grid_size - (rect.bottom() % self.grid_size))
 
-        # draw grid
-        left = 0
-        right = self.width * self.canvas_scale * 8
-        top = 0
-        bottom = self.height * self.canvas_scale * 8
+            for x in range(int(start_x), int(end_x) + 1, self.grid_size):
+                lines.append(QLineF(x, start_y, x, end_y))
+            for y in range(int(start_y), int(end_y) + 1, self.grid_size):
+                lines.append(QLineF(start_x, y, end_x, y))
 
-        first_left = left - (left % self.grid_size)
-        first_top = top - (top % self.grid_size)
+            painter.setPen(self.grid_color)
+            painter.drawLines(lines)
+        else:
+            painter.fillRect(rect, self.backgroundBrush())
 
-        lines = []
-
-        for x in range(first_left, right + 1, self.grid_size):
-            lines.append(QPointF(x, top))
-            lines.append(QPointF(x, bottom))
-
-        for y in range(first_top, bottom + 1, self.grid_size):
-            lines.append(QPointF(left, y))
-            lines.append(QPointF(right, y))
-
-        painter.setPen(self.grid_color)
-        painter.drawLines(QPolygonF(lines))
 
     def snapToGrid(self, value):
         return (value // self.grid_size) * self.grid_size
@@ -140,7 +149,16 @@ class Canvas(QGraphicsView):
             self.left_mouse_button_down = False
         if event.button() == Qt.RightButton:
             self.right_mouse_button_down = False
-        super(Canvas, self).mouseReleaseEvent(event)
+        if event.button() == Qt.MiddleButton:
+            self._panning = False
+            self.setCursor(Qt.ArrowCursor)
+            self.setDragMode(QGraphicsView.NoDrag)
+            self.viewport().unsetCursor()
+
+        else:
+            super(Canvas, self).mouseReleaseEvent(event)
+
+
     def mousePressEvent(self, event):
         super(Canvas, self).mousePressEvent(event)
         self.block_selector.mousePressEvent(event)
@@ -159,7 +177,40 @@ class Canvas(QGraphicsView):
         elif event.button() == Qt.RightButton:
             self.right_mouse_button_down = True
             self.deleteBlock(x, y)
+        if event.button() == Qt.MiddleButton:
+            self.setCursor(Qt.ClosedHandCursor)
+            self._pan_start_x, self._pan_start_y = event.x(), event.y()
+            self._last_pan_point = event.pos()
+            self._panning = True
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
+            self.viewport().setCursor(Qt.ClosedHandCursor)
+        else:
+            super().mouseMoveEvent(event)
 
+    def mouseMoveEvent(self, event):
+        super(Canvas, self).mouseMoveEvent(event)
+        self.block_selector.mouseMoveEvent(event)
+        scenePos = self.mapToScene(event.pos())
+        if self.current_item:
+            # Update the position of the pixmap item as the mouse moves
+            pos = self.mapToScene(event.pos())
+            snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
+            self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
+        x, y = self.snapToGrid(scenePos.x()), self.snapToGrid(scenePos.y())
+        if self.left_mouse_button_down:
+            self.placeOrReplaceBlock(x, y)
+        elif self.right_mouse_button_down:
+            self.deleteBlock(x, y)
+        if self._panning:
+            # Calculate how much the mouse has moved
+            delta = event.pos() - self._last_pan_point
+            self._last_pan_point = event.pos()
+            
+            # Scroll the view accordingly
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+        else:
+            super().mousePressEvent(event)
 
     def placeOrReplaceBlock(self, x, y):
         # Check if a block already exists at (x, y), if so, remove it
@@ -195,20 +246,8 @@ class Canvas(QGraphicsView):
 
         # Finally, convert the QImage to QPixmap and return
         return QPixmap.fromImage(qimage)
-    def mouseMoveEvent(self, event):
-        super(Canvas, self).mouseMoveEvent(event)
-        self.block_selector.mouseMoveEvent(event)
-        scenePos = self.mapToScene(event.pos())
-        if self.current_item:
-            # Update the position of the pixmap item as the mouse moves
-            pos = self.mapToScene(event.pos())
-            snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
-            self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
-        x, y = self.snapToGrid(scenePos.x()), self.snapToGrid(scenePos.y())
-        if self.left_mouse_button_down:
-            self.placeOrReplaceBlock(x, y)
-        elif self.right_mouse_button_down:
-            self.deleteBlock(x, y)
+
+
     def drawBlock(self, position):
         # Convert the mouse position to scene coordinates
         scene_position = self.mapToScene(position)

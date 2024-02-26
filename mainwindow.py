@@ -1,36 +1,27 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QWidget, QDockWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QWidget, QDockWidget, QAction, QCheckBox, QStatusBar
 from PyQt5.QtCore import Qt
-
+from CanvasSettings import CanvasSettings
 from Canvas import Canvas  # Import your Canvas class
 from BlockSelector import BlockSelector  # Import your BlockSelector class
 import sys
 class MainWindow(QMainWindow):
     def __init__(self):
-        # super(MainWindow, self).__init__()
-
-        # # Initialize the canvas and block selector
-        # self.canvas = Canvas()
-        # self.blockSelector = BlockSelector([], "")  # Adjust parameters as needed
-        # # Dock the block selector to the side of the main window
-        # self.addDockWidget(Qt.LeftDockWidgetArea, self.blockSelector)
-        # self.setCentralWidget(self.canvas)
-        # # Connect the blockSelector's signal to a method that handles block changes
-        # #self.blockSelector.blockSelected.connect(self.onBlockSelected)
-        # self.blockSelector.blockSelected.connect(self.canvas.setSelectedBlock)
-
-        # # Setup the layout and add widgets
-        # self.mainWidget = QWidget()  # Central widget for the QMainWindow
-        # self.setCentralWidget(self.mainWidget)
-        # layout = QVBoxLayout(self.mainWidget)
-        
-        # # Assuming you want both the canvas and block selector visible in the main window
-        # layout.addWidget(self.canvas)
-        # layout.addWidget(self.blockSelector)
         super(MainWindow, self).__init__()
 
         # Initialize the canvas
         self.canvas = Canvas()
+        self.settings = CanvasSettings(self.canvas)
 
+        # Set up the status bar
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+
+        # Add a 'toggle grid' checkbox to the status bar
+        self.toggle_grid_checkbox = QCheckBox("Show Grid")
+        self.toggle_grid_checkbox.setChecked(self.settings.show_grid)
+        self.toggle_grid_checkbox.stateChanged.connect(self.settings.toggle_grid)
+        self.status_bar.addWidget(self.toggle_grid_checkbox)
+        self.toggle_grid_checkbox.toggled.connect(self.settings.toggle_grid)
         # Initialize the block selector
         self.blockSelector = BlockSelector([], "")
 
@@ -46,7 +37,10 @@ class MainWindow(QMainWindow):
 
         # Connect the blockSelector's signal to the canvas's slot
         self.blockSelector.blockSelected.connect(self.canvas.setSelectedBlock)
-
+    def toggle_grid(self, state):
+        # Update the grid setting based on the checkbox state
+        self.settings.show_grid = self.toggle_grid_checkbox.isChecked()
+        self.canvas.update()
     def onBlockSelected(self, blockName):
         print(f"Block selected: {blockName}")
         # Here, implement the logic to change the current block in the canvas
@@ -59,5 +53,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
+
     mainWindow.show()
     sys.exit(app.exec_())
