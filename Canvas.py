@@ -60,6 +60,9 @@ class Canvas(QGraphicsView):
         # Adjust the position of the proxy_widget as needed
         self.Canvas.installEventFilter(self)
         self.block_selector.blockSelected.connect(self.onBlockSelected)
+        self.left_mouse_button_down = False
+
+
     def eventFilter(self, watched, event):
         # Check if the event is a mouse press and if it occurred within the blockSelector bounds
         if event.type() == QEvent.MouseButtonPress:
@@ -131,8 +134,8 @@ class Canvas(QGraphicsView):
         return (value // self.grid_size) * self.grid_size
     
     def mouseReleaseEvent(self, event):
-        pass # todo: implement this to enable drawing with current block as you move the mouse
-
+        if event.button() == Qt.LeftButton:
+            self.left_mouse_button_down = False
     def mousePressEvent(self, event):
         super(Canvas, self).mousePressEvent(event)
         self.block_selector.mousePressEvent(event)
@@ -150,6 +153,9 @@ class Canvas(QGraphicsView):
         pixmap_item.setScale(self.canvas_scale)
         pixmap_item.setPos(x, y)
         self.Canvas.addItem(pixmap_item)
+        if event.button() == Qt.LeftButton:
+            self.left_mouse_button_down = True
+            self.drawBlock(event.pos())
 
     def loadBlockImage(self, blockName):
         # Assuming block images are stored in a folder named 'blocks' in the same directory as this script
@@ -177,6 +183,23 @@ class Canvas(QGraphicsView):
             pos = self.mapToScene(event.pos())
             snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
             self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
+        if self.left_mouse_button_down:
+            self.drawBlock(event.pos())
+    def drawBlock(self, position):
+        # Convert the mouse position to scene coordinates
+        scene_position = self.mapToScene(position)
+        x, y = self.snapToGrid(scene_position.x()), self.snapToGrid(scene_position.y())
+
+        # Ensure the position is within the bounds of the canvas
+        x = min(max(x, 0), self.width * self.canvas_scale * 8)
+        y = min(max(y, 0), self.height * self.canvas_scale * 8)
+
+        # Create a pixmap item with the selected block's image at the snapped position
+        block_pixmap = self.loadBlockImage(self.selected_block)
+        pixmap_item = QGraphicsPixmapItem(block_pixmap)
+        pixmap_item.setScale(self.canvas_scale)
+        pixmap_item.setPos(x, y)
+        self.Canvas.addItem(pixmap_item)
 
     def keyPressEvent(self, event):
         # Handle key press events here
