@@ -1,7 +1,6 @@
 import os
-import regex as re
-from PIL import Image
-
+import re
+from PIL import Image as PILImage
 class Image:
     def __init__(self, filepath: str = r"C:\Program Files (x86)\Steam\steamapps\common\King Arthur's Gold\Base\Scripts\MapLoaders\LoaderColors.as") -> None:
         self.filepath = filepath
@@ -29,7 +28,7 @@ class Image:
             self.ARGB = dictionary
 
     # TODO: automatically get a block's index by name
-    def getTileIndexByName(tile: str) -> int:
+    def getTileIndexByName(self, tile: str) -> int:
         indexes = {
             "unused"                 : int(0),
             "tile_ground"            : int(16),
@@ -53,9 +52,9 @@ class Image:
 
         return indexes[tile]
 
-    def getBlockPNGByIndex(index: int):
+    def getBlockPNGByIndex(self, index: int):
         # open world.png
-        image = Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "world.png"))
+        image = PILImage.open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"Sprites", "world.png"))
 
         # get sizes for image parsing
         width, height = image.size

@@ -1,15 +1,58 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QTabWidget, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QTabWidget, QHBoxLayout, QListWidgetItem, QListWidget 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, pyqtSignal
 
+from Image import Image
+import tempfile
+
+import os
 class BlockSelector(QWidget):  # Inherit from QWidget instead of QGraphicsProxyWidget
-    def __init__(self, blocks, selected_block):
-        super().__init__()
+    blockSelected = pyqtSignal(str)  # Signal emitting the block name as a string
+    def __init__(self, blocks, selected_block,parent=None):
+        #super(BlockSelector, self).__init__("Block Selector", parent)
+        self.imageProcessor = Image()
+        super(BlockSelector, self).__init__(parent)  # Call superclass constructor with parent
+        self.setWindowTitle("Block Selector")
 
         self.blocks = blocks
         self.selected_block = selected_block
-
+        self.listWidget = QListWidget(self)
+        self.layout = QVBoxLayout(self)  # Set the main layout of the widget
+        self.layout.addWidget(self.listWidget)  # Add the listWidget to the layout
+        self.populateBlocks()
         self.createMenu()
+        self.listWidget.itemClicked.connect(self.onBlockSelected)
+
+    def onBlockSelected(self, item):
+        self.selected_block = item.text()
+        print("Selected Block:", self.selected_block)
+        self.blockSelected.emit(self.selected_block)
+
+
+    def populateBlocks(self):
+        # Example block items, replace with your actual block data
+        blockNames = ["tile_ground", "tile_grassy_ground", "tile_grass"]
+
+        for blockName in blockNames:
+            blockIndex = self.imageProcessor.getTileIndexByName(blockName)
+            blockImage = self.imageProcessor.getBlockPNGByIndex(blockIndex)
+            iconPath = self.saveBlockImage(blockImage, blockName)  # Save the PIL image to a temporary file and return the path
+            item = QListWidgetItem(QIcon(iconPath), blockName)
+            self.listWidget.addItem(item)
+
+    def selectedBlock(self):
+        return self.listWidget.currentItem().text() if self.listWidget.currentItem() else None
+
+    def saveBlockImage(self, blockImage, blockName):
+        # Save the PIL Image to a temporary file
+        tempImagePath = os.path.join(tempfile.gettempdir(), f"{blockName}.png")
+        blockImage.save(tempImagePath)
+        return tempImagePath
+    def saveBlockImage(self, blockImage, blockName):
+        # Save the PIL Image to a temporary file
+        tempImagePath = os.path.join(tempfile.gettempdir(), f"{blockName}.png")
+        blockImage.save(tempImagePath)
+        return tempImagePath
 
     def getSelectedBlock(self):
         return self.selected_block
@@ -37,9 +80,6 @@ class BlockSelector(QWidget):  # Inherit from QWidget instead of QGraphicsProxyW
         
         # Set a fixed size for the BlockSelector widget
         self.setFixedSize(200, 300)  # Adjust the size as needed
-
-        # Add the layout to the widget
-        self.setLayout(layout)
 
     def createTabContent(self, tab, tab_name):
         # Create a layout for the tab
