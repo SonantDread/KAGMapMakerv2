@@ -61,6 +61,8 @@ class Canvas(QGraphicsView):
         self.Canvas.installEventFilter(self)
         self.block_selector.blockSelected.connect(self.onBlockSelected)
         self.left_mouse_button_down = False
+        self.right_mouse_button_down = False
+        self.blocks = {}
 
 
     def eventFilter(self, watched, event):
@@ -136,6 +138,9 @@ class Canvas(QGraphicsView):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = False
+        if event.button() == Qt.RightButton:
+            self.right_mouse_button_down = False
+        super(Canvas, self).mouseReleaseEvent(event)
     def mousePressEvent(self, event):
         super(Canvas, self).mousePressEvent(event)
         self.block_selector.mousePressEvent(event)
@@ -147,16 +152,32 @@ class Canvas(QGraphicsView):
         x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
         x = min(max(x, 0), self.width * self.canvas_scale * 8)
         y = min(max(y, 0), self.height * self.canvas_scale * 8)
+        
+        if event.button() == Qt.LeftButton:
+            self.left_mouse_button_down = True
+            self.placeOrReplaceBlock(x, y)
+        elif event.button() == Qt.RightButton:
+            self.right_mouse_button_down = True
+            self.deleteBlock(x, y)
 
-        blockImage = self.loadBlockImage(self.selected_block)  # Implement this method
-        pixmap_item = QGraphicsPixmapItem(blockImage)
+
+    def placeOrReplaceBlock(self, x, y):
+        # Check if a block already exists at (x, y), if so, remove it
+        if (x, y) in self.blocks:
+            self.Canvas.removeItem(self.blocks[(x, y)])
+        # Place a new block
+        block_pixmap = self.loadBlockImage(self.selected_block)
+        pixmap_item = QGraphicsPixmapItem(block_pixmap)
         pixmap_item.setScale(self.canvas_scale)
         pixmap_item.setPos(x, y)
         self.Canvas.addItem(pixmap_item)
-        if event.button() == Qt.LeftButton:
-            self.left_mouse_button_down = True
-            self.drawBlock(event.pos())
+        self.blocks[(x, y)] = pixmap_item
 
+    def deleteBlock(self, x, y):
+        # Delete a block at (x, y) if it exists
+        if (x, y) in self.blocks:
+            self.Canvas.removeItem(self.blocks[(x, y)])
+            del self.blocks[(x, y)]
     def loadBlockImage(self, blockName):
         # Assuming block images are stored in a folder named 'blocks' in the same directory as this script
         # Use the Image class to get the block image as a PIL Image object
@@ -177,14 +198,17 @@ class Canvas(QGraphicsView):
     def mouseMoveEvent(self, event):
         super(Canvas, self).mouseMoveEvent(event)
         self.block_selector.mouseMoveEvent(event)
-
+        scenePos = self.mapToScene(event.pos())
         if self.current_item:
             # Update the position of the pixmap item as the mouse moves
             pos = self.mapToScene(event.pos())
             snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
             self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
+        x, y = self.snapToGrid(scenePos.x()), self.snapToGrid(scenePos.y())
         if self.left_mouse_button_down:
-            self.drawBlock(event.pos())
+            self.placeOrReplaceBlock(x, y)
+        elif self.right_mouse_button_down:
+            self.deleteBlock(x, y)
     def drawBlock(self, position):
         # Convert the mouse position to scene coordinates
         scene_position = self.mapToScene(position)
