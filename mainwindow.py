@@ -10,7 +10,6 @@ class MainWindow(QMainWindow):
 
         # Initialize the canvas
         self.canvas = Canvas()
-        self.settings = CanvasSettings(self.canvas)
 
         # Set up the status bar
         self.status_bar = QStatusBar()
@@ -18,10 +17,10 @@ class MainWindow(QMainWindow):
 
         # Add a 'toggle grid' checkbox to the status bar
         self.toggle_grid_checkbox = QCheckBox("Show Grid")
-        self.toggle_grid_checkbox.setChecked(self.settings.show_grid)
-        self.toggle_grid_checkbox.stateChanged.connect(self.settings.toggle_grid)
+        self.toggle_grid_checkbox.setChecked(self.canvas.settings.show_grid)
+        #self.toggle_grid_checkbox.stateChanged.connect(self.canvas.settings.toggle_grid)
         self.status_bar.addWidget(self.toggle_grid_checkbox)
-        self.toggle_grid_checkbox.toggled.connect(self.settings.toggle_grid)
+        self.toggle_grid_checkbox.toggled.connect(self.canvas.settings.toggle_grid)
         # Initialize the block selector
         self.blockSelector = BlockSelector([], "")
 
@@ -37,10 +36,6 @@ class MainWindow(QMainWindow):
 
         # Connect the blockSelector's signal to the canvas's slot
         self.blockSelector.blockSelected.connect(self.canvas.setSelectedBlock)
-    def toggle_grid(self, state):
-        # Update the grid setting based on the checkbox state
-        self.settings.show_grid = self.toggle_grid_checkbox.isChecked()
-        self.canvas.update()
     def onBlockSelected(self, blockName):
         print(f"Block selected: {blockName}")
         # Here, implement the logic to change the current block in the canvas

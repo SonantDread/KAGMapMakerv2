@@ -62,7 +62,6 @@ class Canvas(QGraphicsView):
         self.right_mouse_button_down = False
         self.blocks = {}
 
-
     def eventFilter(self, watched, event):
         # Check if the event is a mouse press and if it occurred within the blockSelector bounds
         if event.type() == QEvent.MouseButtonPress:
@@ -211,7 +210,6 @@ class Canvas(QGraphicsView):
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
         else:
             super().mousePressEvent(event)
-
     def placeOrReplaceBlock(self, x, y):
         # Check if a block already exists at (x, y), if so, remove it
         if (x, y) in self.blocks:
