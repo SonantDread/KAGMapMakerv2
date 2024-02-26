@@ -1,0 +1,65 @@
+// import from old map maker
+
+Settings Class:
+    Customizable Interface - Medium (2)
+    Animate Blocks Slider with Customizable Speed - Medium (3)
+    Block Rotation - Medium (4)
+    Vertical and Horizontal Block Mirroring - Medium (5)
+    Ability to Show a Grid - Easy (1) - DONE
+    WASD to Move on Canvas - Easy (6)
+    Change Selected Block for 1 through 9 - Easy (7)
+    Key to Open Settings - Easy (8)
+    Block Selection GUI Keybind - Easy (9)
+    Left Click Places Block - Easy (10)
+    Zoom In / Out - Easy (11)
+    Settings Keybind - Easy (12)
+
+TileMap Class:
+    Map Generation - Hard (2)
+    Save a Map - Medium (3)
+    Load a Map - Medium (4)
+    Width, Height of Map - Easy (1)
+    Get Tile at x, y Coordinates - Easy (5)
+
+Tile Class:
+    Tile Color - Easy (1)
+    Tile Image - Easy (2)
+    x, y Position - Easy (3)
+    Visibility - Easy (4)
+
+MapColors Class:
+    Automatically load custom colors from a file - Easy (2)
+    Setting static colors - Easy (1)
+    Get color - Easy (3)
+
+Block Selector Class:
+    Create Tilesets as JSON - Medium (1)
+    Block Selection GUI - Medium (2)
+
+Block History Class:
+    Ctrl Z for Undo - Medium (1)
+    Ctrl Y for Redo - Medium (2)
+    Different in Multiplayer, Everyone Shares Undoing - Hard (3)
+
+KagImage Class:
+    Load PNG images - Medium (1)
+    Scale a PNG by x and y - Easy (2)
+    Get scale factor of an image - Medium (3)
+
+Tool Bar Class:
+    Host a Multiplayer Server - Very Hard (1)
+    Custom Scripts Support - Very Hard (2)
+    Check if Any Pixels are Wrong, Warn User of Known Bugs in Mapping - Hard (3)
+
+Editor Class:
+    Display Outline of Canvas - Easy (1)
+    Show Where Blocks Cannot be Mined or Placed - Medium (2)
+    Place Blocks - Easy (3)
+    Eraser Tool - Easy (4)
+    Save and Load Map - Medium (5)
+    Selection Tool - Medium (6)
+    Copy and Paste Selected Areas - Medium (7)
+    Set Tile at x, y Coordinates - Easy (6)
+    Collision Detection (Prevent Blocks Over Each Other) - Hard (7)
+    Brush Size and Type, with Custom Type - Medium (8)
+    Auto Tiling - Medium (9)
