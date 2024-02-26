@@ -61,6 +61,26 @@ class Canvas(QGraphicsView):
 
     def loadImage(image):
         return QGraphicsPixmapItem(QPixmap(image))
+    def wheelEvent(self, event):
+        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+            zoomInFactor = 1.25
+            zoomOutFactor = 1 / zoomInFactor
+
+            # Set Anchors
+            self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
+            # Scale the view / do the zoom
+            if event.angleDelta().y() > 0:
+                scaleFactor = zoomInFactor
+            else:
+                scaleFactor = zoomOutFactor
+
+            # Limit zoom range
+            currentScale = self.transform().m11()  # m11() element of the transformation matrix represents the horizontal scaling
+            if (currentScale < 0.2 and scaleFactor < 1) or (currentScale > 10 and scaleFactor > 1):
+                return  # Prevent zooming out too much or zooming in too much
+
+            self.scale(scaleFactor, scaleFactor)
 
     def drawBackground(self, painter, rect):
         # TODO: render an image throughout the background
