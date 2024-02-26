@@ -84,36 +84,33 @@ class Canvas(QGraphicsView):
         return QGraphicsPixmapItem(QPixmap(image))
     def wheelEvent(self, event):
         if QApplication.keyboardModifiers() == Qt.ControlModifier:
-            zoomInFactor = 1.25
+            zoomInFactor = 1.05
             zoomOutFactor = 1 / zoomInFactor
 
-            # Set Anchors
-            self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
-            # Scale the view / do the zoom
+            # Get the position before scaling, in scene coords
             oldPos = self.mapToScene(event.pos())
 
-            if event.angleDelta().y() > 0:
-                scaleFactor = zoomInFactor
-            else:
-                scaleFactor = zoomOutFactor
-            # Apply the zoom and limit the zoom out
-            factor = self.transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width()
-            if factor < 1:
-                # Limit zoom out to the size of the canvas
-                self.setTransform(QTransform())
-            else:
+            # Scaling
+            scaleFactor = zoomInFactor if event.angleDelta().y() > 0 else zoomOutFactor
+            # Calculate the new scale factor and clamp it
+            newScale = self.transform().m11() * scaleFactor
+            minScale = 0.2  # Minimum zoom level
+            maxScale = 10   # Maximum zoom level
+            if minScale <= newScale <= maxScale:
                 self.scale(scaleFactor, scaleFactor)
-                # Ensure the position under the mouse doesn't change
+
+                # Get the position after scaling, in scene coords
                 newPos = self.mapToScene(event.pos())
+
+                # Move scene to old position
                 delta = newPos - oldPos
                 self.translate(delta.x(), delta.y())
-            # Limit zoom range
-            currentScale = self.transform().m11()  # m11() element of the transformation matrix represents the horizontal scaling
-            if (currentScale < 0.2 and scaleFactor < 1) or (currentScale > 10 and scaleFactor > 1):
-                return  # Prevent zooming out too much or zooming in too much
-
-            self.scale(scaleFactor, scaleFactor)
+            else:
+                # Keep the scene fixed if at zoom limits
+                if newScale < minScale:
+                    self.setTransform(QTransform().scale(minScale, minScale))
+                elif newScale > maxScale:
+                    self.setTransform(QTransform().scale(maxScale, maxScale))
         else:
             super().wheelEvent(event)
 
