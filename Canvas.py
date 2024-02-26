@@ -121,7 +121,12 @@ class Canvas(QGraphicsView):
         # todo: check if this is lmb / rmb = eraser
         # Get the mouse position in scene coordinates
         pos = self.mapToScene(event.pos())
-
+        block_selector_pos = self.block_selector.pos()
+        block_selector_size = self.block_selector.size()
+        if (block_selector_pos.x() <= pos.x() <= block_selector_pos.x() + block_selector_size.width() and
+            block_selector_pos.y() <= pos.y() <= block_selector_pos.y() + block_selector_size.height()):
+            # If the click is inside the BlockSelector, don't proceed with block placement
+            return
         x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
         if(x > (self.width * self.canvas_scale) * 8):
             x = (self.width * self.canvas_scale) * 8
