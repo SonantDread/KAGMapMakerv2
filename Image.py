@@ -2,12 +2,35 @@ import os
 import re
 from PIL import Image as PILImage
 class Image:
+    indexes = {
+        "unused": int(0),
+        "tile_ground": int(16),
+        "tile_grassy_ground": int(23),
+        "tile_grass": int(25),
+        "tile_ground_back": int(32),
+        "tile_castle": int(48),
+        "tile_castle_back": int(64),
+        "tile_gold": int(80),
+        "tile_stone": int(96),
+        "tile_bedrock": int(106),
+        "tile_wood_back": int(173),
+        "tile_wood": int(196),
+        "tile_thickstone": int(208),
+        "tile_castle_moss": int(224),
+        "tile_castle_back_moss": int(227),
+        "sky": int(400),
+    }
     def __init__(self, filepath: str = r"C:\Program Files (x86)\Steam\steamapps\common\King Arthur's Gold\Base\Scripts\MapLoaders\LoaderColors.as") -> None:
         self.filepath = filepath
         self.ARGB = None
 
         self.getARGB()
-    
+
+
+    @staticmethod
+    def get_block_names():
+        return list(Image.indexes.keys())
+
     def hexToARGB(self, hex_code):
         hex_code = hex_code[2:]
         return tuple(int(hex_code[i:i+2], 16) for i in (0, 2, 4, 6))
@@ -29,28 +52,10 @@ class Image:
 
     # TODO: automatically get a block's index by name
     def getTileIndexByName(self, tile: str) -> int:
-        indexes = {
-            "unused"                 : int(0),
-            "tile_ground"            : int(16),
-            "tile_grassy_ground"     : int(23),
-            "tile_grass"             : int(25),
-            "tile_ground_back"       : int(32),
-            "tile_castle"            : int(48),
-            "tile_castle_back"       : int(64),
-            "tile_gold"              : int(80),
-            "tile_stone"             : int(96),
-            "tile_bedrock"           : int(106),
-            "tile_wood_back"         : int(173),
-            "tile_wood"              : int(196),
-            "tile_thickstone"        : int(208),
-            "tile_castle_moss"       : int(224),
-            "tile_castle_back_moss"  : int(227),
-            "sky"                    : int(400),
-        }
 
         # TODO: auto get this from customblock.as, and append to this too?
 
-        return indexes[tile]
+        return Image.indexes[tile]
 
     def getBlockPNGByIndex(self, index: int):
         # open world.png

@@ -31,7 +31,7 @@ class BlockSelector(QWidget):  # Inherit from QWidget instead of QGraphicsProxyW
 
     def populateBlocks(self):
         # Example block items, replace with your actual block data
-        blockNames = ["tile_ground", "tile_grassy_ground", "tile_grass"]
+        blockNames = Image.get_block_names()
 
         for blockName in blockNames:
             blockIndex = self.imageProcessor.getTileIndexByName(blockName)
