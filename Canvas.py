@@ -264,8 +264,8 @@ class Canvas(QGraphicsView):
         if event.key() == Qt.Key_Escape:
             pass # todo: gui menu for settings etc
 
-        if event.key() == Qt.Key_F:
-            self.toggleBlockSelector()
+        # if event.key() == Qt.Key_F:
+        #     self.toggleBlockSelector()
 
         # TODO: make this more smooth when the user presses WASD
         if event.key() == Qt.Key_A:
@@ -284,10 +284,10 @@ class Canvas(QGraphicsView):
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() + 10)
             self.block_selector.move(self.block_selector.pos().x(), self.block_selector.pos().y() + 10)
 
-    def toggleBlockSelector(self):
-        # Toggle the visibility of the block selector
-        block_selector_visible = not self.block_selector.isVisible()
-        self.block_selector.setVisible(block_selector_visible)
+    # def toggleBlockSelector(self):
+    #     # Toggle the visibility of the block selector
+    #     block_selector_visible = not self.block_selector.isVisible()
+    #     self.block_selector.setVisible(block_selector_visible)
 
 class MainWindow(QMainWindow):
     def __init__(self):

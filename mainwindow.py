@@ -27,6 +27,9 @@ class MainWindow(QMainWindow):
         # Wrap blockSelector in a QDockWidget
         self.blockSelectorDock = QDockWidget("Block Selector", self)
         self.blockSelectorDock.setWidget(self.blockSelector)
+        # prevent closing the dock
+        # ? todo: maybe closable, but can reopen with f?
+        self.blockSelectorDock.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
 
         # Add the dock widget to the main window
         self.addDockWidget(Qt.LeftDockWidgetArea, self.blockSelectorDock)
