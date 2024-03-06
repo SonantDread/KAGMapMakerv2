@@ -87,7 +87,7 @@ class Canvas(QGraphicsView):
         print("Selected Block:", self.selected_block)  # For debugging
         self.blockSelected.emit(self.selected_block)
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, event): # todo: fix issue on 2k monitor where zooming out fully then fullscreening program causes you to see parts of the canvas you cant place on
         if QApplication.keyboardModifiers() == Qt.ControlModifier:
             zoomInFactor = 1.05
             zoomOutFactor = 1 / zoomInFactor
@@ -131,6 +131,19 @@ class Canvas(QGraphicsView):
             start_y = rect.top() - (rect.top() % self.grid_size)
             end_y = rect.bottom() + (self.grid_size - (rect.bottom() % self.grid_size))
 
+            # if x < 0 or y < 0 or x > self.width * self.canvas_scale * 8 or y > self.height * self.canvas_scale * 8:
+            if(start_x < 0):
+                start_x = 0
+            
+            if(start_y < 0):
+                start_y = 0
+
+            if(end_x > self.width * self.canvas_scale * 8):
+                end_x = self.width * self.canvas_scale * 8
+            
+            if(end_y > self.height * self.canvas_scale * 8):
+                end_y = self.height * self.canvas_scale * 8
+
             for x in range(int(start_x), int(end_x) + 1, self.grid_size):
                 lines.append(QLineF(x, start_y, x, end_y))
             for y in range(int(start_y), int(end_y) + 1, self.grid_size):
@@ -140,7 +153,6 @@ class Canvas(QGraphicsView):
             painter.drawLines(lines)
         else:
             painter.fillRect(rect, self.backgroundBrush())
-
 
     def snapToGrid(self, value):
         return (value // self.grid_size) * self.grid_size
@@ -269,7 +281,6 @@ class Canvas(QGraphicsView):
 
         # Finally, convert the QImage to QPixmap and return
         return QPixmap.fromImage(qimage)
-
 
     def drawBlock(self, position):
         # Convert the mouse position to scene coordinates
