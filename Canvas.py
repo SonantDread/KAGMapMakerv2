@@ -63,6 +63,9 @@ class Canvas(QGraphicsView):
         self.right_mouse_button_down = False
         self.blocks = {}
 
+        self.blockimages = {}
+        self.usedblocks = []
+
     def eventFilter(self, watched, event):
         # Check if the event is a mouse press and if it occurred within the blockSelector bounds
         if event.type() == QEvent.MouseButtonPress:
@@ -218,8 +221,19 @@ class Canvas(QGraphicsView):
         # Check if a block already exists at (x, y), if so, remove it
         if (x, y) in self.blocks:
             self.Canvas.removeItem(self.blocks[(x, y)][0])
-        # Place a new block
-        block_pixmap = self.loadBlockImage(self.selected_block)
+
+        block_pixmap = None
+
+        # dont load an image if its already been loaded
+        if(self.selected_block not in self.usedblocks):
+            block_pixmap = self.loadBlockImage(self.selected_block)
+
+            self.blockimages.update({self.selected_block: block_pixmap})
+            self.usedblocks.append(self.selected_block)
+        
+        else:
+            block_pixmap = self.blockimages[self.selected_block]
+
         pixmap_item = QGraphicsPixmapItem(block_pixmap)
         pixmap_item.setScale(self.canvas_scale)
         pixmap_item.setPos(x, y)
