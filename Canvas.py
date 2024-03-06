@@ -1,4 +1,3 @@
-from http.client import REQUEST_URI_TOO_LONG
 import sys
 from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsItem, QMenu, QAction, QMainWindow, QVBoxLayout, QWidget, QGraphicsProxyWidget
 from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage, QTransform

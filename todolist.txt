@@ -1,65 +1,64 @@
 // import from old map maker
 
-Settings Class:
-    Customizable Interface - Medium (2)
-    Animate Blocks Slider with Customizable Speed - Medium (3)
-    Block Rotation - Medium (4)
-    Vertical and Horizontal Block Mirroring - Medium (5)
-    Ability to Show a Grid - Easy (1) - DONE
-    WASD to Move on Canvas - Easy (6)
-    Change Selected Block for 1 through 9 - Easy (7)
-    Key to Open Settings - Easy (8)
-    Block Selection GUI Keybind - Easy (9)
-    Left Click Places Block - Easy (10)
-    Zoom In / Out - Easy (11)
-    Settings Keybind - Easy (12)
+// note these are not in any particular order
 
-TileMap Class:
-    Map Generation - Hard (2)
-    Save a Map - Medium (3)
-    Load a Map - Medium (4)
-    Width, Height of Map - Easy (1)
-    Get Tile at x, y Coordinates - Easy (5)
+Customizable Interface
+- let the user be able to move things around and change the looks of the Interface
 
-Tile Class:
-    Tile Color - Easy (1)
-    Tile Image - Easy (2)
-    x, y Position - Easy (3)
-    Visibility - Easy (4)
+Block Rotation
+- let the user rotate blocks (need to figure out alpha channels)
 
-MapColors Class:
-    Automatically load custom colors from a file - Easy (2)
-    Setting static colors - Easy (1)
-    Get color - Easy (3)
+Vertical and Horizontal Block Mirroring
+- mirror block placing across x / y axis
 
-Block Selector Class:
-    Create Tilesets as JSON - Medium (1)
-    Block Selection GUI - Medium (2) -- basically done
+Change Selected Block for 1 through 9 
+- maybe this could also just be a radial menu?
 
-Block History Class:
-    Ctrl Z for Undo - Medium (1)
-    Ctrl Y for Redo - Medium (2)
-    Different in Multiplayer, Everyone Shares Undoing - Hard (3)
+Key to Open Settings
 
-KagImage Class:
-    Load PNG images - Medium (1)
-    Scale a PNG by x and y - Easy (2)
-    Get scale factor of an image - Medium (3)
+Map Generation
+- automatically generate a map with customizable parameters
 
-Tool Bar Class:
-    Host a Multiplayer Server - Very Hard (1)
-    Custom Scripts Support - Very Hard (2)
-    Check if Any Pixels are Wrong, Warn User of Known Bugs in Mapping - Hard (3)
+Get Tile at x, y Coordinates
+- get the tile at a certain x, y coordinate
 
-Editor Class:
-    Display Outline of Canvas - Easy (1)
-    Show Where Blocks Cannot be Mined or Placed - Medium (2)
-    Place Blocks - Easy (3)
-    Eraser Tool - Easy (4)
-    Save and Load Map - Medium (5)
-    Selection Tool - Medium (6)
-    Copy and Paste Selected Areas - Medium (7)
-    Set Tile at x, y Coordinates - Easy (6)
-    Collision Detection (Prevent Blocks Over Each Other) - Hard (7)
-    Brush Size and Type, with Custom Type - Medium (8)
-    Auto Tiling - Medium (9)
+Tile Color
+- get color of a tile at x y pos
+
+Tile Image
+- get tile image at x y pos
+
+Visibility
+- is tile visible on this layer
+
+Automatically load custom colors from a file
+- lets the user input a customblocks.as path to use custom blocks (need to auto get images)
+
+
+Create Tilesets as JSON
+
+Ctrl Z for undo action
+Ctrl Y or ctrl + shift + z for redo action
+
+Host a Multiplayer Server
+- most likely will need to use something like socket?
+
+Custom Scripts Support
+
+Check if Any Pixels are Wrong, Warn User of Known Bugs in Mapping
+- check if pixels are wrong colors, and warn of some bugs like gold crashing the game at top of the map
+
+Show Where Blocks Cannot be Mined or Placed
+- those annoying corners of the map you cant mine
+
+Selection Tool
+- make a selection of blocks to save, copy or paste (ie: a 3x2 selection)
+
+Brush Size and Type
+- different sizes of brush that can be a circle, or square or a mix of both
+
+Auto Tiling
+- things like trees, grass, etc
+
+Layering
+- make a custom script to go with map that will spawn a 2nd layer's blobs
