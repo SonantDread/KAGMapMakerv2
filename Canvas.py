@@ -23,7 +23,7 @@ class Canvas(QGraphicsView):
 
         # Calculate the desired canvas size
         self.width = 200 # TODO: this should be a parameter passed from kagmapmaker.py, specified by the user
-        self.height = 200
+        self.height = 112
 
         # Create the QGraphicsScene
         self.Canvas = QGraphicsScene(self)
@@ -188,7 +188,6 @@ class Canvas(QGraphicsView):
         x = min(max(x, 0), self.width * self.canvas_scale * 8)
         y = min(max(y, 0), self.height * self.canvas_scale * 8)
         
-        # todo: make this more smooth
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = True
             self.placeOrReplaceBlock(x, y)

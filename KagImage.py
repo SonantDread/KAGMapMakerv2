@@ -103,14 +103,27 @@ class KagImage:
         width, height = self.canvas.width, self.canvas.height
         result_image = Image.new("RGBA", (width * 8, height * 8), color = (165, 189, 200))
 
+        used_blocks = []
+        blockimages = {}
+
         for key, value in self.map.items():
             # dictionary looks like: '(x, y): (image, block)'
             x, y = int(key[0] / self.canvas.canvas_scale / 8), int(key[1] / self.canvas.canvas_scale / 8)
 
-            blockimage = imageclass.getBlockPNGByIndex(imageclass.getTileIndexByName(value[1]))
+            block = value[1]
+
+            block_image = None
+            if(block not in used_blocks): # dont load image if its already loaded
+                block_image = imageclass.getBlockPNGByIndex(imageclass.getTileIndexByName(value[1]))
+
+                blockimages.update({block: block_image})
+                used_blocks.append(block)
+            
+            else:
+                block_image = blockimages[block]
 
             paste_pos = ((x * 8), (y * 8))
-            result_image.paste(blockimage, paste_pos)
+            result_image.paste(block_image, paste_pos)
 
         result_image.save(filepath)
 
