@@ -1,3 +1,4 @@
+from http.client import REQUEST_URI_TOO_LONG
 import sys
 from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsItem, QMenu, QAction, QMainWindow, QVBoxLayout, QWidget, QGraphicsProxyWidget
 from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage, QTransform
@@ -218,6 +219,10 @@ class Canvas(QGraphicsView):
             super().mousePressEvent(event)
 
     def placeOrReplaceBlock(self, x, y):
+        # do nothing if out of bounds
+        if x < 0 or y < 0 or x > self.width * self.canvas_scale * 8 or y > self.height * self.canvas_scale * 8:
+            return
+
         # Check if a block already exists at (x, y), if so, remove it
         if (x, y) in self.blocks:
             self.Canvas.removeItem(self.blocks[(x, y)][0])
