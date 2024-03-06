@@ -7,6 +7,7 @@ import Image
 from BlockSelector import BlockSelector
 from CanvasSettings import CanvasSettings
 import io
+# TODO: undo / redo
 class Canvas(QGraphicsView):
     def __init__(self):
         super(Canvas, self).__init__()
@@ -20,7 +21,7 @@ class Canvas(QGraphicsView):
         self.block_selector = BlockSelector([], "")  # Initialize with your blocks and a default selected block
 
         # Calculate the desired canvas size
-        self.width = 200
+        self.width = 200 # TODO: this should be a parameter passed from kagmapmaker.py, specified by the user
         self.height = 200
 
         # Create the QGraphicsScene
@@ -71,8 +72,10 @@ class Canvas(QGraphicsView):
             
         # For all other conditions, let the event proceed as normal
         return super().eventFilter(watched, event) #super(MainWindow, self).eventFilter(object, event)
+    
     def setSelectedBlock(self, blockName):
         self.selected_block = blockName
+
     def onBlockSelected(self, blockName):
         print(f"Block selected in main window: {blockName}")
         self.selected_block = blockName
@@ -80,8 +83,6 @@ class Canvas(QGraphicsView):
         print("Selected Block:", self.selected_block)  # For debugging
         self.blockSelected.emit(self.selected_block)
 
-    def loadImage(image):
-        return QGraphicsPixmapItem(QPixmap(image))
     def wheelEvent(self, event):
         if QApplication.keyboardModifiers() == Qt.ControlModifier:
             zoomInFactor = 1.05
@@ -114,7 +115,7 @@ class Canvas(QGraphicsView):
         else:
             super().wheelEvent(event)
 
-
+    # ? todo: this should draw a background from kag, or at least something nicer than this?
     def drawBackground(self, painter, rect):
         super(Canvas, self).drawBackground(painter, rect)
         # Only draw the grid if the setting is enabled
@@ -154,12 +155,16 @@ class Canvas(QGraphicsView):
         else:
             super(Canvas, self).mouseReleaseEvent(event)
 
+    def blockUpdates(self):
+        self.blockSignals(True)
+
+    def unblockUpdates(self):
+        self.blockSignals(False)
 
     def mousePressEvent(self, event):
         super(Canvas, self).mousePressEvent(event)
         self.block_selector.mousePressEvent(event)
 
-        # todo: check if this is lmb / rmb = eraser
         # Get the mouse position in scene coordinates
         pos = self.mapToScene(event.pos())
 
@@ -167,6 +172,7 @@ class Canvas(QGraphicsView):
         x = min(max(x, 0), self.width * self.canvas_scale * 8)
         y = min(max(y, 0), self.height * self.canvas_scale * 8)
         
+        # todo: make this more smooth
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = True
             self.placeOrReplaceBlock(x, y)
@@ -207,23 +213,26 @@ class Canvas(QGraphicsView):
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
         else:
             super().mousePressEvent(event)
+
     def placeOrReplaceBlock(self, x, y):
         # Check if a block already exists at (x, y), if so, remove it
         if (x, y) in self.blocks:
-            self.Canvas.removeItem(self.blocks[(x, y)])
+            self.Canvas.removeItem(self.blocks[(x, y)][0])
         # Place a new block
         block_pixmap = self.loadBlockImage(self.selected_block)
         pixmap_item = QGraphicsPixmapItem(block_pixmap)
         pixmap_item.setScale(self.canvas_scale)
         pixmap_item.setPos(x, y)
         self.Canvas.addItem(pixmap_item)
-        self.blocks[(x, y)] = pixmap_item
+        self.blocks[(x, y)] = (pixmap_item, self.selected_block)
 
     def deleteBlock(self, x, y):
         # Delete a block at (x, y) if it exists
         if (x, y) in self.blocks:
-            self.Canvas.removeItem(self.blocks[(x, y)])
+            self.Canvas.removeItem(self.blocks[(x, y)][0])
+            print(self.blocks[(x,y)])
             del self.blocks[(x, y)]
+
     def loadBlockImage(self, blockName):
         # Assuming block images are stored in a folder named 'blocks' in the same directory as this script
         # Use the Image class to get the block image as a PIL Image object
@@ -260,12 +269,9 @@ class Canvas(QGraphicsView):
         self.Canvas.addItem(pixmap_item)
 
     def keyPressEvent(self, event):
-        # Handle key press events here
-        if event.key() == Qt.Key_Escape:
-            pass # todo: gui menu for settings etc
-
-        # if event.key() == Qt.Key_F:
-        #     self.toggleBlockSelector()
+        # Pass key press event to the parent widget
+        self.parent().keyPressEvent(event)
+        super(Canvas, self).keyPressEvent(event)
 
         # TODO: make this more smooth when the user presses WASD
         if event.key() == Qt.Key_A:

@@ -5,4 +5,7 @@ class CanvasSettings:
 
     def toggle_grid(self):
         self.show_grid = not self.show_grid
-        self.canvas.update()  # Trigger a redraw of the canvas
+        self.canvas.viewport().repaint()  # Force an immediate repaint of the viewport (redraw the canvas)
+    
+    # TODO: brush size
+    # TODO: lock x / y after holding left click

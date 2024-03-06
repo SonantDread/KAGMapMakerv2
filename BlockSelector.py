@@ -13,7 +13,8 @@ class BlockSelector(QWidget):  # Inherit from QWidget instead of QGraphicsProxyW
         self.imageProcessor = Image()
         super(BlockSelector, self).__init__(parent)  # Call superclass constructor with parent
         self.setWindowTitle("Block Selector")
-
+        # TODO: set up the entities tab correctly, then add all found entities from basepngloader and customblocks.as into it
+        # ? TODO: selected block should be a slightly blue tint in the block selector menu?
         self.blocks = blocks
         self.selected_block = selected_block
         self.listWidget = QListWidget(self)
