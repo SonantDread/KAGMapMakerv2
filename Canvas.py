@@ -30,7 +30,7 @@ class Canvas(QGraphicsView):
         #self.setCentralWidget(self.Canvas)
 
         # Set the scene rect based on the grid and scale
-        self.Canvas.setSceneRect(0, 0, self.width * self.canvas_scale * 8, self.height * self.canvas_scale * 8)
+        self.Canvas.setSceneRect(0, 0, self.Scale(self.width), self.Scale(self.height))
 
         # grid settings
         self.grid_color = QColor(255, 255, 255, 255)
@@ -66,6 +66,38 @@ class Canvas(QGraphicsView):
         self.blockimages = {}
         self.usedblocks = []
 
+    def Scale(self, num: int, scaled: bool = False) -> int:
+        """
+            Scales an integer to fit the canvas scaling
+
+            Args:
+                num (int): the number you want to scale
+                scaled (bool): if the coordinates of the input are scaled
+
+            Returns:
+                int: The scaled or unscaled coordinates of input
+        """
+
+        if(scaled): # if its scaled, scale it back down
+            return int(num / self.canvas_scale / 8)
+
+        return int(num * self.canvas_scale * 8)
+
+    def isOutOfBounds(self, pos: tuple) -> bool:
+        """
+            Checks whether or not the provided (x, y) position is out of bounds on the canvas
+
+            Args:
+                pos (tuple): the (x, y) position you want to check
+
+            Returns:
+                bool: True if out of bounds, otherwise False
+        """
+
+        x, y = pos
+
+        return x < 0 or y < 0 or x >= self.width * self.canvas_scale * 8 or y >= self.height * self.canvas_scale * 8
+
     def eventFilter(self, watched, event):
         # Check if the event is a mouse press and if it occurred within the blockSelector bounds
         if event.type() == QEvent.MouseButtonPress:
@@ -76,7 +108,14 @@ class Canvas(QGraphicsView):
         # For all other conditions, let the event proceed as normal
         return super().eventFilter(watched, event) #super(MainWindow, self).eventFilter(object, event)
     
-    def setSelectedBlock(self, blockName):
+    def setSelectedBlock(self, blockName: str) -> None:
+        """
+            Sets the selected block to the blockName provided
+
+            Args:
+                blockName (str): The new name of the selected block
+        """
+
         self.selected_block = blockName
 
     def onBlockSelected(self, blockName):
@@ -100,6 +139,7 @@ class Canvas(QGraphicsView):
             newScale = self.transform().m11() * scaleFactor
             minScale = 0.2  # Minimum zoom level
             maxScale = 10   # Maximum zoom level
+
             if minScale <= newScale <= maxScale:
                 self.scale(scaleFactor, scaleFactor)
 
@@ -109,10 +149,12 @@ class Canvas(QGraphicsView):
                 # Move scene to old position
                 delta = newPos - oldPos
                 self.translate(delta.x(), delta.y())
+
             else:
                 # Keep the scene fixed if at zoom limits
                 if newScale < minScale:
                     self.setTransform(QTransform().scale(minScale, minScale))
+
                 elif newScale > maxScale:
                     self.setTransform(QTransform().scale(maxScale, maxScale))
         else:
@@ -125,42 +167,56 @@ class Canvas(QGraphicsView):
         if self.settings.show_grid:
             # Adjust grid drawing to fill the entire rect
             lines = []
+
             start_x = rect.left() - (rect.left() % self.grid_size)
             end_x = rect.right() + (self.grid_size - (rect.right() % self.grid_size))
             start_y = rect.top() - (rect.top() % self.grid_size)
             end_y = rect.bottom() + (self.grid_size - (rect.bottom() % self.grid_size))
 
-            # if x < 0 or y < 0 or x > self.width * self.canvas_scale * 8 or y > self.height * self.canvas_scale * 8:
             if(start_x < 0):
                 start_x = 0
             
             if(start_y < 0):
                 start_y = 0
 
-            if(end_x > self.width * self.canvas_scale * 8):
-                end_x = self.width * self.canvas_scale * 8
+            if(end_x > self.Scale(self.width)):
+                end_x = self.Scale(self.width)
             
-            if(end_y > self.height * self.canvas_scale * 8):
-                end_y = self.height * self.canvas_scale * 8
+            if(end_y > self.Scale(self.height)):
+                end_y = self.Scale(self.height)
 
             for x in range(int(start_x), int(end_x) + 1, self.grid_size):
                 lines.append(QLineF(x, start_y, x, end_y))
+
             for y in range(int(start_y), int(end_y) + 1, self.grid_size):
                 lines.append(QLineF(start_x, y, end_x, y))
 
             painter.setPen(self.grid_color)
             painter.drawLines(lines)
+        
         else:
             painter.fillRect(rect, self.backgroundBrush())
 
-    def snapToGrid(self, value):
+    def snapToGrid(self, value: int) -> int:
+        """
+            Snaps the inputted value to the nearest grid point
+
+            Args:
+                value (int): the value to snap the grid
+
+            Returns:
+                int: The snapped to grid value
+        """
+
         return (value // self.grid_size) * self.grid_size
     
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = False
+
         if event.button() == Qt.RightButton:
             self.right_mouse_button_down = False
+
         if event.button() == Qt.MiddleButton:
             self._panning = False
             self.setCursor(Qt.ArrowCursor)
@@ -184,15 +240,17 @@ class Canvas(QGraphicsView):
         pos = self.mapToScene(event.pos())
 
         x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
-        x = min(max(x, 0), self.width * self.canvas_scale * 8)
-        y = min(max(y, 0), self.height * self.canvas_scale * 8)
+        x = min(max(x, 0), self.Scale(self.width))
+        y = min(max(y, 0), self.Scale(self.height))
         
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = True
-            self.placeOrReplaceBlock(x, y)
+            self.placeOrReplaceBlock((x, y))
+        
         elif event.button() == Qt.RightButton:
             self.right_mouse_button_down = True
-            self.deleteBlock(x, y)
+            self.deleteBlock((x, y))
+        
         if event.button() == Qt.MiddleButton:
             self.setCursor(Qt.ClosedHandCursor)
             self._pan_start_x, self._pan_start_y = event.x(), event.y()
@@ -200,6 +258,7 @@ class Canvas(QGraphicsView):
             self._panning = True
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             self.viewport().setCursor(Qt.ClosedHandCursor)
+        
         else:
             super().mouseMoveEvent(event)
 
@@ -207,16 +266,18 @@ class Canvas(QGraphicsView):
         super(Canvas, self).mouseMoveEvent(event)
         self.block_selector.mouseMoveEvent(event)
         scenePos = self.mapToScene(event.pos())
+
         if self.current_item:
             # Update the position of the pixmap item as the mouse moves
             pos = self.mapToScene(event.pos())
             snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
             self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
         x, y = self.snapToGrid(scenePos.x()), self.snapToGrid(scenePos.y())
+
         if self.left_mouse_button_down:
-            self.placeOrReplaceBlock(x, y)
+            self.placeOrReplaceBlock((x, y))
         elif self.right_mouse_button_down:
-            self.deleteBlock(x, y)
+            self.deleteBlock((x, y))
         if self._panning:
             # Calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
@@ -228,14 +289,21 @@ class Canvas(QGraphicsView):
         else:
             super().mousePressEvent(event)
 
-    def placeOrReplaceBlock(self, x, y):
+    def placeOrReplaceBlock(self, pos):
+        """
+            Tries to place or replace a block at the provided position
+
+            Args:
+                pos (tuple): The (x, y) position to place the block
+        """
+
         # do nothing if out of bounds
-        if x < 0 or y < 0 or x > self.width * self.canvas_scale * 8 or y > self.height * self.canvas_scale * 8:
+        if self.isOutOfBounds(pos):
             return
 
         # Check if a block already exists at (x, y), if so, remove it
-        if (x, y) in self.blocks:
-            self.Canvas.removeItem(self.blocks[(x, y)][0])
+        if pos in self.blocks:
+            self.Canvas.removeItem(self.blocks[pos][0])
 
         block_pixmap = None
 
@@ -251,18 +319,34 @@ class Canvas(QGraphicsView):
 
         pixmap_item = QGraphicsPixmapItem(block_pixmap)
         pixmap_item.setScale(self.canvas_scale)
-        pixmap_item.setPos(x, y)
+        pixmap_item.setPos(pos[0], pos[1])
         self.Canvas.addItem(pixmap_item)
-        self.blocks[(x, y)] = (pixmap_item, self.selected_block)
 
-    def deleteBlock(self, x, y):
+        self.blocks[pos] = (pixmap_item, self.selected_block)
+
+    def deleteBlock(self, pos):
+        """
+            Tries to delete a block at the provided position
+
+            Args:
+                pos (tuple): The (x, y) position you want to delete the block from
+        """
         # Delete a block at (x, y) if it exists
-        if (x, y) in self.blocks:
-            self.Canvas.removeItem(self.blocks[(x, y)][0])
-            print(self.blocks[(x,y)])
-            del self.blocks[(x, y)]
+        if pos in self.blocks:
+            self.Canvas.removeItem(self.blocks[pos][0])
 
-    def loadBlockImage(self, blockName):
+            del self.blocks[pos]
+
+    def loadBlockImage(self, blockName: str) -> QPixmap:
+        """
+            Loads a block's PNG from its name
+
+            Args:
+                blockName (str): the name of the block you want to load
+
+            Returns:
+                QPixmap: The block's image as a QPixmap
+        """
         # Assuming block images are stored in a folder named 'blocks' in the same directory as this script
         # Use the Image class to get the block image as a PIL Image object
         blockIndex = self.imageProcessor.getTileIndexByName(blockName)
@@ -286,8 +370,8 @@ class Canvas(QGraphicsView):
         x, y = self.snapToGrid(scene_position.x()), self.snapToGrid(scene_position.y())
 
         # Ensure the position is within the bounds of the canvas
-        x = min(max(x, 0), self.width * self.canvas_scale * 8)
-        y = min(max(y, 0), self.height * self.canvas_scale * 8)
+        x = min(max(x, 0), self.Scale(self.width))
+        y = min(max(y, 0), self.Scale(self.height))
 
         # Create a pixmap item with the selected block's image at the snapped position
         block_pixmap = self.loadBlockImage(self.selected_block)
