@@ -3,7 +3,7 @@ from Image import Image
 class Tile:
     def __init__(self, tile_name, tile_image, pos, layer = 0):
         img = Image()
-        # NOTE THAT THE X AND WHY NEED TO BE RAW POSITIONS, NOT SCALED
+        # NOTE THAT THE X AND Y NEED TO BE RAW POSITIONS, NOT SCALED
         self.tile_name = tile_name
         self.tile_image = tile_image
 
