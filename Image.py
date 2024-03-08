@@ -50,6 +50,10 @@ class Image:
             keys = []
 
             for match in matches:
+                # ignore it if its broken
+                if(match[0] == "orange_spawn" or match[0] == "green_spawn" or match[0] == "tile_ladder_ground" or match[0] == "unused"):
+                    continue
+
                 dictionary[match[0]] = self.hexToARGB(match[1])
                 reversed_dictionary[self.hexToARGB(match[1])] = match[0]
                 keys.append(match[0])
@@ -58,7 +62,6 @@ class Image:
             self.reversed_names = reversed_dictionary
             self.keys = keys
 
-    # TODO: automatically get a block's index by name
     def getTileIndexByName(self, tile: str) -> int:
 
         # TODO: auto get this from customblock.as, and append to this too?
