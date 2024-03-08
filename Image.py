@@ -72,7 +72,7 @@ class Image:
     def getAllKAGItems(self):
         return self.keys
 
-        # returns an ARGB color from the given name
+    # returns a name from an ARGB pixel color
     def getKAGMapNameByPixelColor(self, color: str):
         return self.reversed_names[color]
 

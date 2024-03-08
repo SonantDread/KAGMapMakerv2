@@ -30,7 +30,7 @@ class Canvas(QGraphicsView):
         #self.setCentralWidget(self.Canvas)
 
         # Set the scene rect based on the grid and scale
-        self.Canvas.setSceneRect(0, 0, self.Scale(self.width), self.Scale(self.height))
+        self.Canvas.setSceneRect(0, 0, self.scaleToCanvas(self.width), self.scaleToCanvas(self.height))
 
         # grid settings
         self.grid_color = QColor(255, 255, 255, 255)
@@ -66,7 +66,7 @@ class Canvas(QGraphicsView):
         self.blockimages = {}
         self.usedblocks = []
 
-    def Scale(self, num: int, scaled: bool = False) -> int:
+    def scaleToCanvas(self, num: int, scaled: bool = False) -> int:
         """
             Scales an integer to fit the canvas scaling
 
@@ -179,11 +179,11 @@ class Canvas(QGraphicsView):
             if(start_y < 0):
                 start_y = 0
 
-            if(end_x > self.Scale(self.width)):
-                end_x = self.Scale(self.width)
+            if(end_x > self.scaleToCanvas(self.width)):
+                end_x = self.scaleToCanvas(self.width)
             
-            if(end_y > self.Scale(self.height)):
-                end_y = self.Scale(self.height)
+            if(end_y > self.scaleToCanvas(self.height)):
+                end_y = self.scaleToCanvas(self.height)
 
             for x in range(int(start_x), int(end_x) + 1, self.grid_size):
                 lines.append(QLineF(x, start_y, x, end_y))
@@ -240,8 +240,8 @@ class Canvas(QGraphicsView):
         pos = self.mapToScene(event.pos())
 
         x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
-        x = min(max(x, 0), self.Scale(self.width))
-        y = min(max(y, 0), self.Scale(self.height))
+        x = min(max(x, 0), self.scaleToCanvas(self.width))
+        y = min(max(y, 0), self.scaleToCanvas(self.height))
         
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = True
@@ -370,8 +370,8 @@ class Canvas(QGraphicsView):
         x, y = self.snapToGrid(scene_position.x()), self.snapToGrid(scene_position.y())
 
         # Ensure the position is within the bounds of the canvas
-        x = min(max(x, 0), self.Scale(self.width))
-        y = min(max(y, 0), self.Scale(self.height))
+        x = min(max(x, 0), self.scaleToCanvas(self.width))
+        y = min(max(y, 0), self.scaleToCanvas(self.height))
 
         # Create a pixmap item with the selected block's image at the snapped position
         block_pixmap = self.loadBlockImage(self.selected_block)
