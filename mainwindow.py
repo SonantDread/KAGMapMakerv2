@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.toggle_grid_checkbox.toggled.connect(self.canvas.settings.toggle_grid)
 
         # Initialize the block selector
-        self.blockSelector = BlockSelector([], "")
+        self.blockSelector = BlockSelector()
 
         # Wrap blockSelector in a QDockWidget
         self.blockSelectorDock = QDockWidget("Block Selector", self)

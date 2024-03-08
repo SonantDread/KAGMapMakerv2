@@ -8,15 +8,14 @@ import tempfile
 import os
 class BlockSelector(QWidget):  # Inherit from QWidget instead of QGraphicsProxyWidget
     blockSelected = pyqtSignal(str)  # Signal emitting the block name as a string
-    def __init__(self, blocks, selected_block,parent=None):
-        #super(BlockSelector, self).__init__("Block Selector", parent)
+    def __init__(self, parent=None):
         self.imageProcessor = Image()
         super(BlockSelector, self).__init__(parent)  # Call superclass constructor with parent
         self.setWindowTitle("Block Selector")
         # TODO: set up the entities tab correctly, then add all found entities from basepngloader and customblocks.as into it
         # ? TODO: selected block should be a slightly blue tint in the block selector menu?
-        self.blocks = blocks
-        self.selected_block = selected_block
+        self.blocks = []
+        self.selected_block = ""
         self.listWidget = QListWidget(self)
         self.layout = QVBoxLayout(self)  # Set the main layout of the widget
         self.layout.addWidget(self.listWidget)  # Add the listWidget to the layout

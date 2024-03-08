@@ -7,6 +7,7 @@ import Image
 from BlockSelector import BlockSelector
 from CanvasSettings import CanvasSettings
 import io
+import Tile
 # TODO: undo / redo
 class Canvas(QGraphicsView):
     def __init__(self):
@@ -18,7 +19,7 @@ class Canvas(QGraphicsView):
         self.grid_size = 8 * self.canvas_scale
         self.imageProcessor = Image.Image()
         self.selected_block = "tile_ground"
-        self.block_selector = BlockSelector([], "")  # Initialize with your blocks and a default selected block
+        self.block_selector = BlockSelector()  # Initialize with your blocks and a default selected block
 
         # Calculate the desired canvas size
         self.width = 200 # TODO: this should be a parameter passed from kagmapmaker.py, specified by the user
@@ -104,10 +105,10 @@ class Canvas(QGraphicsView):
             if self.blockSelector.geometry().contains(event.pos()):
                 # Optionally, handle the event here (e.g., ignore block placement)
                 return True  # True indicates the event has been handled
-            
+
         # For all other conditions, let the event proceed as normal
         return super().eventFilter(watched, event) #super(MainWindow, self).eventFilter(object, event)
-    
+
     def setSelectedBlock(self, blockName: str) -> None:
         """
             Sets the selected block to the blockName provided
@@ -119,10 +120,7 @@ class Canvas(QGraphicsView):
         self.selected_block = blockName
 
     def onBlockSelected(self, blockName):
-        print(f"Block selected in main window: {blockName}")
         self.selected_block = blockName
-        #self.selected_block = item.text()
-        print("Selected Block:", self.selected_block)  # For debugging
         self.blockSelected.emit(self.selected_block)
 
     def wheelEvent(self, event): # todo: fix issue on 2k monitor where zooming out fully then fullscreening program causes you to see parts of the canvas you cant place on
@@ -175,13 +173,13 @@ class Canvas(QGraphicsView):
 
             if(start_x < 0):
                 start_x = 0
-            
+
             if(start_y < 0):
                 start_y = 0
 
             if(end_x > self.scaleToCanvas(self.width)):
                 end_x = self.scaleToCanvas(self.width)
-            
+
             if(end_y > self.scaleToCanvas(self.height)):
                 end_y = self.scaleToCanvas(self.height)
 
@@ -193,7 +191,7 @@ class Canvas(QGraphicsView):
 
             painter.setPen(self.grid_color)
             painter.drawLines(lines)
-        
+
         else:
             painter.fillRect(rect, self.backgroundBrush())
 
@@ -209,7 +207,7 @@ class Canvas(QGraphicsView):
         """
 
         return (value // self.grid_size) * self.grid_size
-    
+
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = False
@@ -242,15 +240,15 @@ class Canvas(QGraphicsView):
         x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
         x = min(max(x, 0), self.scaleToCanvas(self.width))
         y = min(max(y, 0), self.scaleToCanvas(self.height))
-        
+
         if event.button() == Qt.LeftButton:
             self.left_mouse_button_down = True
             self.placeOrReplaceBlock((x, y))
-        
+
         elif event.button() == Qt.RightButton:
             self.right_mouse_button_down = True
             self.deleteBlock((x, y))
-        
+
         if event.button() == Qt.MiddleButton:
             self.setCursor(Qt.ClosedHandCursor)
             self._pan_start_x, self._pan_start_y = event.x(), event.y()
@@ -258,7 +256,7 @@ class Canvas(QGraphicsView):
             self._panning = True
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             self.viewport().setCursor(Qt.ClosedHandCursor)
-        
+
         else:
             super().mouseMoveEvent(event)
 
@@ -282,7 +280,7 @@ class Canvas(QGraphicsView):
             # Calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
-            
+
             # Scroll the view accordingly
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
@@ -313,7 +311,7 @@ class Canvas(QGraphicsView):
 
             self.blockimages.update({self.selected_block: block_pixmap})
             self.usedblocks.append(self.selected_block)
-        
+
         else:
             block_pixmap = self.blockimages[self.selected_block]
 
@@ -401,11 +399,6 @@ class Canvas(QGraphicsView):
         if event.key() == Qt.Key_S:
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() + 10)
             self.block_selector.move(self.block_selector.pos().x(), self.block_selector.pos().y() + 10)
-
-    # def toggleBlockSelector(self):
-    #     # Toggle the visibility of the block selector
-    #     block_selector_visible = not self.block_selector.isVisible()
-    #     self.block_selector.setVisible(block_selector_visible)
 
 class MainWindow(QMainWindow):
     def __init__(self):
