@@ -43,7 +43,7 @@ class Image:
             data = f.read() # todo: error handling
 
             matches = re.findall(r"\b(\w+)\s*=\s*(0x[0-9A-Fa-f]+)\b", data)
-            
+
             dictionary = {}
             reversed_dictionary = {}
 
@@ -53,7 +53,7 @@ class Image:
                 dictionary[match[0]] = self.hexToARGB(match[1])
                 reversed_dictionary[self.hexToARGB(match[1])] = match[0]
                 keys.append(match[0])
-            
+
             self.names = dictionary
             self.reversed_names = reversed_dictionary
             self.keys = keys
@@ -68,7 +68,7 @@ class Image:
     # returns an ARGB color from the given name
     def getKAGMapPixelColorByName(self, name: str):
         return self.names[name]
-    
+
     def getAllKAGItems(self):
         return self.keys
 
@@ -77,32 +77,20 @@ class Image:
         return self.reversed_names[color]
 
     def getBlockPNGByIndex(self, index: int):
-        # open world.png
-        image = PILImage.open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"Sprites", "world.png"))
+        # Open world.png
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sprites", "world.png")
+        image = PILImage.open(image_path)
 
-        # get sizes for image parsing
+        # Get sizes for image parsing
         width, height = image.size
         sections_w, sections_h = width // 8, height // 8
 
-        # represent the images in order
-        sections = []
+        # Calculate the coordinates for the specified index
+        x = (index % sections_w) * 8
+        y = (index // sections_w) * 8
 
-        # TODO: optimize this to just get the 8x8 square at a png instead of using a for loop
-        # parse the image
-        for y in range(sections_h):
-            for x in range(sections_w):
-                # define our boundaries for where to crop, basically just 2 (x, y) points
-                left = x * 8
-                upper = y * 8
-                right = left + 8
-                lower = upper + 8
-
-                # crop the world.png to get the correct image
-                section = image.crop((left, upper, right, lower))
-                sections.append(section)
-
-        # return the image
-        return sections[index]
+        # Crop the world.png to get the correct image
+        return image.crop((x, y, x + 8, y + 8))
 
 if __name__ == "__main__":
     Image()
