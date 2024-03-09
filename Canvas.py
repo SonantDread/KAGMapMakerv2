@@ -3,12 +3,13 @@ from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphi
 from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage, QTransform
 from PyQt5.QtCore import Qt, QLineF, QPointF, QEvent, QPoint, QRectF
 from PyQt5 import *
-import Image
+from Image import Image
 from BlockSelector import BlockSelector
 from CanvasSettings import CanvasSettings
 import io
-import Tile
+from Tile import Tile
 # TODO: undo / redo
+# TODO: move to using tile.py
 class Canvas(QGraphicsView):
     def __init__(self):
         super(Canvas, self).__init__()
@@ -17,7 +18,7 @@ class Canvas(QGraphicsView):
         # note: you multiply things by 8 to get a kag's block size
         self.canvas_scale = 6
         self.grid_size = 8 * self.canvas_scale
-        self.imageProcessor = Image.Image()
+        self.imageProcessor = Image()
         self.selected_block = "tile_ground"
         self.block_selector = BlockSelector()  # Initialize with your blocks and a default selected block
 
@@ -274,8 +275,10 @@ class Canvas(QGraphicsView):
 
         if self.left_mouse_button_down:
             self.placeOrReplaceBlock((x, y))
+
         elif self.right_mouse_button_down:
             self.deleteBlock((x, y))
+            
         if self._panning:
             # Calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
@@ -289,10 +292,10 @@ class Canvas(QGraphicsView):
 
     def placeOrReplaceBlock(self, pos):
         """
-            Tries to place or replace a block at the provided position
+        Tries to place or replace a block at the provided position
 
-            Args:
-                pos (tuple): The (x, y) position to place the block
+        Args:
+            pos (tuple): The (x, y) position to place the block on the canvas
         """
 
         # do nothing if out of bounds
@@ -301,7 +304,7 @@ class Canvas(QGraphicsView):
 
         # Check if a block already exists at (x, y), if so, remove it
         if pos in self.blocks:
-            self.Canvas.removeItem(self.blocks[pos][0])
+            self.Canvas.removeItem(self.blocks[pos].get_tile_image())
 
         block_pixmap = None
 
@@ -320,7 +323,9 @@ class Canvas(QGraphicsView):
         pixmap_item.setPos(pos[0], pos[1])
         self.Canvas.addItem(pixmap_item)
 
-        self.blocks[pos] = (pixmap_item, self.selected_block)
+        tile = Tile(self.imageProcessor, self.selected_block, pixmap_item, pos, self.canvas_scale)
+
+        self.blocks[pos] = tile
 
     def deleteBlock(self, pos):
         """
@@ -329,10 +334,15 @@ class Canvas(QGraphicsView):
             Args:
                 pos (tuple): The (x, y) position you want to delete the block from
         """
-        # Delete a block at (x, y) if it exists
+        # Check if a block exists at (x, y)
         if pos in self.blocks:
-            self.Canvas.removeItem(self.blocks[pos][0])
+            # Get the Tile instance at the specified position
+            tile = self.blocks[pos]
 
+            # Remove the Tile's image from the canvas
+            self.Canvas.removeItem(tile.get_tile_image())
+
+            # Remove the Tile instance from the blocks dictionary
             del self.blocks[pos]
 
     def loadBlockImage(self, blockName: str) -> QPixmap:

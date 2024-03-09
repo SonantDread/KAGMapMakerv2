@@ -1,20 +1,24 @@
-from Image import Image
-
 class Tile:
-    def __init__(self, tile_name, tile_image, pos, layer = 0):
-        img = Image()
-        # NOTE THAT THE X AND Y NEED TO BE RAW POSITIONS, NOT SCALED
+    def __init__(self, img, tile_name, tile_image, pos, scale = 1, index = None, color = None, layer = 0):
+        self.img = img # the image class is passed here to prevent lag
+        self.main(tile_name, tile_image, pos, index, color, scale, layer)
+
+    def main(self, tile_name, tile_image, pos, index, color, scale, layer):       
         self.tile_name = tile_name
         self.tile_image = tile_image
 
-        self.x = pos[0]
-        self.y = pos[1]
+        # assume scaled positions
+        self.x = int(pos[0] / scale / 8)
+        self.y = int(pos[1] / scale / 8)
 
-        self.index = img.getTileIndexByName(tile_name)
-        self.color = img.getKAGMapPixelColorByName(tile_name)
+        self.index = self.img.getTileIndexByName(tile_name)
+        self.color = self.img.getKAGMapPixelColorByName(tile_name)
 
         # unused for now
         # self.layer = layer
+
+    def Update(self, tile_name, tile_image, pos, index = None, color = None, scale = 1, layer = 0):
+        self.main(tile_name, tile_image, pos, index, color, scale, layer)
 
     def get_tile_name(self):
         return self.tile_name
@@ -23,6 +27,7 @@ class Tile:
         return self.tile_image
 
     def get_pos(self, scale: int = None):
+        # 'scale' should be the canvas scale
         if scale is None:
             return (self.x, self.y)
         else:
@@ -33,3 +38,6 @@ class Tile:
 
     def get_color(self):
         return self.color
+    
+    def __str__(self):
+        return f"Block Name: {self.get_tile_name()}, Pos: {self.get_pos()}"
