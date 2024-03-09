@@ -40,7 +40,6 @@ class KagImage:
         return True
     
     def loadMap(self): # todo: ability to load in renders as well
-        self.canvas.blockUpdates()
         filepath = filedialog.askopenfilename(defaultextension=".png", filetypes=[("Images", "*.png")])
 
         if not filepath: return False
@@ -58,7 +57,7 @@ class KagImage:
 
         for x in range(width):
             for y in range(height):
-                color = pixel_array[x][y]
+                color = pixel_array[y][x]
                 r, g, b, a = color
                 color = (a, r, g, b)
 
@@ -90,8 +89,6 @@ class KagImage:
             self.canvas.scene().addItem(pixmap_item)
             # self.canvas.blocks[(pixmap_item.pos().x(), pixmap_item.pos().y())] = (pixmap_item, block)
             self.canvas.blocks[pixmap_item.pos().x(), pixmap_item.pos().y()] = Tile(imgb, block, pixmap_item, (pixmap_item.pos().x(), pixmap_item.pos().y()))
-
-        self.canvas.unblockUpdates()
 
         return True
 

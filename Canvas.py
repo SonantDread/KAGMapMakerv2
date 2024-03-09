@@ -225,12 +225,6 @@ class Canvas(QGraphicsView):
         else:
             super(Canvas, self).mouseReleaseEvent(event)
 
-    def blockUpdates(self):
-        self.blockSignals(True)
-
-    def unblockUpdates(self):
-        self.blockSignals(False)
-
     def mousePressEvent(self, event):
         super(Canvas, self).mousePressEvent(event)
         self.block_selector.mousePressEvent(event)
