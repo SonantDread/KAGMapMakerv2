@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsItem, QMenu, QAction, QMainWindow, QVBoxLayout, QWidget, QGraphicsProxyWidget
 from PyQt5.QtGui import QMouseEvent, QPixmap, QPainter, QColor, QPolygonF, QImage, QTransform
-from PyQt5.QtCore import Qt, QLineF, QPointF, QEvent, QPoint, QRectF
+from PyQt5.QtCore import Qt, QLineF, QPointF, QEvent, QPoint, QRectF, pyqtSignal
 from PyQt5 import *
 from Image import Image
 from BlockSelector import BlockSelector
@@ -9,10 +9,12 @@ from CanvasSettings import CanvasSettings
 import io
 from Tile import Tile
 # TODO: undo / redo
-# TODO: move to using tile.py
 class Canvas(QGraphicsView):
+    hoveredBlockChanged = pyqtSignal(str) # make communicable between all the classes
+
     def __init__(self):
         super(Canvas, self).__init__()
+        self.setMouseTracking(True)
         self._panning = False
         self._last_pan_point = QPoint()
         # note: you multiply things by 8 to get a kag's block size
@@ -244,6 +246,8 @@ class Canvas(QGraphicsView):
             self.right_mouse_button_down = True
             self.deleteBlock((x, y))
 
+        self.updateHoveredBlockText((x, y))
+
         if event.button() == Qt.MiddleButton:
             self.setCursor(Qt.ClosedHandCursor)
             self._pan_start_x, self._pan_start_y = event.x(), event.y()
@@ -258,21 +262,23 @@ class Canvas(QGraphicsView):
     def mouseMoveEvent(self, event):
         super(Canvas, self).mouseMoveEvent(event)
         self.block_selector.mouseMoveEvent(event)
-        scenePos = self.mapToScene(event.pos())
+
+        pos = self.mapToScene(event.pos())
+        x, y = self.snapToGrid(pos.x()), self.snapToGrid(pos.y())
+
+        self.updateHoveredBlockText((x, y))
 
         if self.current_item:
             # Update the position of the pixmap item as the mouse moves
-            pos = self.mapToScene(event.pos())
-            snapped_pos = QPointF(self.snapToGrid(pos.x()), self.snapToGrid(pos.y()))
+            snapped_pos = QPointF(x, y)
             self.current_item.setPos(snapped_pos.x(), snapped_pos.y())
-        x, y = self.snapToGrid(scenePos.x()), self.snapToGrid(scenePos.y())
 
         if self.left_mouse_button_down:
             self.placeOrReplaceBlock((x, y))
 
         elif self.right_mouse_button_down:
             self.deleteBlock((x, y))
-            
+
         if self._panning:
             # Calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
@@ -403,6 +409,15 @@ class Canvas(QGraphicsView):
         if event.key() == Qt.Key_S:
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() + 10)
             self.block_selector.move(self.block_selector.pos().x(), self.block_selector.pos().y() + 10)
+
+    def updateHoveredBlockText(self, pos: tuple) -> None:
+        x, y = pos[0], pos[1]
+
+        if (x, y) in self.blocks:
+            self.hoveredBlockChanged.emit(self.blocks[(x, y)].get_tile_name())
+
+        else:
+            self.hoveredBlockChanged.emit("sky")
 
 class MainWindow(QMainWindow):
     def __init__(self):

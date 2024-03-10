@@ -87,7 +87,6 @@ class KagImage:
         # Add all items to the scene in a single operation
         for pixmap_item, block in items_to_add:
             self.canvas.scene().addItem(pixmap_item)
-            # self.canvas.blocks[(pixmap_item.pos().x(), pixmap_item.pos().y())] = (pixmap_item, block)
             self.canvas.blocks[pixmap_item.pos().x(), pixmap_item.pos().y()] = Tile(imgb, block, pixmap_item, (pixmap_item.pos().x(), pixmap_item.pos().y()))
 
         return True

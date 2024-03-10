@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QStackedWidget, QDockWidget, QCheckBox, QStatusBar, QVBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QStackedWidget, QDockWidget, QCheckBox, QStatusBar, QVBoxLayout, QLabel
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QColor
 from Canvas import Canvas
 from BlockSelector import BlockSelector
@@ -34,6 +34,10 @@ class MainWindow(QMainWindow):
         self.status_bar.addWidget(self.toggle_grid_checkbox)
         self.toggle_grid_checkbox.toggled.connect(self.canvas.settings.toggle_grid)
 
+        self.hovered_block_text = QLabel("Hovered Block: ")
+        self.status_bar.addWidget(self.hovered_block_text)
+        self.canvas.hoveredBlockChanged.connect(self.updateHoveredBlockLabel)
+
         # Initialize the block selector
         self.blockSelector = BlockSelector()
 
@@ -67,6 +71,9 @@ class MainWindow(QMainWindow):
 
         # Connect the blockSelector's signal to the canvas's slot
         self.blockSelector.blockSelected.connect(self.canvas.setSelectedBlock)
+
+    def updateHoveredBlockLabel(self, name):
+        self.hovered_block_text.setText("Hovered Block: " + name)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
