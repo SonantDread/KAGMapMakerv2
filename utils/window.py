@@ -5,5 +5,4 @@ class Window:
         self.Config = config
 
     def get_window_size(self):
-        print(self.Config.data)
         return vec(self.Config.data['Window']['size']['width'], self.Config.data['Window']['size']['height'])

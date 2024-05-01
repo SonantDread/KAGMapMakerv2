@@ -1,8 +1,1 @@
-{
-    "Window": {
-        "size": {
-            "width": 1920,
-            "height": 1080
-        }
-    }
-}
+{"Window": {"size": {"width": 1920, "height": 1080}}, "window": {"size": {"width": "1920", "height": "1080"}}}

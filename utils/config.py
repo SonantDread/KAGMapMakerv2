@@ -1,35 +1,73 @@
+import os
 import json
+from PyQt6.QtCore import QObject, pyqtSignal, QEvent
+
 from utils.window import Window
 from utils.vec import vec
 
-class Config:
+class Config(QObject):
+    resize = pyqtSignal(QEvent)
+
     def __init__(self):
+        super().__init__()
+
+        self.path = 'config.json'
+        self.default = 'readonly_config.json'
+
         self.data = {}
-        self.update()
+        if self.validate():
+            self.update(self.path)
+        else:
+            self.update(self.default)
+
         self.window = Window(self)
     
-    # save JSON file from class
     def save(self):
-        with open('config.json', 'w') as json_file:
+        with open(self.path, 'w') as json_file:
             json.dump(self.data, json_file)
             print("Saving config")
+            print(f"Data: {self.data}")
     
-    # load JSON file into class
-    def update(self):
-        with open('config.json', 'r') as json_file:
-            self.data = json.load(json_file)
-            print("Updating config")
+    def update(self, config_path):
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as json_file:
+                data = json_file.read()
+                if data:
+                    try:
+                        self.data = json.loads(data)
+                        print("Updating config")
+                        print(f"Data: {self.data}")
+                    except json.JSONDecodeError:
+                        print(f"Error decoding JSON in {config_path}")
+                else:
+                    print(f"File {config_path} is empty")
+        else:
+            print(f"File {config_path} not found")
 
-    def resize_to_window(self):
-        with open('config.json', 'w') as json_file:
+    def resize_to_window(self, event):
+
+        with open(self.path, 'w') as json_file:
             ws = self.window.get_window_size()
-            print(ws)
             
-            window_config = Config().data['window']
-            window_config['size']['width'] = str(ws.x)
-            window_config['size']['height'] = str(ws.y)
-
+            window_config = self.data.get('window', {})
+            window_config['size'] = {'width': str(ws.x), 'height': str(ws.y)}
             self.data['window'] = window_config
 
-            json.dump(self.data, json_file)
-            print("Resize config")
+            print(f"Resizing window to {ws.x},{ws.y}")
+            
+            self.save()
+            self.resize.emit(event)
+
+    def validate(self):
+        try:
+            with open(self.path, 'r') as json_file:
+                data = json_file.read()
+                if data:
+                    json.loads(data)
+                    return True
+                else:
+                    print(f"File {self.path} is empty")
+                    return False
+        except FileNotFoundError:
+            print(f"Could not find {self.path}")
+            return False
