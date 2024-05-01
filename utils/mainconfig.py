@@ -2,7 +2,7 @@ import os
 import json
 from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 
-from utils.window import Window
+from utils.windowsettings import Window
 from utils.vec import vec
 
 class Config(QObject):
@@ -19,12 +19,10 @@ class Config(QObject):
             self.update(self.path)
         else:
             self.update(self.default)
-
-        self.window = Window(self)
     
     def save(self):
         with open(self.path, 'w') as json_file:
-            json.dump(self.data, json_file)
+            json.dumps(self.data, json_file, indent = 4, sort_keys = True)
             print("Saving config")
             print(f"Data: {self.data}")
     
@@ -45,7 +43,6 @@ class Config(QObject):
             print(f"File {config_path} not found")
 
     def resize_to_window(self, event):
-
         with open(self.path, 'w') as json_file:
             ws = self.window.get_window_size()
             

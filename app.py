@@ -9,8 +9,8 @@ from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 
 # sources
-from utils.window import Window
-from utils.config import Config
+from utils.windowsettings import Window
+from utils.mainconfig import Config
 
 class App(QMainWindow):
     def __init__(self):
@@ -19,6 +19,8 @@ class App(QMainWindow):
 
         self.config = Config()
         self.config.resize.connect(self.Quit)
+
+        self.config.window = Window(self)
 
         self.SetupWindow()
 
