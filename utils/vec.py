@@ -1,8 +1,8 @@
 
 class vec:
-    def __init__(self):
-        self = {0.0,0.0}
-        self.x = self[0]
-        self.y = self[1]
+    def __init__(self, x, y):
+        # self = {0.0, 0.0} # ?
+        self.x = x
+        self.y = y
     
     # implement methods here

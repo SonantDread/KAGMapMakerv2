@@ -1,8 +1,9 @@
 from utils.vec import vec
 
 class Window:
-    def __init__(self, window):
-        self.window = window
+    def __init__(self, config):
+        self.Config = config
 
     def get_window_size(self):
-        return vec(self.window.width(), self.window.height())
+        print(self.Config.data)
+        return vec(self.Config.data['Window']['size']['width'], self.Config.data['Window']['size']['height'])
