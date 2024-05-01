@@ -1,9 +1,9 @@
 class Tile:
-    def __init__(self, img, tile_name, tile_image, pos, scale = 1, index = None, color = None, layer = 0):
+    def __init__(self, img, tile_name, tile_image, pos, rotation = 0, team = 255, z = 0, scale = 1, index = None, color = None, layer = 0):
         self.img = img # the image class is passed here to prevent lag
-        self.main(tile_name, tile_image, pos, index, color, scale, layer)
+        self.main(tile_name, tile_image, pos, rotation, team, z, index, color, scale, layer)
 
-    def main(self, tile_name, tile_image, pos, index, color, scale, layer):       
+    def main(self, tile_name, tile_image, pos, rotation, team, z, index, color, scale, layer):       
         self.tile_name = tile_name
         self.tile_image = tile_image
 
@@ -14,14 +14,27 @@ class Tile:
         self.index = self.img.getTileIndexByName(tile_name)
         self.color = self.img.getKAGMapPixelColorByName(tile_name)
 
-        # unused for now
-        # self.layer = layer
+        self.z = z
+        self.rotation = rotation # 0 = up, 1 = right, 2 = down, 3 = left
+        self.team = team
 
-    def Update(self, tile_name, tile_image, pos, index = None, color = None, scale = 1, layer = 0):
-        self.main(tile_name, tile_image, pos, index, color, scale, layer)
+        # unused for now
+        self.layer = layer
+
+    def Update(self, tile_name, tile_image, pos, rotation, team, z = 0, index = None, color = None, scale = 1, layer = 0):
+        self.main(tile_name, tile_image, pos, rotation, team, z, index, color, scale, layer)
 
     def get_tile_name(self):
         return self.tile_name
+
+    def get_z(self):
+        return self.z
+    
+    def get_rotation(self):
+        return self.rotation
+    
+    def get_team(self):
+        return self.team
 
     def get_tile_image(self):
         return self.tile_image
@@ -38,6 +51,9 @@ class Tile:
 
     def get_color(self):
         return self.color
+    
+    def get_layer(self):
+        return self.layer
     
     def __str__(self):
         return f"Block Name: {self.get_tile_name()}, Pos: {self.get_pos()}"

@@ -386,6 +386,9 @@ class Canvas(QGraphicsView):
         pixmap_item = QGraphicsPixmapItem(block_pixmap)
         pixmap_item.setScale(self.canvas_scale)
         pixmap_item.setPos(x, y)
+
+        # pixmap_item.setZValue(float)
+
         self.Canvas.addItem(pixmap_item)
 
     def keyPressEvent(self, event):

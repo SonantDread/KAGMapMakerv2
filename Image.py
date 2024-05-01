@@ -1,6 +1,9 @@
 import os
 import re
 from PIL import Image as PILImage
+
+path = os.path.dirname(os.path.abspath(__file__))
+
 class Image:
     indexes = {
         "unused": int(0),
@@ -81,7 +84,7 @@ class Image:
 
     def getBlockPNGByIndex(self, index: int):
         # Open world.png
-        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sprites", "world.png")
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sprites", "Default", "world.png")
         image = PILImage.open(image_path)
 
         # Get sizes for image parsing
@@ -94,6 +97,18 @@ class Image:
 
         # Crop the world.png to get the correct image
         return image.crop((x, y, x + 8, y + 8))
+    
+    def swapBlueToRed(self, name): # TODO: add swap grey to blue and the inverse of these functions
+        img = Image.open(path, "Sprites", "MapMaker", name if name.endswith(".png") else name + ".png").convert("RGBA")
+
+        for x in range(img.width):
+            for y in range(img.height):
+                red, green, blue, alpha = img.getpixel((x, y))
+                
+                if(blue > red and blue > green):
+                    img.putpixel((x, y), (blue, int(green * 0.3), int(green * 0.3), alpha))
+        
+        return img
 
 if __name__ == "__main__":
     Image()
