@@ -23,6 +23,9 @@ class App(QMainWindow):
         window = cfg.window = Window()
         window.ui_window = self
         window.SetupWindow()
+
+        
+
         self.announce("RUNNING APP")
 
     def closeEvent(self, event):
