@@ -5,18 +5,20 @@
 import sys
 
 # libs
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 
 # sources
 from utils.windowsettings import Window
 from utils.mainconfig import Config
+from core.ui.ui_grid import ui
 
 class App(QMainWindow):
     def __init__(self):
         self.announce("STARTING APP")
         super().__init__()
 
+        print("Setting up main window")
         cfg = self.config = Config()
         cfg.build.connect(self.Quit)
 
@@ -24,7 +26,10 @@ class App(QMainWindow):
         window.ui_window = self
         window.SetupWindow()
 
-        
+        print("Loading UI")
+        #ui_grid = self.ui_grid = ui()
+        #for module in ui_grid.modules:
+        #    module.setupUi(self)
 
         self.announce("RUNNING APP")
 

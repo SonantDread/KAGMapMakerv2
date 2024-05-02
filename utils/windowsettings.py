@@ -1,5 +1,6 @@
 from utils.vec import vec
 from PyQt6.QtWidgets import QMainWindow
+
 class Window:
     def get_window_size(self):
         size = self.ui_window.size()

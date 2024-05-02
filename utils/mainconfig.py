@@ -11,8 +11,8 @@ class Config(QObject):
     def __init__(self):
         super().__init__()
 
-        self.path = 'config.json'
-        self.default = 'readonly_config.json'
+        self.path = 'settings/config.json'
+        self.default = 'settings/readonly_config.json'
 
         self.data = {}
         if self.validate():
