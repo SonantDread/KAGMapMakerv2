@@ -1,8 +1,12 @@
 {
-    "Window": {
+    "window": {
         "size": {
             "width": 1920,
             "height": 1080
+        },
+        "offset": {
+            "left": 0,
+            "top": 0
         }
     }
 }

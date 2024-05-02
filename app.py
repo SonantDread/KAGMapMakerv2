@@ -17,23 +17,16 @@ class App(QMainWindow):
         self.announce("STARTING APP")
         super().__init__()
 
-        self.config = Config()
-        self.config.resize.connect(self.Quit)
+        cfg = self.config = Config()
+        cfg.build.connect(self.Quit)
 
-        self.config.window = Window(self)
-
-        self.SetupWindow()
-
-    def SetupWindow(self):
-        window_config = self.config.data['Window']
-        window_width = int(window_config['size']['width'])
-        window_height = int(window_config['size']['height'])
-
-        self.setWindowTitle('KAG Map Maker')
-        self.setGeometry(0, 0, window_width, window_height) # offsets x,y & width,height
+        window = cfg.window = Window()
+        window.ui_window = self
+        window.SetupWindow()
+        self.announce("RUNNING APP")
 
     def closeEvent(self, event):
-        self.config.resize_to_window(event)
+        self.config.build_from_active_window(event)
     
     def Quit(self, event: QEvent):
         self.announce("QUITTING APP")
