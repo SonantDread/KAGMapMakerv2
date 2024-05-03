@@ -1,7 +1,10 @@
 import os, importlib.util
 
+from PyQt6.uic import loadUiType, loadUi
+
 class ui:
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
         self.modules = []
         self.fetch_modules()
     
@@ -27,7 +30,7 @@ class ui:
                 module_spec.loader.exec_module(module)
 
                 # get the class within the module
-                class_name = module_name.capitalize()
+                class_name = module_name
                 class_object = getattr(module, class_name)
 
                 # create an instance of the class
@@ -39,3 +42,7 @@ class ui:
 
             except (FileNotFoundError, ModuleNotFoundError, AttributeError) as e:
                 print(f"Failed to import module: {module_name}. Error: {e}")
+
+    def load(self):
+        for module in self.modules:
+            module.setupUi(self.parent)

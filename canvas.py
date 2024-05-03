@@ -1,7 +1,7 @@
 from utils.vec import vec
 from core.ui.ui_module import ui_module
 
-class Canvas(ui_module):
+class canvas(ui_module):
     def __init__(self):
         super().__init__()
         self.geometry = vec(500,500)                    # module area
@@ -25,7 +25,7 @@ class Canvas(ui_module):
         for row in range(dim.y):                        # rows
             self.grid.append([])
             for col in range(dim.x):                    # tiles in row (cols)
-                slot = Canvas_Tile(vec(col, row))
+                slot = canvas_tile(vec(col, row))
                 self.grid[row].append(slot)
 
     def resetZoom(self):
@@ -34,17 +34,14 @@ class Canvas(ui_module):
     def setZoom(self, zoom):
         self.zoom_factor = max(min(zoom, self.zoom_minmax[1]), self.zoom_minmax[0])
 
-    def setupUi(self):
-        pass # designer info here
-
-class Canvas_Tile:
+class canvas_tile:
     def __init__(self, offset):
         self.offset = offset    # tile offset on grid
         self.children = []      # array of tiles or blobs
 
 """
         def __init__(self):
-        super(Canvas, self).__init__()
+        super(canvas, self).__init__()
         self.setMouseTracking(True)
         self._panning = False
         self._last_pan_point = QPoint()
@@ -60,12 +57,12 @@ class Canvas_Tile:
         self.height = 112
 
         # Create the QGraphicsScene
-        self.Canvas = QGraphicsScene(self)
-        self.setScene(self.Canvas)
-        #self.setCentralWidget(self.Canvas)
+        self.canvas = QGraphicsScene(self)
+        self.setScene(self.canvas)
+        #self.setCentralWidget(self.canvas)
 
         # Set the scene rect based on the grid and scale
-        self.Canvas.setSceneRect(0, 0, self.scaleToCanvas(self.width), self.scaleToCanvas(self.height))
+        self.canvas.setSceneRect(0, 0, self.scaleTocanvas(self.width), self.scaleTocanvas(self.height))
 
         # grid settings
         self.grid_color = QColor(255, 255, 255, 255)
@@ -85,14 +82,14 @@ class Canvas_Tile:
         pixmap = QPixmap(self.selected_block + ".png")
         pixmap_item = QGraphicsPixmapItem(pixmap)
         pixmap_item.setScale(self.canvas_scale)
-        self.Canvas.addItem(pixmap_item)
+        self.canvas.addItem(pixmap_item)
 
         self.current_item = pixmap_item
 
-        self.settings = CanvasSettings(self)  # Initialize settings
+        self.settings = canvasSettings(self)  # Initialize settings
 
         # Adjust the position of the proxy_widget as needed
-        self.Canvas.installEventFilter(self)
+        self.canvas.installEventFilter(self)
         self.block_selector.blockSelected.connect(self.onBlockSelected)
         self.left_mouse_button_down = False
         self.right_mouse_button_down = False

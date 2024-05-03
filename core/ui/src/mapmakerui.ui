@@ -17,180 +17,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="file_settings_view_dropdowns">
-   <widget class="QComboBox" name="File_dropdown">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>60</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">padding: 3px;</string>
-    </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhNone</set>
-    </property>
-    <property name="currentText">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>File</string>
-    </property>
-    <property name="frame">
-     <bool>true</bool>
-    </property>
-    <item>
-     <property name="text">
-      <string>New</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save As</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Load</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Render</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QComboBox" name="Setttings_dropdown">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>0</y>
-      <width>110</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">padding: 3px;</string>
-    </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhNone</set>
-    </property>
-    <property name="currentText">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>Settings</string>
-    </property>
-    <property name="frame">
-     <bool>true</bool>
-    </property>
-    <item>
-     <property name="text">
-      <string>New</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save As</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Load</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Render</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QComboBox" name="View_dropdown">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>0</y>
-      <width>80</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">padding: 3px;</string>
-    </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhNone</set>
-    </property>
-    <property name="currentText">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>View</string>
-    </property>
-    <property name="frame">
-     <bool>true</bool>
-    </property>
-    <item>
-     <property name="text">
-      <string>New</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Save As</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Load</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Render</string>
-     </property>
-    </item>
-   </widget>
    <widget class="QDockWidget" name="tiles_tools_dock">
     <property name="enabled">
      <bool>true</bool>
@@ -198,7 +24,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>32</y>
+      <y>20</y>
       <width>250</width>
       <height>1048</height>
      </rect>
@@ -327,15 +153,6 @@
              </color>
             </brush>
            </colorrole>
-           <colorrole role="PlaceholderText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>0</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </colorrole>
           </active>
           <inactive>
            <colorrole role="Base">
@@ -347,23 +164,14 @@
              </color>
             </brush>
            </colorrole>
-           <colorrole role="PlaceholderText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>0</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </colorrole>
           </inactive>
           <disabled>
-           <colorrole role="PlaceholderText">
+           <colorrole role="Base">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
-              <red>0</red>
-              <green>0</green>
-              <blue>0</blue>
+              <red>240</red>
+              <green>240</green>
+              <blue>240</blue>
              </color>
             </brush>
            </colorrole>
@@ -408,7 +216,6 @@
     </widget>
    </widget>
   </widget>
-  <zorder>tiles_tools_dock</zorder>
  </widget>
  <resources/>
  <connections/>
