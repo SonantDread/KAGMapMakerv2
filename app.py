@@ -26,7 +26,7 @@ class App(QMainWindow):
         cfg.build.connect(self.Quit)
 
         print("Loading UI")
-        self.loadGUIFromFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "core", "ui", "modules", "mapmakergui.ui"))
+        self.loadGUIFromFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "core", "ui", "src", "mapmakergui.ui"))
         
         window = cfg.window = Window()
         window.ui_window = self
