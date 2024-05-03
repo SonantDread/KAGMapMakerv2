@@ -13,6 +13,9 @@ from utils.windowsettings import Window
 from utils.mainconfig import Config
 from core.ui.ui_grid import ui
 
+#test
+from core.ui.modules.canvas import Canvas
+
 class App(QMainWindow):
     def __init__(self):
         self.announce("STARTING APP")
@@ -27,9 +30,13 @@ class App(QMainWindow):
         window.SetupWindow()
 
         print("Loading UI")
-        #ui_grid = self.ui_grid = ui()
+        ui_grid = self.ui_grid = ui()
         #for module in ui_grid.modules:
         #    module.setupUi(self)
+
+        #testarea
+        #main_canvas = self.canvas = Canvas()
+        #testareaend
 
         self.announce("RUNNING APP")
 
