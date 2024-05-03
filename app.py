@@ -25,21 +25,12 @@ class App(QMainWindow):
         cfg = self.config = Config()
         cfg.build.connect(self.Quit)
 
+        print("Loading UI")
+        self.loadGUIFromFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "core", "ui", "modules", "mapmakergui.ui"))
+        
         window = cfg.window = Window()
         window.ui_window = self
         window.SetupWindow()
-
-        print("Loading UI")
-        ui_grid = self.ui_grid = ui()
-        #for module in ui_grid.modules:
-        #    module.setupUi(self)
-
-        #testarea
-        #main_canvas = self.canvas = Canvas()
-        #testareaend
-
-        #* load the file ui file
-        self.loadGUIFromFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "core", "ui", "modules", "mapmakergui.ui"))
 
         self.announce("RUNNING APP")
 
