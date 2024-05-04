@@ -11,14 +11,12 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1080)
         MainWindow.setMouseTracking(True)
         self.file_settings_view_dropdowns = QtWidgets.QWidget(parent=MainWindow)
         self.file_settings_view_dropdowns.setObjectName("file_settings_view_dropdowns")
         self.tiles_tools_dock = QtWidgets.QDockWidget(parent=self.file_settings_view_dropdowns)
         self.tiles_tools_dock.setEnabled(True)
-        self.tiles_tools_dock.setGeometry(QtCore.QRect(0, 20, 250, 1048))
+        self.tiles_tools_dock.setGeometry(QtCore.QRect(0, 24, 250, 1048))
         self.tiles_tools_dock.setMinimumSize(QtCore.QSize(250, 100))
         self.tiles_tools_dock.setObjectName("tiles_tools_dock")
         self.tiles_tools_dock_contents = QtWidgets.QWidget()
@@ -84,7 +82,6 @@ class Ui_MainWindow(object):
         self.tools_displaytext.setObjectName("tools_displaytext")
         self.Tools_tab.setWidget(self.scrollAreaWidgetContents)
         self.tiles_tools_dock.setWidget(self.tiles_tools_dock_contents)
-        MainWindow.setCentralWidget(self.file_settings_view_dropdowns)
 
         self.retranslateUi(MainWindow)
         self.placement_items.setCurrentIndex(0)
@@ -92,7 +89,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.placement_items.setTabText(self.placement_items.indexOf(self.Tiles), _translate("MainWindow", "Tiles"))
         self.placement_items.setTabText(self.placement_items.indexOf(self.Entities), _translate("MainWindow", "Entities"))
         self.tools_displaytext.setPlaceholderText(_translate("MainWindow", "Tools"))

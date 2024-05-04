@@ -15,6 +15,7 @@ from core.ui.ui_grid import ui
 
 #test
 from canvas import canvas
+
 class App(QMainWindow):
     def __init__(self):
         self.announce("STARTING APP")
@@ -25,7 +26,9 @@ class App(QMainWindow):
         cfg.build.connect(self.Quit)
 
         print("Loading UI")
-        self.ui_grid = ui(self)
+        self.main_widget = QWidget(self)
+        self.setCentralWidget(self.main_widget)
+        self.ui_grid = ui(self.main_widget)
         self.ui_grid.load()
         
         window = cfg.window = Window()

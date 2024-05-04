@@ -29,8 +29,7 @@ class ui:
                 module = importlib.util.module_from_spec(module_spec)
                 module_spec.loader.exec_module(module)
 
-                # get the class within the module
-                class_name = module_name
+                class_name = 'Ui_MainWindow' # this might will be a mistake later on?
                 class_object = getattr(module, class_name)
 
                 # create an instance of the class

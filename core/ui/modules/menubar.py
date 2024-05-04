@@ -7,20 +7,40 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QSize, Qt, QPropertyAnimation, QEasingCurve
 
+from core.ui.preset import default_preset
 
-class menubar(object):
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1080)
         MainWindow.setMouseTracking(True)
         self.file_settings_view_dropdowns = QtWidgets.QWidget(parent=MainWindow)
         self.file_settings_view_dropdowns.setObjectName("file_settings_view_dropdowns")
-        self.pushButton = QtWidgets.QPushButton(parent=self.file_settings_view_dropdowns)
-        self.pushButton.setGeometry(QtCore.QRect(0, 0, 75, 23))
-        self.pushButton.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.pushButton.setObjectName("pushButton")
-        MainWindow.setCentralWidget(self.file_settings_view_dropdowns)
+        self.groupBox = QtWidgets.QGroupBox(parent=self.file_settings_view_dropdowns)
+        self.groupBox.setGeometry(QtCore.QRect(0, 0, 251, 25))
+        self.groupBox.setAutoFillBackground(False)
+        self.groupBox.setTitle("")
+        self.groupBox.setObjectName("groupBox")
+        
+        self.pushButton_0 = QtWidgets.QPushButton(parent=self.groupBox)
+        self.pushButton_0.setGeometry(QtCore.QRect(0, 0, 61, 25))
+        self.pushButton_0.setObjectName("pushButton")
+        self.pushButton_1 = QtWidgets.QPushButton(parent=self.groupBox)
+        self.pushButton_1.setGeometry(QtCore.QRect(60, 0, 61, 25))
+        self.pushButton_1.setObjectName("pushButton")
+        self.pushButton_2 = QtWidgets.QPushButton(parent=self.groupBox)
+        self.pushButton_2.setGeometry(QtCore.QRect(120, 0, 61, 25))
+        self.pushButton_2.setObjectName("pushButton")
+        self.pushButton_3 = QtWidgets.QPushButton(parent=self.groupBox)
+        self.pushButton_3.setGeometry(QtCore.QRect(180, 0, 71, 25))
+        self.pushButton_3.setObjectName("pushButton")
+
+        self.buttons = [self.pushButton_0, self.pushButton_1, self.pushButton_2, self.pushButton_3]
+
+        for button in self.buttons:
+            button.setMouseTracking(True)
+            button.setFlat(True)
+            self.setButtonStyles(button)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -28,4 +48,25 @@ class menubar(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton_0.setText(_translate("MainWindow", "File"))
+        self.pushButton_1.setText(_translate("MainWindow", "Edit"))
+        self.pushButton_2.setText(_translate("MainWindow", "View"))
+        self.pushButton_3.setText(_translate("MainWindow", "Help"))
+
+    def setButtonStyles(self, button):
+        preset = default_preset()
+        
+        styles = """
+            QPushButton {{
+                border: 0px solid transparent;
+                background-color: transparent;
+                color: black;
+                padding: 5px;
+                transition: background-color 0.3s; /* Добавим анимацию изменения цвета фона */
+            }}
+            QPushButton:hover {{
+                background-color: {hovercolor};
+            }}
+        """.format(hovercolor=preset.getHoverColor())
+        print("!!!!!!!!!!!!!!!!!!!!!! TODO: menubar.py line 58, add hover animation")
+        button.setStyleSheet(styles)
