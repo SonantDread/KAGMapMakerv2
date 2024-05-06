@@ -1,7 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
-from core.ui.ui_module import ui_module, ui_button
+from core.ui.ui_module import ui_module, ui_button, ui_menu
 from core.ui.preset import default_preset
 
 class module(ui_module):
@@ -38,7 +38,8 @@ class module(ui_module):
             
             button.setMouseTracking(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            
+            button.addMenu(ui_menu(parent=self.groupBox))
+
             self.buttons.append(button)
 
         self.retranslateUi(parentwidget)
