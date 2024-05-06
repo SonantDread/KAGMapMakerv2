@@ -1,3 +1,5 @@
+# UI layout
+
 import os, importlib.util
 
 from PyQt6.uic import loadUiType, loadUi
@@ -29,7 +31,7 @@ class ui:
                 module = importlib.util.module_from_spec(module_spec)
                 module_spec.loader.exec_module(module)
 
-                class_name = 'Ui_MainWindow' # this might will be a mistake later on?
+                class_name = 'module'
                 class_object = getattr(module, class_name)
 
                 # create an instance of the class

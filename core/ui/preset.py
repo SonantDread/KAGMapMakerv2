@@ -1,6 +1,8 @@
+# Collection of constants
+
 class default_preset:
     def getHoverColor(self) -> str:
-        return "d8eaf9"
+        return "rgb(216,234,249)"
     
     def getBackgroundColor(self) -> str:
-        return "f0f0f0"
+        return "rgb(240,240,240)"
