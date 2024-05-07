@@ -11,6 +11,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 # sources
 from utils.windowsettings import Window
 from utils.mainconfig import Config
+from utils.input import input
 from core.ui.ui_grid import ui
 
 #test
@@ -20,6 +21,8 @@ class App(QMainWindow):
     def __init__(self):
         self.announce("STARTING APP")
         super().__init__()
+        self.input = input(self)
+        self.installEventFilter(self)
 
         print("Setting up main window")
         cfg = self.config = Config()
@@ -36,6 +39,10 @@ class App(QMainWindow):
         window.SetupWindow()
 
         self.announce("RUNNING APP")
+    
+    def eventFilter(self, obj, event):
+        self.input.eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     def closeEvent(self, event):
         self.config.build_from_active_window(event)
