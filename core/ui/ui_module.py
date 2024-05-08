@@ -24,7 +24,6 @@ class ui_button(QtWidgets.QPushButton):
         self.stylesheets = {}
         self.clicked_state = False
         self.hover_state = False
-        self.menu_visible = False
         self.menu = None
 
     def setHoverStyles(self, stylesheets):
@@ -40,10 +39,12 @@ class ui_button(QtWidgets.QPushButton):
 
     def mousePressEvent(self, event):
         self.clicked_state = not self.clicked_state
-        self.menu_visible = self.clicked_state and self.menu is not None
 
         if self.menu is not None:
-            self.menu.setVisible(self.menu_visible)
+            if self.clicked_state:
+                pos = self.mapToGlobal(QtCore.QPoint(0, self.height()))
+                self.menu.move(pos.x(), pos.y())
+                self.menu.show()
 
         self.updateStyle()
         super().mousePressEvent(event)
