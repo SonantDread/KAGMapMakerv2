@@ -17,6 +17,7 @@ class module(ui_module):
         self.groupBox.setAutoFillBackground(False)
         self.groupBox.setTitle("")
         self.groupBox.setObjectName("groupBox")
+        self.groupBox.setProperty("focus", True)
         
         button_names = ["File", "Edit", "View", "Help"]
         self.buttons = []
@@ -38,7 +39,7 @@ class module(ui_module):
             
             button.setMouseTracking(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.addMenu(ui_menu(parent=self.groupBox))
+            button.addMenu(ui_menu(parent=self.groupBox,label=button))
 
             self.buttons.append(button)
 
