@@ -7,12 +7,14 @@ import sys, os
 # libs
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import QObject, pyqtSignal, QEvent
+from PyQt6.QtGui import QAction
 
 # sources
 from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
 from core.ui.ui_grid import ui
+from core.ui.modules._toolbar import Toolbar
 
 #test
 from canvas import canvas
@@ -37,6 +39,10 @@ class App(QMainWindow):
         window = cfg.window = Window()
         window.ui_window = self
         window.SetupWindow()
+
+        # add the toolbar
+        self.toolbar = Toolbar(self)
+        self.addToolBar(self.toolbar)
 
         self.announce("RUNNING APP")
     
