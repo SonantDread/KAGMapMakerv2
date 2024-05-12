@@ -1,6 +1,6 @@
 class KagColor:
     def __init__(self):
-        self.tiles = {
+        self.vanilla_colors = {
             "tile_ground": (255, 132, 71, 21),
             "tile_ground_back": (255, 59, 20, 6),
             "tile_stone": (255, 139, 104, 73),
@@ -18,11 +18,9 @@ class KagColor:
             "water_backdirt": (255, 51, 85, 102),
         }
 
-        # TODO: the rest of items in loadercolors.as
-
     # return ARGB color
     def getColor(self, tile_name: str) -> tuple:
-        return self.tiles[tile_name]
+        return self.vanilla_colors[tile_name]
     
     # return RGB color
     def getColorRGB(self, tile_name: str) -> tuple:
