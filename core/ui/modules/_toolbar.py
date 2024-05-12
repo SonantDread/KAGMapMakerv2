@@ -37,17 +37,17 @@
 #     def action2_triggered(self):
 #         print("Action 2 triggered")
 
-from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QComboBox
+from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QComboBox, QWidgetAction
 from PyQt6.QtGui import QAction
 from PyQt6 import QtCore
 
 class Toolbar(QToolBar):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super().__init__(parent)
         self.initUI()
 
     def initUI(self):
-        # File tab
+        # File menu
         file_menu = QMenu("File", self)
         new_action = QAction("New", self)
         save_action = QAction("Save", self)
@@ -60,21 +60,32 @@ class Toolbar(QToolBar):
         file_menu.addAction(load_action)
         file_menu.addAction(render_action)
 
-        # Settings tab
+        # Settings menu
         settings_menu = QMenu("Settings", self)
         example_checkbox = QCheckBox("Example Checkbox", self)
-        settings_menu.addAction(example_checkbox)
+        settings_widget_action = QWidgetAction(self)
+        settings_widget_action.setDefaultWidget(example_checkbox)
+        settings_menu.addAction(settings_widget_action)
 
-        # View tab
+        # View menu
         view_menu = QMenu("View", self)
-        example_dropdown = QComboBox(self)
-        example_dropdown.addItems(["Option 1", "Option 2", "Option 3"])
-        view_menu_action = view_menu.menuAction()
-        self.addAction(view_menu_action)
+        
+        # Create a submenu for buttons
+        buttons_submenu = QMenu("Buttons", self)
+        button1_action = QAction("Button 1", self)
+        button2_action = QAction("Button 2", self)
+        button3_action = QAction("Button 3", self)
+        buttons_submenu.addAction(button1_action)
+        buttons_submenu.addAction(button2_action)
+        buttons_submenu.addAction(button3_action)
+        
+        # Add the submenu to the "View" menu
+        view_menu.addMenu(buttons_submenu)
 
-        # Add tabs to the toolbar
-        self.addMenu(file_menu)
-        self.addMenu(settings_menu)
+        # Add menus to the toolbar
+        self.addAction(file_menu.menuAction())
+        self.addAction(settings_menu.menuAction())
+        self.addAction(view_menu.menuAction())
 
         # Connect actions
         new_action.triggered.connect(self.new_triggered)
@@ -83,7 +94,9 @@ class Toolbar(QToolBar):
         load_action.triggered.connect(self.load_triggered)
         render_action.triggered.connect(self.render_triggered)
         example_checkbox.toggled.connect(self.example_checkbox_toggled)
-        example_dropdown.currentIndexChanged.connect(self.example_dropdown_changed)
+        button1_action.triggered.connect(self.button1_triggered)
+        button2_action.triggered.connect(self.button2_triggered)
+        button3_action.triggered.connect(self.button3_triggered)
 
     def new_triggered(self):
         print("New triggered")
@@ -103,5 +116,11 @@ class Toolbar(QToolBar):
     def example_checkbox_toggled(self, checked):
         print(f"Example Checkbox toggled: {checked}")
 
-    def example_dropdown_changed(self, index):
-        print(f"Example Dropdown changed to index {index}")
+    def button1_triggered(self):
+        print("Button 1 clicked")
+
+    def button2_triggered(self):
+        print("Button 2 clicked")
+
+    def button3_triggered(self):
+        print("Button 3 clicked")

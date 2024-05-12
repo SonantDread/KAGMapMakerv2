@@ -5,7 +5,7 @@
 import sys, os
 
 # libs
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel
 from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 from PyQt6.QtGui import QAction
 
@@ -15,6 +15,9 @@ from utils.mainconfig import Config
 from utils.input import input
 from core.ui.ui_grid import ui
 from core.ui.modules._toolbar import Toolbar
+from canvas import canvas
+from base.TileList import TileList
+from utils.vec import vec
 
 #test
 from canvas import canvas
@@ -39,6 +42,14 @@ class App(QMainWindow):
         window = cfg.window = Window()
         window.ui_window = self
         window.SetupWindow()
+
+        print("Loading canvas")
+        #self.canvas = canvas()
+        #label = QLabel()
+        #label.setPixmap(TileList().craftIconFromPNG(vec(8,8), 16))
+        #self.setCentralWidget(label)
+        #label.show()
+        #testarea
 
         # add the toolbar
         self.toolbar = Toolbar(self)

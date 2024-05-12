@@ -1,5 +1,6 @@
 from utils.vec import vec
 from core.ui.ui_module import ui_module
+from base.TileList import TileList
 
 class canvas(ui_module):
     def __init__(self):
@@ -9,6 +10,8 @@ class canvas(ui_module):
         self.zoom_minmax = [-1.0,2.0]                   # min-max for zoom, 1.0 is 100% of scale
         self.grid_size = vec(50,20)                     # map size
         self.grid = []                                  # map
+
+        # tile list goes here
         
         self.buildGrid()                                # builds empty grid
         self.updateSelf()                               # resets properties according to new grid
