@@ -13,8 +13,7 @@ from PyQt6.QtGui import QAction
 from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
-from core.ui.ui_grid import ui
-from core.ui.modules._toolbar import Toolbar
+from core.ui.ui_layout import ui
 from canvas import canvas
 from base.TileList import TileList
 from utils.vec import vec
@@ -44,16 +43,7 @@ class App(QMainWindow):
         window.SetupWindow()
 
         print("Loading canvas")
-        #self.canvas = canvas()
-        #label = QLabel()
-        #label.setPixmap(TileList().craftIconFromPNG(vec(8,8), 16))
-        #self.setCentralWidget(label)
-        #label.show()
-        #testarea
-
-        # add the toolbar
-        self.toolbar = Toolbar(self)
-        self.addToolBar(self.toolbar)
+        #self.canvas = canvas()  
 
         self.announce("RUNNING APP")
     

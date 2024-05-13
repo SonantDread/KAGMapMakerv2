@@ -7,7 +7,7 @@ from PyQt6.QtGui import QHideEvent
 from PyQt6.QtCore import QTimer
 
 class ui_module(QWidget):
-    def __init__(self):
+    def __init__(self, parent = None):
         super().__init__()
         self.pos = vec(0,0)
         self.id = 0
