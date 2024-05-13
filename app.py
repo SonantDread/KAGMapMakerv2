@@ -35,8 +35,8 @@ class App(QMainWindow):
         print("Loading UI")
         self.main_widget = QWidget(self)
         self.setCentralWidget(self.main_widget)
-        self.ui_grid = ui(self.main_widget)
-        self.ui_grid.load()
+        self.ui_layout = ui(self.main_widget)
+        self.ui_layout.load()
         
         window = cfg.window = Window()
         window.ui_window = self
