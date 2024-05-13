@@ -6,7 +6,7 @@ import sys, os
 
 # libs
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import QObject, pyqtSignal, QEvent, Qt
+from PyQt6.QtCore import QObject, pyqtSignal, QEvent
 from PyQt6.QtGui import QAction
 
 # sources
@@ -14,12 +14,10 @@ from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
 from core.ui.ui_grid import ui
+from core.ui.modules._toolbar import Toolbar
 from canvas import canvas
 from base.TileList import TileList
 from utils.vec import vec
-
-from core.ui.modules._toolbar import Toolbar
-from core.ui.modules._mapmakerui import MapMakerUI
 
 #test
 from canvas import canvas
@@ -56,9 +54,6 @@ class App(QMainWindow):
         # add the toolbar
         self.toolbar = Toolbar(self)
         self.addToolBar(self.toolbar)
-
-        # add the list of tools and placeable items
-        self.tools_items = MapMakerUI(self)
 
         self.announce("RUNNING APP")
     
