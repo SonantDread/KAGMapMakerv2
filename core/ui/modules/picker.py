@@ -9,7 +9,7 @@ from base.TileList import TileList
 class module(ui_module):
     def __init__(self, parent=None):
         super().__init__(self)
-        self.parent = parent
+        self.parent_widget = parent
         self.dragging = False
         self.offset = QPoint()
 
@@ -20,16 +20,14 @@ class module(ui_module):
 
     def mouseMoveEvent(self, event):
         if self.dragging:
-            self.move(self.mapToParent(event.pos() - self.offset)) # self.move moves CONTENTS of the widget!!!!!! solve later
+            self.move(self.mapToParent(event.pos() - self.offset))
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragging = False
 
-    def setupUi(self):
-        self.parent.setObjectName("menu")
-        
-        self.gridLayoutWidget = QtWidgets.QWidget(parent=self.parent)
+    def setupUi(self):   
+        self.gridLayoutWidget = QtWidgets.QWidget(parent=self.parent_widget)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 25, 230, 230))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         
@@ -60,11 +58,11 @@ class module(ui_module):
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         self.retranslateUi()
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(self.parent)
+        QtCore.QMetaObject.connectSlotsByName(self.parent_widget)
 
-        self.parent.mousePressEvent = self.mousePressEvent
-        self.parent.mouseMoveEvent = self.mouseMoveEvent
-        self.parent.mouseReleaseEvent = self.mouseReleaseEvent
+        self.parent_widget.mousePressEvent = self.mousePressEvent
+        self.parent_widget.mouseMoveEvent = self.mouseMoveEvent
+        self.parent_widget.mouseReleaseEvent = self.mouseReleaseEvent
 
     def setupBlocks(self, tab):
         blocks = TileList().vanilla_tiles_collection

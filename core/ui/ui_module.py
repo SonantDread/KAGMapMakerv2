@@ -9,7 +9,6 @@ from PyQt6.QtCore import QTimer
 class ui_module(QWidget):
     def __init__(self, parent = None):
         super().__init__()
-        self.pos = vec(0,0)
         self.id = 0
 
     def set_id(self, id):
@@ -26,7 +25,7 @@ class ui_button(QtWidgets.QPushButton):
         self.stylesheets = {}
         self.clicked_state = False
         self.hover_state = False
-        self.parent = parent
+        self.parent_widget = parent
         self.menu = None
         self.active = True
 
@@ -42,7 +41,7 @@ class ui_button(QtWidgets.QPushButton):
         self.stylesheets = stylesheets
         
     def enterEvent(self, event):
-        if self.parent.property("focus"):
+        if self.parent_widget.property("focus"):
             self.clicked_state = True
         else:
             self.hover_state = True
@@ -58,7 +57,7 @@ class ui_button(QtWidgets.QPushButton):
                 return
 
             self.switchState()
-            self.parent.focus = self.clicked_state # set focus to buttons list when menu opens
+            self.parent_widget.focus = self.clicked_state # set focus to buttons list when menu opens
 
             if self.menu is not None:
                 if self.clicked_state:
@@ -102,16 +101,16 @@ class ui_menu(QMenu):
     def __init__(self, parent=None, label=None):
         super().__init__(parent)
         self.children = []
-        self.parent = parent
+        self.parent_widget = parent
         self.label = label
         self.setStyleSheet("background-color: white; border: 1px solid black;")
         self.update()
 
     def update(self):
-        geometry = self.parent.geometry()
+        geometry = self.parent_widget.geometry()
         self.setGeometry(geometry.x(), geometry.y() + geometry.height(), geometry.width(), min(len(self.children), 75))
 
     def hideEvent(self, event: QHideEvent):
-        link = self.label if self.label is not None else self.parent
+        link = self.label if self.label is not None else self.parent_widget
         if isinstance(link, ui_button):
             link.reset(1)

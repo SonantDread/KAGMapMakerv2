@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QWidget
 
 class ui:
     def __init__(self, parent):
-        self.parent = parent
+        self.parent_widget = parent
         self.modules = []
         self.fetch_modules()
     
@@ -39,7 +39,7 @@ class ui:
                 class_object = getattr(module, class_name)
 
                 # create an instance of the class
-                instance = class_object(self.parent)
+                instance = class_object(self.parent_widget)
 
                 # append the instance to the list
                 self.modules.append(instance)
@@ -50,4 +50,5 @@ class ui:
 
     def load(self):
         for module in self.modules:
+            module.setParent(self.parent_widget)
             module.setupUi()
