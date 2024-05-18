@@ -1,7 +1,10 @@
 import sys
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt, QPoint, QSize
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtGui import QIcon, QPixmap
 from core.ui.ui_module import ui_module
+from base.TileList import TileList
 
 class module(ui_module):
     def __init__(self, parent=None):
@@ -27,7 +30,7 @@ class module(ui_module):
         self.parent.setObjectName("menu")
         
         self.gridLayoutWidget = QtWidgets.QWidget(parent=self.parent)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 25, 250, 250))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 25, 230, 230))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
@@ -36,18 +39,23 @@ class module(ui_module):
         
         self.tabWidget = QtWidgets.QTabWidget(parent=self.gridLayoutWidget)
         self.tabWidget.setObjectName("tabWidget")
+        self.tabWidget.setGeometry(QtCore.QRect(0, 25, 230, 230))
 
-        self.tab = QtWidgets.QWidget()
-        self.tab.setObjectName("tiles")
-        self.tabWidget.addTab(self.tab, "")
+        self.tiles = QtWidgets.QWidget()
+        self.tiles.setObjectName("tiles")
+        self.tiles.setGeometry(QtCore.QRect(0, 25, 230, 230))
+        self.tabWidget.addTab(self.tiles, "")
+        self.setupBlocks(self.tiles)
 
-        self.tab_1 = QtWidgets.QWidget()
-        self.tab_1.setObjectName("entities")
-        self.tabWidget.addTab(self.tab_1, "")
+        self.entities = QtWidgets.QWidget()
+        self.entities.setObjectName("entities")
+        self.entities.setGeometry(QtCore.QRect(0, 25, 230, 230))
+        self.tabWidget.addTab(self.entities, "")
 
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("colors")
-        self.tabWidget.addTab(self.tab_2, "")
+        self.colors = QtWidgets.QWidget()
+        self.colors.setObjectName("colors")
+        self.colors.setGeometry(QtCore.QRect(0, 25, 230, 230))
+        self.tabWidget.addTab(self.colors, "")
 
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         self.retranslateUi()
@@ -58,8 +66,39 @@ class module(ui_module):
         self.parent.mouseMoveEvent = self.mouseMoveEvent
         self.parent.mouseReleaseEvent = self.mouseReleaseEvent
 
+    def setupBlocks(self, tab):
+        blocks = TileList().vanilla_tiles_collection
+        buttons = []
+        x, y = 0, 0
+        button_width, button_height = 32, 32
+
+        for block in blocks:
+            if(block.tile_name == "tile_empty"):
+                continue
+
+            button = QPushButton(tab)
+            button.setGeometry(x, y, button_width, button_height)
+
+            button.setIcon(QIcon(block.img.scaled(32, 32)))
+            button.setIconSize(QSize(button_width, button_height))
+
+            button.clicked.connect(lambda _, block = block: self.setSelectedBlock(block.tile_name))
+
+            buttons.append(button)
+
+            x += button_width
+            
+            if x + button_width > tab.width():
+                x = 0
+                y += button_height
+
+        self.blocksbuttons = buttons
+
+    def setSelectedBlock(self, block):
+        self.selectedBlock = block
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("menu", "Tiles"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("menu", "Entities"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("menu", "Colors"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tiles), _translate("menu", "Tiles"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.entities), _translate("menu", "Entities"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.colors), _translate("menu", "Colors"))
