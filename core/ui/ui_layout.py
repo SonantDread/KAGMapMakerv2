@@ -50,5 +50,4 @@ class ui:
 
     def load(self):
         for module in self.modules:
-            module.setParent(self.parent_widget)
             module.setupUi()

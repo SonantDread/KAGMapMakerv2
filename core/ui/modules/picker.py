@@ -9,6 +9,7 @@ from base.TileList import TileList
 class module(ui_module):
     def __init__(self, parent=None):
         super().__init__(self)
+        self.setParent(parent)
         self.parent_widget = parent
         self.dragging = False
         self.offset = QPoint()
