@@ -49,7 +49,7 @@ class App(QMainWindow):
 
         # load canvas
         print("Loading Canvas")
-        self.canvas = Canvas((200, 100))
+        self.canvas = Canvas((50, 50))
 
         # add canvas to layout
         self.layout.addWidget(self.canvas)
