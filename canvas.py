@@ -79,7 +79,15 @@ class Canvas(QGraphicsView):
         if self.grid_group:
             self.grid_group.setVisible(False)
 
-    def placeTile(self, pos: tuple) -> None:
+    def placeTile(self, event) -> None:
+        pos = event.pos()
+        pos = self.mapToScene(pos)
+        pos = self.snapToGrid((pos.x(), pos.y()))
+
+        # do nothing if out of bounds
+        if(self.isOutOfBounds(pos)):
+            return
+
         grid_x, grid_y = pos
         scene_x = grid_x * self.grid_spacing
         scene_y = grid_y * self.grid_spacing
@@ -131,11 +139,7 @@ class Canvas(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self.lmb = True
 
-            pos = event.pos()
-
-            pos = self.mapToScene(pos)
-
-            self.placeTile(self.snapToGrid((pos.x(), pos.y())))
+            self.placeTile(event)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.rmb = True
@@ -148,7 +152,8 @@ class Canvas(QGraphicsView):
             self.rmb = False
 
     def mouseMoveEvent(self, event):
-        pass # todo
+        if(self.lmb):
+            self.placeTile(event)
 
     def updateGrid(self):
         self.updateSpacing()
@@ -194,3 +199,9 @@ class Canvas(QGraphicsView):
 
     def updateSpacing(self):
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * self.tile_size)
+
+    def isOutOfBounds(self, pos: tuple) -> bool:
+        x, y = pos
+        test = x < 0 or y < 0 or x >= self.size[0] or y >= self.size[1]
+        print(test)
+        return test
