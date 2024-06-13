@@ -1,4 +1,4 @@
-MINOR:
+Moving to here: https://github.com/users/SonantDread/projects/3
 
 
 MAJOR:
@@ -12,15 +12,6 @@ OTHER / LEGACY
 
 Customizable Interface
 - let the user be able to move things around and change the looks of the Interface
-
-Block Rotation
-- let the user rotate blocks (need to figure out alpha channels)
-
-Vertical and Horizontal Block Mirroring
-- mirror block placing across x / y axis
-
-Change Selected Block for 1 through 9 
-- maybe this could also just be a radial menu?
 
 Key to Open Settings
 
@@ -39,31 +30,16 @@ Tile Image
 Visibility
 - is tile visible on this layer
 
-Automatically load custom colors from a file
+Automatically load custom colors from a fi
 - lets the user input a customblocks.as path to use custom blocks (need to auto get images)
-
-
-Create Tilesets as JSON
-
-Ctrl Z for undo action
-Ctrl Y or ctrl + shift + z for redo action
 
 Host a Multiplayer Server
 - most likely will need to use something like socket?
 
 Custom Scripts Support
 
-Check if Any Pixels are Wrong, Warn User of Known Bugs in Mapping
-- check if pixels are wrong colors, and warn of some bugs like gold crashing the game at top of the map
-
-Show Where Blocks Cannot be Mined or Placed
-- those annoying corners of the map you cant mine
-
 Selection Tool
 - make a selection of blocks to save, copy or paste (ie: a 3x2 selection)
-
-Brush Size and Type
-- different sizes of brush that can be a circle, or square or a mix of both
 
 Auto Tiling
 - things like trees, grass, etc

@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsItemGroup
-from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QBrush, QImage
+from PyQt6.QtGui import QKeyEvent, QPainter, QColor, QPen, QPixmap, QBrush, QImage, QCursor
 from PyQt6.QtCore import Qt, QRectF
 from base.KagImage import KagImage
 from base.Tile import Tile
@@ -17,6 +17,7 @@ class Canvas(QGraphicsView):
         self.size = size # todo: canvas outside size should be differently coloured and not be able to contain tiles
         self.tile_images = KagImage()
         self.tile_size = 8
+        self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
 
         self.default_zoom_scale = 3        # default value for grid zoom, practically offsets scale from very small natural size to "comfortable"
         self.zoom_factor = 1               # current zoom, todo
@@ -33,10 +34,16 @@ class Canvas(QGraphicsView):
         self.setMinimumSize(200, 200)  # cannot be smaller than this todo: should depend on minmax zoom, same as maxsize
         self.setMaximumSize(1000, 1000)
 
-        # todo: aseprite's tools i.e. holding shift to draw a straight line
-        self.lmb = False # is key pressed todo: swiping
+        self.holding_lmb = False # is key pressed todo: swiping
         self.scw = False
-        self.rmb = False # right mouse button todo: secondary brush (default selection should be eraser (empty tile))
+        self.holding_rmb = False # right mouse button todo: secondary brush (default selection should be eraser (empty tile))
+        self.holding_shift = False
+        self.locked_pos = [0, 0] # x, y position of where user is placing when shift is first held
+
+        self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
+
+        self.locked_direction = -1 # True = left / right, False = up / down, None = not locked
+        self.last_placed_tile_pos = [0, 0]
 
         self.blocks = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
         self.usedblocks = []
@@ -61,12 +68,12 @@ class Canvas(QGraphicsView):
         
         # Create vertical grid lines
         for x in range(0, self.size[0] * self.grid_spacing, self.grid_spacing):
-            line = self.canvas.addLine(x, 0, x, self.size[1] * self.grid_spacing, pen)
+            line = self.canvas.addLine(x, 0, x, self.size[0] * self.grid_spacing, pen)
             self.grid_group.addToGroup(line)
 
         # Create horizontal grid lines
         for y in range(0, self.size[1] * self.grid_spacing, self.grid_spacing):
-            line = self.canvas.addLine(0, y, self.size[0] * self.grid_spacing, y, pen)
+            line = self.canvas.addLine(0, y, self.size[1] * self.grid_spacing, y, pen)
             self.grid_group.addToGroup(line)
         
         self.canvas.addItem(self.grid_group)
@@ -84,8 +91,23 @@ class Canvas(QGraphicsView):
         pos = self.mapToScene(pos)
         pos = self.snapToGrid((pos.x(), pos.y()))
 
+        if self.holding_shift:
+            locked_x, locked_y = self.snapToGrid((self.locked_pos.x(), self.locked_pos.y()))
+            current_x, current_y = pos
+
+            if self.locked_direction is None:
+                if abs(current_x - locked_x) > abs(current_y - locked_y):
+                    self.locked_direction = True  # Lock horizontal
+                else:
+                    self.locked_direction = False  # Lock vertical
+
+            if self.locked_direction:
+                pos = (current_x, locked_y) # lock Y
+            else:
+                pos = (locked_x, current_y)  # lock X
+
         # do nothing if out of bounds
-        if(self.isOutOfBounds(pos)):
+        if self.isOutOfBounds(pos):
             return
 
         grid_x, grid_y = pos
@@ -104,12 +126,15 @@ class Canvas(QGraphicsView):
         pixmap_item.setPos(scene_x, scene_y)
         self.canvas.addItem(pixmap_item)
         
-        # Force picture to render even if topleft is outside screen
+        # Force picture to render even if top-left is outside screen
         rect = pixmap_item.boundingRect()
         rect.adjusted(0, 0, self.grid_spacing, self.grid_spacing)
 
         # Track the new block
         self.blocks[grid_x][grid_y] = pixmap_item
+
+        self.last_placed_tile_pos = [grid_x, grid_y]
+
 
     def snapToGrid(self, pos) -> tuple:
         x, y = pos
@@ -137,23 +162,37 @@ class Canvas(QGraphicsView):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.lmb = True
+            self.holding_lmb = True
 
             self.placeTile(event)
 
         elif event.button() == Qt.MouseButton.RightButton:
-            self.rmb = True
+            self.holding_rmb = True
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.lmb = False
+            self.holding_lmb = False
 
         elif event.button() == Qt.MouseButton.RightButton:
-            self.rmb = False
+            self.holding_rmb = False
 
     def mouseMoveEvent(self, event):
-        if(self.lmb):
+        self.current_cursor_pos = event.pos()
+        if self.holding_lmb:
             self.placeTile(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Shift: # locking cursor pos when holding shift
+            self.holding_shift = True
+
+            self.locked_pos = self.current_cursor_pos
+            self.locked_direction = None
+
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key.Key_Shift:
+            self.holding_shift = False
+
+            self.locked_direction = None
 
     def updateGrid(self):
         self.updateSpacing()
@@ -202,6 +241,4 @@ class Canvas(QGraphicsView):
 
     def isOutOfBounds(self, pos: tuple) -> bool:
         x, y = pos
-        test = x < 0 or y < 0 or x >= self.size[0] or y >= self.size[1]
-        print(test)
-        return test
+        return x < 0 or y < 0 or x >= self.size[0] or y >= self.size[1]
