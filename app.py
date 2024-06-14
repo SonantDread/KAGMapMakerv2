@@ -13,7 +13,7 @@ from PyQt6.QtGui import QAction
 from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
-from core.ui.ui_layout import ui
+from core.scripts.ui_layout import ui
 from base.TileList import TileList
 from utils.vec import vec
 

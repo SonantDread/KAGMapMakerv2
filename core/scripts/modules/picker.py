@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt, QPoint, QSize
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtGui import QIcon, QPixmap
-from core.ui.ui_module import ui_module
+from core.scripts.ui_module import ui_module
 from base.TileList import TileList
 
 class module(ui_module):
