@@ -48,7 +48,6 @@ class Canvas(QGraphicsView):
         self.last_placed_tile_pos = [0, 0]
 
         self.blocks = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
-        self.usedblocks = []
         self.blockimages = {}
 
         self.updateSpacing()
@@ -119,7 +118,14 @@ class Canvas(QGraphicsView):
             # Remove the existing block
             self.canvas.removeItem(self.blocks[grid_x][grid_y])
 
-        pixmap = self.loadBlockImage(self.selected_block) # todo: lazy loading
+        pixmap = None
+
+        if(self.selected_block in self.blockimages):
+            pixmap = self.blockimages[self.selected_block]
+
+        else:
+            pixmap = self.loadBlockImage(self.selected_block)
+            self.blockimages[self.selected_block] = pixmap
 
         # Create pixmap item
         pixmap_item = QGraphicsPixmapItem(pixmap)
