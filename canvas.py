@@ -18,6 +18,7 @@ class Canvas(QGraphicsView):
         self.tile_images = KagImage()
         self.tile_size = 8
         self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
+        self.zoom_change_factor = 1.1
 
         self.default_zoom_scale = 3        # default value for grid zoom, practically offsets scale from very small natural size to "comfortable"
         self.zoom_factor = 1               # current zoom, todo
@@ -66,12 +67,12 @@ class Canvas(QGraphicsView):
         self.grid_group = QGraphicsItemGroup()
         
         # Create vertical grid lines
-        for x in range(0, self.size[0] * self.grid_spacing, self.grid_spacing):
+        for x in range(0, self.size[0] * self.grid_spacing + 1, self.grid_spacing):
             line = self.canvas.addLine(x, 0, x, self.size[0] * self.grid_spacing, pen)
             self.grid_group.addToGroup(line)
 
         # Create horizontal grid lines
-        for y in range(0, self.size[1] * self.grid_spacing, self.grid_spacing):
+        for y in range(0, self.size[1] * self.grid_spacing + 1, self.grid_spacing):
             line = self.canvas.addLine(0, y, self.size[1] * self.grid_spacing, y, pen)
             self.grid_group.addToGroup(line)
         
@@ -193,9 +194,9 @@ class Canvas(QGraphicsView):
             self.locked_direction = None
 
     def wheelEvent(self, event):
-        # todo: make this scroll exactly one tile ( help :( )
+        # Scroll by one tile, accounting for the current zoom ratio
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            zoomInFactor = 1.05
+            zoomInFactor = self.zoom_change_factor
             zoomOutFactor = 1 / zoomInFactor
 
             # Get the position before scaling, in scene coords
@@ -205,8 +206,8 @@ class Canvas(QGraphicsView):
             scaleFactor = zoomInFactor if event.angleDelta().y() > 0 else zoomOutFactor
             # Calculate the new scale factor and clamp it
             newScale = self.transform().m11() * scaleFactor
-            minScale = 0.2  # Minimum zoom level
-            maxScale = 10   # Maximum zoom level
+            minScale = self.zoom_minmax[0]  # Minimum zoom level
+            maxScale = self.zoom_minmax[1]  # Maximum zoom level
 
             if minScale <= newScale <= maxScale:
                 self.scale(scaleFactor, scaleFactor)
@@ -226,7 +227,26 @@ class Canvas(QGraphicsView):
                 elif newScale > maxScale:
                     self.setTransform(QTransform().scale(maxScale, maxScale))
         else:
-            super().wheelEvent(event)
+            # Determine the current spacing considering the zoom factor
+            current_spacing = self.grid_spacing / self.transform().m11()
+
+            # Determine the direction and amount of scroll
+            if event.angleDelta().y() > 0:
+                # Scroll up (move view down)
+                self.verticalScrollBar().setValue(self.verticalScrollBar().value() - int(current_spacing))
+            else:
+                # Scroll down (move view up)
+                self.verticalScrollBar().setValue(self.verticalScrollBar().value() + int(current_spacing))
+
+            # Determine the direction and amount of scroll horizontally (optional)
+            if event.angleDelta().x() > 0:
+                # Scroll left (move view right)
+                self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - int(current_spacing))
+            elif event.angleDelta().x() < 0:
+                # Scroll right (move view left)
+                self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + int(current_spacing))
+
+        super().wheelEvent(event)
 
     def updateSpacing(self):
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * self.tile_size)
