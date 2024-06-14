@@ -18,6 +18,7 @@ class Canvas(QGraphicsView):
         self.tile_images = KagImage()
         self.tile_size = 8
         self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
+        self.zoom_change_factor = 1.1   # todo: make it configurable
 
         self.default_zoom_scale = 3        # default value for grid zoom, practically offsets scale from very small natural size to "comfortable"
         self.zoom_factor = 1               # current zoom, todo
@@ -195,7 +196,7 @@ class Canvas(QGraphicsView):
     def wheelEvent(self, event):
         # todo: make this scroll exactly one tile ( help :( )
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            zoomInFactor = 1.05
+            zoomInFactor = self.zoom_change_factor
             zoomOutFactor = 1 / zoomInFactor
 
             # Get the position before scaling, in scene coords
@@ -205,8 +206,8 @@ class Canvas(QGraphicsView):
             scaleFactor = zoomInFactor if event.angleDelta().y() > 0 else zoomOutFactor
             # Calculate the new scale factor and clamp it
             newScale = self.transform().m11() * scaleFactor
-            minScale = 0.2  # Minimum zoom level
-            maxScale = 10   # Maximum zoom level
+            minScale = self.zoom_minmax[0]  # Minimum zoom level
+            maxScale = self.zoom_minmax[1]   # Maximum zoom level
 
             if minScale <= newScale <= maxScale:
                 self.scale(scaleFactor, scaleFactor)
