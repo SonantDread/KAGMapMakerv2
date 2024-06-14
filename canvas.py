@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsItemGroup
-from PyQt6.QtGui import QKeyEvent, QPainter, QColor, QPen, QPixmap, QBrush, QImage, QCursor
+from PyQt6.QtGui import QKeyEvent, QPainter, QColor, QPen, QPixmap, QBrush, QImage, QCursor, QTransform
 from PyQt6.QtCore import Qt, QRectF
 from base.KagImage import KagImage
 from base.Tile import Tile
@@ -53,7 +53,6 @@ class Canvas(QGraphicsView):
         self.selected_block = "tile_ground"
 
         self.buildTileGrid()
-        self.updateGrid()
         # self.hideGridLines() # disabled by default
 
     def buildTileGrid(self):
@@ -118,7 +117,7 @@ class Canvas(QGraphicsView):
             # Remove the existing block
             self.canvas.removeItem(self.blocks[grid_x][grid_y])
 
-        pixmap = self.loadBlockImage(self.selected_block)
+        pixmap = self.loadBlockImage(self.selected_block) # todo: lazy loading
 
         # Create pixmap item
         pixmap_item = QGraphicsPixmapItem(pixmap)
@@ -134,7 +133,6 @@ class Canvas(QGraphicsView):
         self.blocks[grid_x][grid_y] = pixmap_item
 
         self.last_placed_tile_pos = [grid_x, grid_y]
-
 
     def snapToGrid(self, pos) -> tuple:
         x, y = pos
@@ -194,47 +192,41 @@ class Canvas(QGraphicsView):
 
             self.locked_direction = None
 
-    def updateGrid(self):
-        self.updateSpacing()
-        for x in range(self.size[0]):
-            line = self.grid_group.childItems()[x]
-            line.setLine(x * self.grid_spacing, 0, x * self.grid_spacing, self.size[1] * self.grid_spacing)
-    
-        for y in range(self.size[1]):
-            line = self.grid_group.childItems()[self.size[0] + y]
-            line.setLine(0, y * self.grid_spacing, self.size[0] * self.grid_spacing, y * self.grid_spacing)
-
-    def updateTiles(self):
-        for x in range(self.size[0]):
-            for y in range(self.size[1]):
-                if self.blocks[x][y] is not None:
-                    block = self.blocks[x][y]
-                    scene_x = x * self.grid_spacing
-                    scene_y = y * self.grid_spacing
-                    block.setPos(scene_x, scene_y)
-                    block.setScale(self.zoom_factor * self.default_zoom_scale)
-
     def wheelEvent(self, event):
         # todo: make this scroll exactly one tile ( help :( )
-        scroll_distance = self.zoom_factor * self.default_zoom_scale / self.tile_size
-
-        # Zoom if CTRL is held todo: update whole canvas to new scale
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            if event.angleDelta().y() > 0:
-                # zoom in
-                self.zoom_factor += 0.1
-            else:
-                # zoom out
-                self.zoom_factor -= 0.1
-        else: # Scroll
-            if event.modifiers() & Qt.KeyboardModifier.AltModifier: # left-right
-                self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + round(-event.angleDelta().y() * scroll_distance))
-            else: # up-down
-                self.verticalScrollBar().setValue(self.verticalScrollBar().value() + round(-event.angleDelta().y() * scroll_distance))
+            zoomInFactor = 1.05
+            zoomOutFactor = 1 / zoomInFactor
 
-        self.updateGrid()
-        self.updateTiles()
-        self.update()
+            # Get the position before scaling, in scene coords
+            oldPos = self.mapToScene(self.current_cursor_pos)
+
+            # Scaling
+            scaleFactor = zoomInFactor if event.angleDelta().y() > 0 else zoomOutFactor
+            # Calculate the new scale factor and clamp it
+            newScale = self.transform().m11() * scaleFactor
+            minScale = 0.2  # Minimum zoom level
+            maxScale = 10   # Maximum zoom level
+
+            if minScale <= newScale <= maxScale:
+                self.scale(scaleFactor, scaleFactor)
+
+                # Get the position after scaling, in scene coords
+                newPos = self.mapToScene(self.current_cursor_pos)
+
+                # Move scene to old position
+                delta = newPos - oldPos
+                self.translate(delta.x(), delta.y())
+
+            else:
+                # Keep the scene fixed if at zoom limits
+                if newScale < minScale:
+                    self.setTransform(QTransform().scale(minScale, minScale))
+
+                elif newScale > maxScale:
+                    self.setTransform(QTransform().scale(maxScale, maxScale))
+        else:
+            super().wheelEvent(event)
 
     def updateSpacing(self):
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * self.tile_size)
