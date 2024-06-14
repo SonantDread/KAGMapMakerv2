@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtGui import QIcon, QPixmap
 from core.scripts.ui_module import ui_module
 from base.TileList import TileList
+from core.scripts.cursor import Cursor
 
 class module(ui_module):
     def __init__(self, parent=None):
@@ -64,6 +65,12 @@ class module(ui_module):
         self.parent_widget.mousePressEvent = self.mousePressEvent
         self.parent_widget.mouseMoveEvent = self.mouseMoveEvent
         self.parent_widget.mouseReleaseEvent = self.mouseReleaseEvent
+
+        # add default selection to brush
+        tiles = TileList().vanilla_tiles_collection
+        cursor = Cursor()
+        cursor.selectTile(tiles[0], 0)
+        cursor.selectTile(tiles[1], 1)
 
     def setupBlocks(self, tab):
         blocks = TileList().vanilla_tiles_collection

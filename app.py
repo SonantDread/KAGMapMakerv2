@@ -14,6 +14,7 @@ from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
 from core.scripts.ui_layout import ui
+from core.scripts.cursor import Cursor
 from base.TileList import TileList
 from utils.vec import vec
 
@@ -30,6 +31,7 @@ class App(QMainWindow):
         print("Setting up main window")
         cfg = self.config = Config()
         cfg.build.connect(self.Quit)
+        self.cursor = Cursor()
 
         print("Loading UI")
         self.main_widget = QWidget(self)

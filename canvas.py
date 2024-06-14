@@ -6,6 +6,7 @@ from base.Tile import Tile
 from utils.vec import vec
 import io, os
 import math
+from core.scripts.cursor import Cursor
 
 #todo: blocks are hidden when topleft is not on screen
 class Canvas(QGraphicsView):
