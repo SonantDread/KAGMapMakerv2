@@ -8,17 +8,17 @@ import io, os
 import math
 from core.scripts.cursor import Cursor
 
-#todo: blocks are hidden when topleft is not on screen
 class Canvas(QGraphicsView):
     def __init__(self, size: tuple):
         super().__init__()
         self.canvas = QGraphicsScene()
+        self.cursorcomm = Cursor()
         self.setScene(self.canvas)
         self.geometry = vec(300, 300)
-        self.size = size # todo: canvas outside size should be differently coloured and not be able to contain tiles
+        self.size = size # map size
+
         self.tile_images = KagImage()
-        self.tile_size = 8
-        self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
+
         self.zoom_change_factor = 1.1   # todo: make it configurable
         self.zoom_change_factor = 1.1
 
@@ -26,40 +26,35 @@ class Canvas(QGraphicsView):
         self.zoom_factor = 1               # current zoom, todo
         self.zoom_minmax = [0.1, 5]        # max zoom (count default_zoom_scale as 1), todo
 
+        self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
         self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
-
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)  # no scroll bars
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
         self.setBackgroundBrush(QColor(165, 189, 200, 255))  # background color
         self.setMinimumSize(200, 200)  # cannot be smaller than this todo: should depend on minmax zoom, same as maxsize
         self.setMaximumSize(1000, 1000)
 
-        self.holding_lmb = False # is key pressed todo: swiping
-        self.scw = False
-        self.holding_rmb = False # right mouse button todo: secondary brush (default selection should be eraser (empty tile))
+        self.holding_lmb = False
+        self.holding_rmb = False
+        self.holding_scw = False
         self.holding_shift = False
-        self.locked_pos = [0, 0] # x, y position of where user is placing when shift is first held
 
         self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
 
+        self.locked_pos = [0, 0] # x, y position of where user is placing when shift is first held
         self.locked_direction = -1 # True = left / right, False = up / down, None = not locked
         self.last_placed_tile_pos = [0, 0]
 
         self.blocks = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
+        self.selected_block = "tile_ground"
         self.blockimages = {}
 
-        self.updateSpacing()
-        self.selected_block = "tile_ground"
-
+        self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8) # 8 being 8x8 pixels in kag
         self.buildTileGrid()
-        # self.hideGridLines() # disabled by default
 
     def buildTileGrid(self):
-        # Clear the scene to rebuild the grid
-        self.canvas.clear()
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
         self.buildGridLines(pen)
@@ -138,7 +133,7 @@ class Canvas(QGraphicsView):
         rect = pixmap_item.boundingRect()
         rect.adjusted(0, 0, self.grid_spacing, self.grid_spacing)
 
-        # Track the new block
+        # place block into the map
         self.blocks[grid_x][grid_y] = pixmap_item
 
         self.last_placed_tile_pos = [grid_x, grid_y]
@@ -168,7 +163,7 @@ class Canvas(QGraphicsView):
         return QPixmap.fromImage(qimage)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton: # place blocks
             self.holding_lmb = True
 
             self.placeTile(event)
@@ -202,7 +197,6 @@ class Canvas(QGraphicsView):
             self.locked_direction = None
 
     def wheelEvent(self, event):
-        # Scroll by one tile, accounting for the current zoom ratio
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             zoomInFactor = self.zoom_change_factor
             zoomOutFactor = 1 / zoomInFactor
@@ -210,7 +204,6 @@ class Canvas(QGraphicsView):
             # Get the position before scaling, in scene coords
             oldPos = self.mapToScene(self.current_cursor_pos)
 
-            # Scaling
             scaleFactor = zoomInFactor if event.angleDelta().y() > 0 else zoomOutFactor
             # Calculate the new scale factor and clamp it
             newScale = self.transform().m11() * scaleFactor
@@ -238,26 +231,17 @@ class Canvas(QGraphicsView):
             # Determine the current spacing considering the zoom factor
             current_spacing = self.grid_spacing / self.transform().m11()
 
-            # Determine the direction and amount of scroll
-            if event.angleDelta().y() > 0:
-                # Scroll up (move view down)
+            if event.angleDelta().y() > 0: # move view down
                 self.verticalScrollBar().setValue(self.verticalScrollBar().value() - int(current_spacing))
-            else:
-                # Scroll down (move view up)
+            else: # move view up
                 self.verticalScrollBar().setValue(self.verticalScrollBar().value() + int(current_spacing))
 
-            # Determine the direction and amount of scroll horizontally (optional)
-            if event.angleDelta().x() > 0:
-                # Scroll left (move view right)
+            if event.angleDelta().x() > 0: # move view right
                 self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - int(current_spacing))
-            elif event.angleDelta().x() < 0:
-                # Scroll right (move view left)
+            elif event.angleDelta().x() < 0: # move view left
                 self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + int(current_spacing))
 
         super().wheelEvent(event)
-
-    def updateSpacing(self):
-        self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * self.tile_size)
 
     def isOutOfBounds(self, pos: tuple) -> bool:
         x, y = pos
