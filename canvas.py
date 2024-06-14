@@ -18,6 +18,7 @@ class Canvas(QGraphicsView):
         self.tile_images = KagImage()
         self.tile_size = 8
         self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
+        self.zoom_change_factor = 1.1   # todo: make it configurable
         self.zoom_change_factor = 1.1
 
         self.default_zoom_scale = 3        # default value for grid zoom, practically offsets scale from very small natural size to "comfortable"
@@ -207,7 +208,7 @@ class Canvas(QGraphicsView):
             # Calculate the new scale factor and clamp it
             newScale = self.transform().m11() * scaleFactor
             minScale = self.zoom_minmax[0]  # Minimum zoom level
-            maxScale = self.zoom_minmax[1]  # Maximum zoom level
+            maxScale = self.zoom_minmax[1]   # Maximum zoom level
 
             if minScale <= newScale <= maxScale:
                 self.scale(scaleFactor, scaleFactor)
