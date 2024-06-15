@@ -1,10 +1,10 @@
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsItemGroup
-from PyQt6.QtGui import QKeyEvent, QPainter, QColor, QPen, QPixmap, QBrush, QImage, QCursor, QTransform
-from PyQt6.QtCore import Qt, QRectF
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsItemGroup
+from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QImage, QTransform, QBrush
+from PyQt6.QtCore import Qt
 from base.KagImage import KagImage
 from base.Tile import Tile
 from utils.vec import vec
-import io, os
+import io
 import math
 from core.scripts.cursor import Cursor
 from base.Tile import Tile
@@ -63,6 +63,11 @@ class Canvas(QGraphicsView):
     def buildGridLines(self, pen):
         self.grid_group = QGraphicsItemGroup()
         
+        # create background rectangle with different color
+        background_color = QColor(200, 220, 240)
+        rect = self.canvas.addRect(0, 0, self.size[0] * self.grid_spacing, self.size[1] * self.grid_spacing, QPen(Qt.GlobalColor.transparent), QBrush(background_color))
+        self.canvas.addItem(rect)
+
         # Create vertical grid lines
         for x in range(0, self.size[0] * self.grid_spacing + 1, self.grid_spacing):
             line = self.canvas.addLine(x, 0, x, self.size[0] * self.grid_spacing, pen)
