@@ -38,5 +38,8 @@ class KagImage:
         # Crop the world.png to get the correct image
         return image.crop((x, y, x + 8, y + 8))
     
-    def getTilePNGByName(self, name: str):
+    def getTilePNGByName(self, name):
+        if(type(name) != str): # assume tile class
+            name = name.tile_name
+
         return self.getTilePNGByIndex(self.tile_indexes[name])

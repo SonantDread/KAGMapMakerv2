@@ -7,6 +7,8 @@ from utils.vec import vec
 import io, os
 import math
 from core.scripts.cursor import Cursor
+from base.Tile import Tile
+from utils.vec import vec
 
 class Canvas(QGraphicsView):
     def __init__(self, size: tuple):
@@ -48,7 +50,6 @@ class Canvas(QGraphicsView):
         self.last_placed_tile_pos = [0, 0]
 
         self.blocks = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
-        self.selected_block = "tile_ground"
         self.blockimages = {}
 
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8) # 8 being 8x8 pixels in kag
@@ -82,12 +83,13 @@ class Canvas(QGraphicsView):
         if self.grid_group:
             self.grid_group.setVisible(False)
 
-    def placeTile(self, event) -> None:
+    def placeTile(self, event, tile_index: int) -> None:
         pos = event.pos()
         pos = self.mapToScene(pos)
         pos = self.snapToGrid((pos.x(), pos.y()))
+        placing_tile = self.getSelectedBlock()[tile_index]
 
-        if self.holding_shift:
+        if self.holding_shift: # todo: move this into a function
             locked_x, locked_y = self.snapToGrid((self.locked_pos.x(), self.locked_pos.y()))
             current_x, current_y = pos
 
@@ -111,32 +113,44 @@ class Canvas(QGraphicsView):
         scene_y = grid_y * self.grid_spacing
 
         if self.blocks[grid_x][grid_y] is not None:
-            # Remove the existing block
-            self.canvas.removeItem(self.blocks[grid_x][grid_y])
+            # remove existing block from scene
+            self.canvas.removeItem(self.blocks[grid_x][grid_y].pixmap_item)
 
-        pixmap = None
+        pixmap = self.getTileImage(placing_tile)
+        tile = self.makeTile(placing_tile, (grid_x, grid_y))
 
-        if(self.selected_block in self.blockimages):
-            pixmap = self.blockimages[self.selected_block]
-
-        else:
-            pixmap = self.loadBlockImage(self.selected_block)
-            self.blockimages[self.selected_block] = pixmap
-
-        # Create pixmap item
         pixmap_item = QGraphicsPixmapItem(pixmap)
         pixmap_item.setScale(self.zoom_factor * self.default_zoom_scale)
         pixmap_item.setPos(scene_x, scene_y)
         self.canvas.addItem(pixmap_item)
-        
-        # Force picture to render even if top-left is outside screen
-        rect = pixmap_item.boundingRect()
-        rect.adjusted(0, 0, self.grid_spacing, self.grid_spacing)
 
-        # place block into the map
-        self.blocks[grid_x][grid_y] = pixmap_item
+        tile.pixmap_item = pixmap_item
+        self.blocks[grid_x][grid_y] = tile
 
         self.last_placed_tile_pos = [grid_x, grid_y]
+
+    def getSelectedBlock(self) -> list:
+        return self.cursorcomm.getSelectedTiles()
+
+    def makeTile(self, tile_name: str, tile_pos: tuple) -> Tile:
+        img = self.getTileImage(tile_name)
+
+        x, y = tile_pos
+        tile_pos = vec(x, y)
+
+        return Tile(img, tile_name, tile_pos, 0, True) # last 2 vars are currently dummy vars, change later
+    
+    def getTileImage(self, tile_name: str) -> QPixmap: # returns the image of given tile name
+        img = None
+
+        if(tile_name in self.blockimages): # image exists
+            img = self.blockimages[tile_name]
+
+        else: # image doesnt exist
+            img = self.loadBlockImage(tile_name)
+            self.blockimages[tile_name] = img
+
+        return img if img is not None else None
 
     def snapToGrid(self, pos) -> tuple:
         x, y = pos
@@ -166,22 +180,27 @@ class Canvas(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton: # place blocks
             self.holding_lmb = True
 
-            self.placeTile(event)
+            self.placeTile(event, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.holding_rmb = True
+
+            self.placeTile(event, 0)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.holding_lmb = False
 
-        elif event.button() == Qt.MouseButton.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton: # elif to prevent placing two tiles at once
             self.holding_rmb = False
 
     def mouseMoveEvent(self, event):
         self.current_cursor_pos = event.pos()
         if self.holding_lmb:
-            self.placeTile(event)
+            self.placeTile(event, 1)
+
+        elif self.holding_rmb:
+            self.placeTile(event, 0)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Shift: # locking cursor pos when holding shift

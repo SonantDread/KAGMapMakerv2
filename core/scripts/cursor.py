@@ -11,10 +11,13 @@ class SingletonMeta(type):
 
 class Cursor(metaclass=SingletonMeta):
     def __init__(self):
-        self.picked_tiles = [None, None]
+        self.picked_tiles = ["tile_ground", "tile_empty"]
 
-    def selectTile(self, tile: Tile, idx=0):
+    def selectTile(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb
         self.picked_tiles[idx] = tile
 
-    def getSelectedTile(self, idx: int) -> Tile:
+    def getSelectedTile(self, idx: int) -> str:
         return self.picked_tiles[min(len(self.picked_tiles), max(0, idx))]
+    
+    def getSelectedTiles(self) -> str:
+        return self.picked_tiles

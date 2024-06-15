@@ -14,19 +14,11 @@ class module(ui_module):
         self.parent_widget = parent
         self.dragging = False
         self.offset = QPoint()
+        self.button_pos = {}
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.dragging = True
-            self.offset = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if self.dragging:
-            self.move(self.mapToParent(event.pos() - self.offset))
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.dragging = False
+        if event.button() == Qt.MouseButton.RightButton:
+            self.handleRightClick(event)
 
     def setupUi(self):   
         self.gridLayoutWidget = QtWidgets.QWidget(parent=self.parent_widget)
@@ -68,9 +60,9 @@ class module(ui_module):
 
         # add default selection to brush
         tiles = TileList().vanilla_tiles_collection
-        cursor = Cursor()
-        cursor.selectTile(tiles[0], 0)
-        cursor.selectTile(tiles[1], 1)
+        self.cursorcomm = Cursor()
+        self.cursorcomm.selectTile(tiles[0], 0)
+        self.cursorcomm.selectTile(tiles[1], 1)
 
     def setupBlocks(self, tab):
         blocks = TileList().vanilla_tiles_collection
@@ -88,7 +80,8 @@ class module(ui_module):
             button.setIcon(QIcon(block.img.scaled(32, 32)))
             button.setIconSize(QSize(button_width, button_height))
 
-            button.clicked.connect(lambda _, block = block: self.setSelectedBlock(block.tile_name))
+            button.clicked.connect(lambda _, block = block: self.setSelectedBlock(block.tile_name, 1))
+            self.button_pos[(x, y)] = block.tile_name 
 
             buttons.append(button)
 
@@ -100,8 +93,28 @@ class module(ui_module):
 
         self.blocksbuttons = buttons
 
-    def setSelectedBlock(self, block):
+    def setSelectedBlock(self, block: str, lmb: int):
         self.selectedBlock = block
+        self.cursorcomm.selectTile(block, lmb)
+
+    def handleRightClick(self, event):
+        x, y = event.pos().x(), event.pos().y() - 50  # Adjusted position
+        print(f'x: {x}, y: {y}')
+
+        col = x // 32
+        row = y // 32
+
+        key = (col * 32, row * 32)
+
+        if key not in self.button_pos:
+            return  # key not found, possibly out of bounds
+
+        block = self.button_pos[key]
+        if block is None:
+            return
+
+        self.cursorcomm.selectTile(block, 0)
+
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
