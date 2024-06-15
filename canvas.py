@@ -9,6 +9,7 @@ import math
 from core.scripts.cursor import Cursor
 from base.Tile import Tile
 from utils.vec import vec
+from base.TileList import TileList
 
 class Canvas(QGraphicsView):
     def __init__(self, size: tuple):
@@ -54,13 +55,17 @@ class Canvas(QGraphicsView):
 
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8) # 8 being 8x8 pixels in kag
         self.buildTileGrid()
+        self.Ctile_list = TileList()
 
-    def buildTileGrid(self):
+    def isTileEmpty(self, tile: str) -> bool:
+        return tile is None or tile == "" or tile == "sky" or tile == "tile_empty" or not self.Ctile_list.getTileByName(tile)
+
+    def buildTileGrid(self) -> None:
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
         self.buildGridLines(pen)
 
-    def buildGridLines(self, pen):
+    def buildGridLines(self, pen: QPen):
         self.grid_group = QGraphicsItemGroup()
         
         # create background rectangle with different color
@@ -92,7 +97,9 @@ class Canvas(QGraphicsView):
         pos = event.pos()
         pos = self.mapToScene(pos)
         pos = self.snapToGrid((pos.x(), pos.y()))
-        placing_tile = self.getSelectedBlock()[tile_index]
+
+        placing_tile: str = self.getSelectedBlock()[tile_index].tile_name
+        empty_tile: bool = self.isTileEmpty(placing_tile)
 
         if self.holding_shift: # todo: move this into a function
             locked_x, locked_y = self.snapToGrid((self.locked_pos.x(), self.locked_pos.y()))
@@ -116,10 +123,20 @@ class Canvas(QGraphicsView):
         grid_x, grid_y = pos
         scene_x = grid_x * self.grid_spacing
         scene_y = grid_y * self.grid_spacing
+        print(f"empty tile: {empty_tile}")
+
+        if empty_tile and self.blocks[grid_x][grid_y] is not None: # eraser
+            self.canvas.removeItem(self.blocks[grid_x][grid_y].pixmap_item)
+            self.blocks[grid_x][grid_y] = None
+            return
+
+        if empty_tile:
+            return
 
         if self.blocks[grid_x][grid_y] is not None:
             # remove existing block from scene
             self.canvas.removeItem(self.blocks[grid_x][grid_y].pixmap_item)
+            self.blocks[grid_x][grid_y] = None
 
         pixmap = self.getTileImage(placing_tile)
         tile = self.makeTile(placing_tile, (grid_x, grid_y))

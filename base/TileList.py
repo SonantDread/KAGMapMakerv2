@@ -38,7 +38,9 @@ class TileList:
         for tile in self.vanilla_tiles_collection:
             if tile.tile_name is tile_name:
                 return tile
-    
+        
+        return None
+
     def getTileByColor(self, color: tuple) -> Tile:
         colors = self.tile_colors.getTileColors()
         index = colors.find(color)
