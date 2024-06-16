@@ -17,6 +17,7 @@ from core.scripts.ui_layout import ui
 from core.scripts.cursor import Cursor
 from base.TileList import TileList
 from utils.vec import vec
+from core.scripts.modules._toolbar import module as Toolbar
 
 # test
 from canvas import Canvas
@@ -27,6 +28,11 @@ class App(QMainWindow):
         super().__init__()
         self.input = input(self)
         self.installEventFilter(self)
+
+        self.toolbar = Toolbar()
+        self.toolbar.setupUi()
+        self.toolbar.setMovable(False)
+        self.addToolBar(self.toolbar)
 
         print("Setting up main window")
         cfg = self.config = Config()
