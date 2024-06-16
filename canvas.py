@@ -65,6 +65,8 @@ class Canvas(QGraphicsView):
         pen.setWidth(1)
         self.buildGridLines(pen)
 
+        self.toggleGrid()
+
     def buildGridLines(self, pen: QPen):
         self.grid_group = QGraphicsItemGroup()
         
@@ -151,10 +153,14 @@ class Canvas(QGraphicsView):
 
         self.last_placed_tile_pos = [grid_x, grid_y]
 
+    def toggleGrid(self):
+        if self.grid_group:
+            self.grid_group.setVisible(not self.grid_group.isVisible())
+
     def getSelectedBlock(self) -> list:
         return self.cursorcomm.getSelectedTiles()
 
-    def makeTile(self, tile_name: str, tile_pos: tuple) -> Tile:
+    def makeTile(self, tile_name: str, tile_pos: tuple) -> Tile: # input tile name and pos, returns tile class
         img = self.getTileImage(tile_name)
 
         x, y = tile_pos
