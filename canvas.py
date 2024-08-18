@@ -70,18 +70,22 @@ class Canvas(QGraphicsView):
         atexit.register(self.writeMapToFile, datetime.now())
 
     def writeMapToFile(self, timestamp: datetime):
+        # check if map is blank
+        if all(all(tile is None for tile in row) for row in self.tilemap):
+            print("Map is blank. Not saving.")
+            return
+
         date_str = timestamp.strftime("%d-%m-%Y")
         path = os.path.join(self.exec_path, "Maps", "Autosave", date_str)
         
         # ensure the directory exists, create it if it doesn't
         os.makedirs(path, exist_ok=True)
 
-        file_name = date_str
+        file_name = timestamp.strftime("%d-%m-%Y_%H-%M-%S")
         file_path = os.path.join(path, file_name)
-        
+
         KagImage()._save_map(file_path + ".png")
-        
-        print(f"Map saved to {file_path} using KagImage()._save_map()")
+        print(f"Map saved to: {file_path}")
     
     def get_tilemap(self) -> list:
         return self.tilemap
