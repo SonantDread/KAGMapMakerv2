@@ -42,7 +42,25 @@ class CBlobList:
         return list(set(names))
 
     def _toBlobClass(self, name: str) -> CBlob:
-        return CBlob(self.Images.getImage(name), name, vec(0, 0), 0, 0, 0, (0, 0, 0, 0)) # self.getColor(name))
+        return CBlob(self.Images.getImage(name), name, vec(0, 0), 0, 0, self._handle_get_fakez(name))
+    
+    # until we have a good way to get the z indexes of blobs we can use this
+    # TODO: maybe in bloblist.txt, allow for adding a ', #' for a Z index
+    def _handle_get_fakez(self, name: str) -> int:
+        if "shop" in name: # see CTileList.py line 33
+            return -500
+        
+        if name == "archer" or name == "knight": # todo: be able to place these
+            return -100
+        
+        if name == "spikes":
+            return 1500
+        
+        sprite = self.Images.getImage(name)
+        size = sprite.width() + sprite.height()
+        
+        # clamp to range of -499 -> 499
+        return max(min(size, 499), -499)
 
     def doesBlobExist(self, name: str) -> bool:
         for blob in self.vanilla_maploader_blobs:

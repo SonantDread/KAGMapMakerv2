@@ -32,7 +32,7 @@ class CTileList:
         ]
         ## for KAG but will also use here to try to keep it similar, can be changed later if its a problem
         # -600 = behind background
-        # -500 = in front, behind shops
+        # -500 = in front of background, behind shops
         # -100 = in front of shops, behind players
         #  100 = in front of players, behind solid tiles
         #  500 = in front of solid tiles (and basically everything else except trees and spikes)

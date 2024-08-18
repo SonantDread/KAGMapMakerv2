@@ -4,14 +4,13 @@ from PIL import Image
 import os
 
 class CBlob:
-    def __init__(self, img: QPixmap, name: str, pos: vec, layer: int, team: int = 0, z: int = 0, color: str = None):
+    def __init__(self, img: QPixmap, name: str, pos: vec, layer: int, team: int = 0, z: int = 0):
         self.img = img
         self.name = name
         self.pos = pos
         self.layer = layer # unused for now
         self.team = team
         self.z = z # TODO: if a Z value isn't specified, it should be based on the sprite size
-        self.color = color
         # self.swapPNGColorsToTeam(self.img, 1)
 
     # ! IGNORE ALL CODE BELOW THIS POINT, COMPLETELY UNFINISHED
