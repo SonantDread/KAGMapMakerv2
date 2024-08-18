@@ -10,6 +10,7 @@ from utils.vec import vec
 from base.CTileList import CTileList
 from base.Renderer import Renderer
 from base.CBlobList import CBlobList
+from base.KagImage import KagImage
 
 import atexit
 from datetime import datetime
@@ -66,17 +67,21 @@ class Canvas(QGraphicsView):
         # TODO: be able to resize canvas for the 'new' map button
 
         # SAVE MAP WHEN EXITING MAP MAKER
-    #     atexit.register(self.writeMapToFile, datetime.now())
+        atexit.register(self.writeMapToFile, datetime.now())
 
-    # def writeMapToFile(self, timestamp: datetime): # todo: implement this when map saving is added
-    #     time = timestamp.strftime("%d-%m-%Y_%H-%M-%S")
-    #     path = os.path.join(self.exec_path, "Maps", "Autosave", time)
+    def writeMapToFile(self, timestamp: datetime):
+        date_str = timestamp.strftime("%d-%m-%Y")
+        path = os.path.join(self.exec_path, "Maps", "Autosave", date_str)
+        
+        # ensure the directory exists, create it if it doesn't
+        os.makedirs(path, exist_ok=True)
 
-    #     os.makedirs(path, exist_ok = True)
-
-    #     with open(os.path.join(path, time) + f"{time}.txt", "w+", encoding = 'utf-8') as f:
-    #         f.write("".join(map(str, str(self.tilemap))))
-    #         pass
+        file_name = date_str
+        file_path = os.path.join(path, file_name)
+        
+        KagImage()._save_map(file_path + ".png")
+        
+        print(f"Map saved to {file_path} using KagImage()._save_map()")
     
     def get_tilemap(self) -> list:
         return self.tilemap

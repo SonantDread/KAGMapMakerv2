@@ -14,6 +14,7 @@ import inspect
 import os
 from utils.vec import vec
 # TODO: update config handling instead of having this file handle some config
+# TODO: have a better way of handling filepaths
 class KagImage:
     def __init__(self):
         self.colors = KagColor()
@@ -30,10 +31,14 @@ class KagImage:
                 return
         else:
             filepath = self.last_saved_location
-            
+
         if isinstance(filepath, tuple):
             filepath = filepath[0]
 
+        self._save_map(filepath)
+
+    # actual save map code, call this directly if you already have a path in mind
+    def _save_map(self, filepath: str):
         canvas = self._get_canvas()
         tilemap = canvas.get_tilemap()
         colors = self.colors.vanilla_colors
@@ -64,7 +69,7 @@ class KagImage:
 
     def save_map_as(self):
         self.save_map(True)
-        
+
     def load_map(self):
         filepath = self._ask_location("Load Map", self._get_kag_path(), False) # todo: 2nd arg should be to maps folder
         if filepath is None or filepath == "":
@@ -78,24 +83,24 @@ class KagImage:
         tilemap = Image.open(filepath).convert("RGBA")
         rev_lookup = self.colors.vanilla_colors
         rev_lookup = {v: k for k, v in rev_lookup.items()}
-        
+
         width, height = tilemap.size
-        
+
         new_tilemap = [[None for _ in range(height)] for _ in range(width)]
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
                 name = rev_lookup.get(pixel)
-                
+
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
 
                 pos = (x, y)
-                
+
                 item = self.__make_class(name, pos)
                 print(f"Original name: {name} | Name: {item.name}")
                 new_tilemap[x][y] = item
-                
+
         canvas.size = (width, height)
         canvas.tilemap = new_tilemap
         canvas.force_rerender()
@@ -104,7 +109,7 @@ class KagImage:
         raw_name = self._get_raw_name(name)
         img = self.images.getImage(raw_name)
         team = self._get_team(name)
-        
+
         # check if we should return CTile
         if self.tilelist.does_tile_exist(name):
             return CTile(img, raw_name, vec(pos[0], pos[1]), 0)
@@ -120,23 +125,23 @@ class KagImage:
 
     def _get_raw_name(self, name: str) -> str:
         if name is None: return None
-        
+
         # handle rotation
         if name.endswith("_r0") or name.endswith("_r90") or name.endswith("_r180") or name.endswith("_r270"):
             name = name.rstrip("_r0").rstrip("_r90").rstrip("_r180").rstrip("_r270")
-        
+
         pattern = r"_\-?([0-7]|-1)$" # chatgpt string idk
         name = re.sub(pattern, "", name)
 
         return name
-    
+
     def _get_team(self, name: str) -> int:
         pattern = r"_\-?([0-7]|-1)$"
         matched = re.match(pattern, name)
 
         if matched is None:
             return None
-        
+
         return int(matched.group(1))
 
     def _get_canvas(self):
