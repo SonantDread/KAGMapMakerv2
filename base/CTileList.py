@@ -15,21 +15,28 @@ class CTileList:
         self.Images = ImageHandler()
 
         self.vanilla_tiles_collection = [
-            CTile(self.Images.getImage(0  ), "tile_empty",            vec(0,0), -5000),
-            CTile(self.Images.getImage(16 ), "tile_ground",           vec(0,0), -1   ),
-            CTile(self.Images.getImage(32 ), "tile_ground_back",      vec(0,0), -1   ),
-            CTile(self.Images.getImage(25 ), "tile_grass",            vec(0,0), 500  ),
-            CTile(self.Images.getImage(48 ), "tile_castle",           vec(0,0), -1   ),
-            CTile(self.Images.getImage(224), "tile_castle_moss",      vec(0,0), -1   ),
-            CTile(self.Images.getImage(64 ), "tile_castle_back",      vec(0,0), -1   ),
-            CTile(self.Images.getImage(227), "tile_castle_back_moss", vec(0,0), -1   ),
-            CTile(self.Images.getImage(80 ), "tile_gold",             vec(0,0), -1   ),
-            CTile(self.Images.getImage(96 ), "tile_stone",            vec(0,0), -1   ),
-            CTile(self.Images.getImage(208), "tile_thickstone",       vec(0,0), -1   ),
-            CTile(self.Images.getImage(106), "tile_bedrock",          vec(0,0), -1   ),
-            CTile(self.Images.getImage(196), "tile_wood",             vec(0,0), -1   ),
-            CTile(self.Images.getImage(173), "tile_wood_back",        vec(0,0), -1   )
+            CTile(self.Images.getImage(0  ), "tile_empty",            vec(0,0), 0, -5000), # shouldnt render ever
+            CTile(self.Images.getImage(16 ), "tile_ground",           vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(32 ), "tile_ground_back",      vec(0,0), 0, -600 ),
+            CTile(self.Images.getImage(25 ), "tile_grass",            vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(48 ), "tile_castle",           vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(224), "tile_castle_moss",      vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(64 ), "tile_castle_back",      vec(0,0), 0, -600 ),
+            CTile(self.Images.getImage(227), "tile_castle_back_moss", vec(0,0), 0, -600 ),
+            CTile(self.Images.getImage(80 ), "tile_gold",             vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(96 ), "tile_stone",            vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(208), "tile_thickstone",       vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(106), "tile_bedrock",          vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(196), "tile_wood",             vec(0,0), 0, 500  ),
+            CTile(self.Images.getImage(173), "tile_wood_back",        vec(0,0), 0, -600 )
         ]
+        ## for KAG but will also use here to try to keep it similar, can be changed later if its a problem
+        # -600 = behind background
+        # -500 = in front, behind shops
+        # -100 = in front of shops, behind players
+        #  100 = in front of players, behind solid tiles
+        #  500 = in front of solid tiles (and basically everything else except trees and spikes)
+        # 1500 = in front of spikes
 
         self.vanilla_tiles_indexes = {
             "tile_empty": int(0),
