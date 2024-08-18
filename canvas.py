@@ -221,6 +221,14 @@ class Canvas(QGraphicsView):
             self.holding_rmb = True
 
             self.placeItem(event, 0)
+            
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            self._pan_start_x, self._pan_start_y = event.pos().x(), event.pos().y()
+            self._last_pan_point = event.pos()
+            self.holding_scw = True
+            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -228,6 +236,12 @@ class Canvas(QGraphicsView):
 
         elif event.button() == Qt.MouseButton.RightButton: # elif to prevent placing two tiles at once
             self.holding_rmb = False
+            
+        elif event.button() == Qt.MouseButton.MiddleButton:
+            self.holding_scw = False
+            self.setCursor(Qt.CursorShape.ArrowCursor)
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
+            self.viewport().unsetCursor()
 
     def mouseMoveEvent(self, event):
         self.current_cursor_pos = event.pos()
@@ -236,6 +250,15 @@ class Canvas(QGraphicsView):
 
         elif self.holding_rmb:
             self.placeItem(event, 0)
+            
+        if self.holding_scw:
+            # Calculate how much the mouse has moved
+            delta = event.pos() - self._last_pan_point
+            self._last_pan_point = event.pos()
+
+            # Scroll the view accordingly
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Shift: # locking cursor pos when holding shift
