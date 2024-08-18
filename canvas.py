@@ -57,7 +57,7 @@ class Canvas(QGraphicsView):
         self.last_placed_pos = [0, 0]
 
         # TODO: this should be a dictionary of positions instead of a 2d array
-        self.tilemap = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
+        self.tilemap = [[None for _ in range(self.size[1])] for _ in range(self.size[0])] # should have the tile class of every placed tile in here
 
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8) # 8 being 8x8 pixels in kag
         self.buildTileGrid()

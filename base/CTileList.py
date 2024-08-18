@@ -80,4 +80,4 @@ class CTileList:
         return False
 
     def isTileBackground(self, tile) -> bool:
-        return tile.layer <= 500
+        return tile.z <= 500

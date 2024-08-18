@@ -7,6 +7,7 @@ class KagColor:
 								# r0 = up, r90 = right, r180 = down, r270 = left
 								# if we have a red wooden door rotated left, it would be 'wooden_door_1_r270'
 								# if a blob only has 1 available team in the list it won't have a _1 or _-1
+								# TODO: these should be CBlob or CTile classes instead of just a dictionary
 								# TODO: organize these into sections
 								# TODO: figure out how to use the getTeamFromChannel & getAngleFromChannel in BasePNGLoader.as for team / rotation
 			"sky": (255, 165, 189, 200),

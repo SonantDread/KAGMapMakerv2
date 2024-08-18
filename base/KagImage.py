@@ -54,7 +54,7 @@ class KagImage:
                 argb = colors.get(name)
 
                 if argb is None:
-                    print(f"Item not found: {name}. Unable to load in line {inspect.currentframe().f_lineno} of {os.path.basename(__file__)}")
+                    print(f"Item not found: {name} | Unable to load in line {inspect.currentframe().f_lineno} of {os.path.basename(__file__)}")
                     continue
 
                 image.putpixel((x, y), self.argb_to_rgba(argb))

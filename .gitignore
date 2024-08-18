@@ -3,3 +3,5 @@ __pycache__
 Maps
 settings/config.json
 settings/config.json
+.venv
+.git
