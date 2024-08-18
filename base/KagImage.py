@@ -30,6 +30,9 @@ class KagImage:
                 return
         else:
             filepath = self.last_saved_location
+            
+        if isinstance(filepath, tuple):
+            filepath = filepath[0]
 
         canvas = self._get_canvas()
         tilemap = canvas.get_tilemap()
@@ -67,6 +70,9 @@ class KagImage:
         if filepath is None or filepath == "":
             print("Map to load not selected. Operation cancelled.")
             return
+
+        if isinstance(filepath, tuple):
+            filepath = filepath[0]
 
         canvas = self._get_canvas()
         tilemap = Image.open(filepath).convert("RGBA")
