@@ -5,21 +5,17 @@
 import sys, os
 
 # libs
-from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import QObject, pyqtSignal, QEvent
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget
+from PyQt6.QtCore import QEvent
 
 # sources
 from utils.windowsettings import Window
 from utils.mainconfig import Config
 from utils.input import input
 from core.scripts.ui_layout import ui
-from core.scripts.cursor import Cursor
-from base.TileList import TileList
-from utils.vec import vec
+from core.scripts.Communicator import Communicator
 from core.scripts.modules._toolbar import module as Toolbar
 
-# test
 from canvas import Canvas
 
 class App(QMainWindow):
@@ -37,7 +33,6 @@ class App(QMainWindow):
         print("Setting up main window")
         cfg = self.config = Config()
         cfg.build.connect(self.Quit)
-        self.cursor = Cursor()
 
         print("Loading UI")
         self.main_widget = QWidget(self)
@@ -62,6 +57,7 @@ class App(QMainWindow):
         # add canvas to layout
         self.layout.addWidget(self.canvas)
 
+        self.communicator = Communicator()
         self.announce("RUNNING APP")
 
     def eventFilter(self, obj, event):

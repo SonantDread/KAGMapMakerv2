@@ -1,33 +1,40 @@
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsItemGroup
-from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QImage, QTransform, QBrush
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsItemGroup, QGraphicsItem
+from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QTransform, QBrush
 from PyQt6.QtCore import Qt
-from base.KagImage import KagImage
-from base.Tile import Tile
+from base.ImageHandler import ImageHandler
+from base.CTile import CTile
 from utils.vec import vec
-import io
 import math
-from core.scripts.cursor import Cursor
-from base.Tile import Tile
+from core.scripts.Communicator import Communicator
 from utils.vec import vec
-from base.TileList import TileList
+from base.CTileList import CTileList
+from base.Renderer import Renderer
+from base.CBlobList import CBlobList
+
+import atexit
+from datetime import datetime
+import os
 
 class Canvas(QGraphicsView):
     def __init__(self, size: tuple):
         super().__init__()
+        self.exec_path = os.path.dirname(os.path.realpath(__file__))
+        self.Renderer = Renderer()
         self.canvas = QGraphicsScene()
-        self.cursorcomm = Cursor()
+        self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
+        self.Communicator = Communicator()
+        self.Communicator.setCanvas(self)
         self.setScene(self.canvas)
         self.geometry = vec(300, 300)
         self.size = size # map size
 
-        self.tile_images = KagImage()
+        self.Images = ImageHandler()
 
-        self.zoom_change_factor = 1.1   # todo: make it configurable
         self.zoom_change_factor = 1.1
 
         self.default_zoom_scale = 3        # default value for grid zoom, practically offsets scale from very small natural size to "comfortable"
-        self.zoom_factor = 1               # current zoom, todo
-        self.zoom_minmax = [0.1, 5]        # max zoom (count default_zoom_scale as 1), todo
+        self.zoom_factor = 1               # current zoom
+        self.zoom_minmax = [0.1, 5]        # max zoom (count default_zoom_scale as 1)
 
         self.setMouseTracking(True) # allow for constant update of cursor position (call to mouseMoveEvent)
         self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
@@ -36,7 +43,7 @@ class Canvas(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)  # no scroll bars
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setBackgroundBrush(QColor(165, 189, 200, 255))  # background color
-        self.setMinimumSize(200, 200)  # cannot be smaller than this todo: should depend on minmax zoom, same as maxsize
+        self.setMinimumSize(200, 200)  # cannot be smaller than this
         self.setMaximumSize(1000, 1000)
 
         self.holding_lmb = False
@@ -46,19 +53,45 @@ class Canvas(QGraphicsView):
 
         self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
 
-        self.locked_pos = [0, 0] # x, y position of where user is placing when shift is first held
-        self.locked_direction = -1 # True = left / right, False = up / down, None = not locked
-        self.last_placed_tile_pos = [0, 0]
+        self.last_placed_pos = [0, 0]
 
-        self.blocks = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
-        self.blockimages = {}
+        # TODO: this should be a dictionary of positions instead of a 2d array
+        self.tilemap = [[None for _ in range(self.size[0])] for _ in range(self.size[1])] # should have the tile class of every placed tile in here
 
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8) # 8 being 8x8 pixels in kag
         self.buildTileGrid()
-        self.Ctile_list = TileList()
+        self.tile_list = CTileList()
+        self.blob_list = CBlobList()
+        
+        # TODO: be able to resize canvas for the 'new' map button
 
-    def isTileEmpty(self, tile: str) -> bool:
-        return tile is None or tile == "" or tile == "sky" or tile == "tile_empty" or not self.Ctile_list.getTileByName(tile)
+        # SAVE MAP WHEN EXITING MAP MAKER
+    #     atexit.register(self.writeMapToFile, datetime.now())
+
+    # def writeMapToFile(self, timestamp: datetime): # todo: implement this when map saving is added
+    #     time = timestamp.strftime("%d-%m-%Y_%H-%M-%S")
+    #     path = os.path.join(self.exec_path, "Maps", "Autosave", time)
+
+    #     os.makedirs(path, exist_ok = True)
+
+    #     with open(os.path.join(path, time) + f"{time}.txt", "w+", encoding = 'utf-8') as f:
+    #         f.write("".join(map(str, str(self.tilemap))))
+    #         pass
+    
+    def get_tilemap(self) -> list:
+        return self.tilemap
+    
+    def get_size(self) -> tuple:
+        return self.size
+
+    def isPositionEmpty(self, name: str) -> bool:
+        if self.tile_list.getTileByName(name):
+            return False
+
+        if self.blob_list.doesBlobExist(name):
+            return False
+
+        return True
 
     def buildTileGrid(self) -> None:
         pen = QPen(Qt.GlobalColor.black)
@@ -69,7 +102,7 @@ class Canvas(QGraphicsView):
 
     def buildGridLines(self, pen: QPen):
         self.grid_group = QGraphicsItemGroup()
-        
+
         # create background rectangle with different color
         background_color = QColor(200, 220, 240)
         rect = self.canvas.addRect(0, 0, self.size[0] * self.grid_spacing, self.size[1] * self.grid_spacing, QPen(Qt.GlobalColor.transparent), QBrush(background_color))
@@ -84,7 +117,7 @@ class Canvas(QGraphicsView):
         for y in range(0, self.size[1] * self.grid_spacing + 1, self.grid_spacing):
             line = self.canvas.addLine(0, y, self.size[1] * self.grid_spacing, y, pen)
             self.grid_group.addToGroup(line)
-        
+
         self.canvas.addItem(self.grid_group)
 
     def showGridLines(self):
@@ -95,125 +128,99 @@ class Canvas(QGraphicsView):
         if self.grid_group:
             self.grid_group.setVisible(False)
 
-    def placeTile(self, event, tile_index: int) -> None:
-        pos = event.pos()
-        pos = self.mapToScene(pos)
+    def placeItem(self, event, click_index: int) -> None:
+        pos = self.mapToScene(event.pos())
         pos = self.snapToGrid((pos.x(), pos.y()))
 
-        placing_tile: str = self.getSelectedBlock()[tile_index].tile_name
-        empty_tile: bool = self.isTileEmpty(placing_tile)
-
-        if self.holding_shift: # todo: move this into a function
-            locked_x, locked_y = self.snapToGrid((self.locked_pos.x(), self.locked_pos.y()))
-            current_x, current_y = pos
-
-            if self.locked_direction is None:
-                if abs(current_x - locked_x) > abs(current_y - locked_y):
-                    self.locked_direction = True  # Lock horizontal
-                else:
-                    self.locked_direction = False  # Lock vertical
-
-            if self.locked_direction:
-                pos = (current_x, locked_y) # lock Y
-            else:
-                pos = (locked_x, current_y)  # lock X
+        placing_tile: str = self.Communicator.getSelectedTile(click_index)
+        eraser: bool = self.isPositionEmpty(placing_tile)
 
         # do nothing if out of bounds
         if self.isOutOfBounds(pos):
             return
 
-        grid_x, grid_y = pos
-        scene_x = grid_x * self.grid_spacing
+        grid_x, grid_y = pos # for the 2d array 'tilemap'
+        scene_x = grid_x * self.grid_spacing # for the actual location on the canvas
         scene_y = grid_y * self.grid_spacing
-        print(f"empty tile: {empty_tile}")
 
-        if empty_tile and self.blocks[grid_x][grid_y] is not None: # eraser
-            self.canvas.removeItem(self.blocks[grid_x][grid_y].pixmap_item)
-            self.blocks[grid_x][grid_y] = None
-            return
+        self.Renderer.handleRender(placing_tile, vec(scene_x, scene_y), vec(grid_x, grid_y), click_index, eraser)
 
-        if empty_tile:
-            return
+    def force_rerender(self):
+        # Clear the canvas
+        self.canvas.clear()
+        
+        # Clear the graphics_items dictionary
+        if hasattr(self, 'graphics_items'):
+            self.graphics_items.clear()
+        
+        # Rebuild the grid
+        self.buildTileGrid()
+        
+        # Redraw all items
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                item = self.tilemap[x][y]
+                if item is not None:
+                    scene_x = x * self.grid_spacing
+                    scene_y = y * self.grid_spacing
+                    self.Renderer.handleRender(item.name, vec(scene_x, scene_y), vec(x, y), 1, False, item.z)
 
-        if self.blocks[grid_x][grid_y] is not None:
-            # remove existing block from scene
-            self.canvas.removeItem(self.blocks[grid_x][grid_y].pixmap_item)
-            self.blocks[grid_x][grid_y] = None
+    def removeExistingItemFromScene(self, pos: tuple) -> None:
+        x, y = pos
+        if self.tilemap[x][y] is not None:
+            if hasattr(self, 'graphics_items') and (x, y) in self.graphics_items:
+                self.canvas.removeItem(self.graphics_items[(x, y)])
+                del self.graphics_items[(x, y)]
+            self.tilemap[x][y] = None
 
-        pixmap = self.getTileImage(placing_tile)
-        tile = self.makeTile(placing_tile, (grid_x, grid_y))
+    def addItemToCanvas(self, pixmap: QPixmap, pos: tuple, z: int, name: str):
+        x, y = self.snapToGrid(pos)
+        
+        # Remove existing item if present
+        if self.tilemap[x][y] is not None:
+            self.removeExistingItemFromScene((x, y))
 
+        if pixmap is None:
+            print(f"Warning: Pixmap is None for item {name} at position {pos}")
+            return None
+
+        # create new item
         pixmap_item = QGraphicsPixmapItem(pixmap)
         pixmap_item.setScale(self.zoom_factor * self.default_zoom_scale)
-        pixmap_item.setPos(scene_x, scene_y)
+        width, height = pixmap.width(), pixmap.height()
+        pixmap_item.setPos(int(pos[0] - width), int(pos[1] - height))
+        pixmap_item.setZValue(z)
+
         self.canvas.addItem(pixmap_item)
 
-        tile.pixmap_item = pixmap_item
-        self.blocks[grid_x][grid_y] = tile
+        # update tilemap with CTile storing the QPixmap
+        self.tilemap[x][y] = CTile(pixmap, name, vec(x, y), 0, z)  # Assuming layer is 0
 
-        self.last_placed_tile_pos = [grid_x, grid_y]
+        # store the QGraphicsPixmapItem separately
+        if not hasattr(self, 'graphics_items'):
+            self.graphics_items = {}
+        self.graphics_items[(x, y)] = pixmap_item
+
+        return pixmap_item
 
     def toggleGrid(self):
         if self.grid_group:
             self.grid_group.setVisible(not self.grid_group.isVisible())
 
-    def getSelectedBlock(self) -> list:
-        return self.cursorcomm.getSelectedTiles()
-
-    def makeTile(self, tile_name: str, tile_pos: tuple) -> Tile: # input tile name and pos, returns tile class
-        img = self.getTileImage(tile_name)
-
-        x, y = tile_pos
-        tile_pos = vec(x, y)
-
-        return Tile(img, tile_name, tile_pos, 0, True) # last 2 vars are currently dummy vars, change later
-    
-    def getTileImage(self, tile_name: str) -> QPixmap: # returns the image of given tile name
-        img = None
-
-        if(tile_name in self.blockimages): # image exists
-            img = self.blockimages[tile_name]
-
-        else: # image doesnt exist
-            img = self.loadBlockImage(tile_name)
-            self.blockimages[tile_name] = img
-
-        return img if img is not None else None
-
     def snapToGrid(self, pos) -> tuple:
         x, y = pos
         return (int(x // self.grid_spacing), int(y // self.grid_spacing))
-    
-    def loadBlockImage(self, blockName: str) -> QPixmap:
-        """
-            Loads a block's PNG from its name
-
-            Args:
-                blockName (str): the name of the block you want to load
-
-            Returns:
-                QPixmap: The block's image as a QPixmap
-        """
-
-        block = self.tile_images.getTilePNGByName(blockName)
-        byte_array = io.BytesIO()
-        block.save(byte_array, format='PNG')
-
-        qimage = QImage()
-        qimage.loadFromData(byte_array.getvalue())
-
-        return QPixmap.fromImage(qimage)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton: # place blocks
             self.holding_lmb = True
 
-            self.placeTile(event, 1)
+            self.placeItem(event, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.holding_rmb = True
 
-            self.placeTile(event, 0)
+            self.placeItem(event, 0)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -225,23 +232,18 @@ class Canvas(QGraphicsView):
     def mouseMoveEvent(self, event):
         self.current_cursor_pos = event.pos()
         if self.holding_lmb:
-            self.placeTile(event, 1)
+            self.placeItem(event, 1)
 
         elif self.holding_rmb:
-            self.placeTile(event, 0)
+            self.placeItem(event, 0)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Shift: # locking cursor pos when holding shift
             self.holding_shift = True
 
-            self.locked_pos = self.current_cursor_pos
-            self.locked_direction = None
-
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key.Key_Shift:
             self.holding_shift = False
-
-            self.locked_direction = None
 
     def wheelEvent(self, event):
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:

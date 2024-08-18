@@ -2,9 +2,12 @@ from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QComboBox, QWidgetAction
 from PyQt6.QtGui import QAction
 from PyQt6 import QtCore
 
+from base.KagImage import KagImage
+
 class module(QToolBar):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.kagimage = KagImage()
 
     def setupUi(self):
         # file menu
@@ -14,11 +17,13 @@ class module(QToolBar):
         save_as_action = QAction("Save As", self)
         load_action = QAction("Load", self)
         render_action = QAction("Render", self)
+        test_in_kag = QAction("Test in KAG", self)
         file_menu.addAction(new_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         file_menu.addAction(load_action)
         file_menu.addAction(render_action)
+        file_menu.addAction(test_in_kag)
 
         # settings menu
         settings_menu = QMenu("Settings", self)
@@ -52,6 +57,7 @@ class module(QToolBar):
         button1_action.triggered.connect(self.button1_triggered)
         button2_action.triggered.connect(self.button2_triggered)
         button3_action.triggered.connect(self.button3_triggered)
+        test_in_kag.triggered.connect(self.test_in_kag_triggered)
 
         # add File menu to toolbar
         self.file_menu = QAction("File", self)
@@ -76,12 +82,14 @@ class module(QToolBar):
         
     def save_triggered(self):
         print("Save triggered")
+        self.kagimage.save_map()
 
     def save_as_triggered(self):
         print("Save As triggered")
+        self.kagimage.save_map_as()
 
     def load_triggered(self):
-        print("Load triggered")
+        self.kagimage.load_map()
 
     def render_triggered(self):
         print("Render triggered")
@@ -97,3 +105,6 @@ class module(QToolBar):
 
     def button3_triggered(self):
         print("Button 3 clicked")
+    
+    def test_in_kag_triggered(self):
+        print("Test in kag clicked")

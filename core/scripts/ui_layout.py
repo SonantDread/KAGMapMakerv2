@@ -20,7 +20,7 @@ class ui:
             print(f"Created 'modules' folder at: '{modules_folder}'")
 
         for name in os.listdir(modules_folder):
-            if not name.endswith(".py"): # if not python file
+            if not name.endswith(".py"): # not a python file
                 continue
 
             # ignore importing if it has a '_' at start

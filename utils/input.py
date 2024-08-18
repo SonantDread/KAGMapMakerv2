@@ -7,4 +7,3 @@ class input:
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.MouseButtonPress:
             mouse_event = event
-            #print(f"Mouse clicked at global coordinates: {mouse_event.globalPosition()}")
