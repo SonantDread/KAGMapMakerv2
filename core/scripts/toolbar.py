@@ -1,15 +1,34 @@
-from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QComboBox, QWidgetAction
+"""
+The toolbar for the file, settings, view, etc.
+"""
+
+from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QWidgetAction
 from PyQt6.QtGui import QAction
-from PyQt6 import QtCore
 
-from base.KagImage import KagImage
+from base.kag_image import KagImage
+# TODO: fix this file up when filepath manager is added
 
-class module(QToolBar):
-    def __init__(self, parent=None):
+class Toolbar(QToolBar):
+    """
+    The toolbar for the program.
+    """
+    def __init__(self, parent = None):
         super().__init__(parent)
         self.kagimage = KagImage()
+        self.setup_ui()
 
-    def setupUi(self):
+    def setup_ui(self):
+        """
+        Sets up the UI for the toolbar, including the file, settings, and view menus.
+        This function creates the menu actions, adds them to their respective menus,
+        and connects the actions to their corresponding functions.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         # file menu
         file_menu = QMenu("File", self)
         new_action = QAction("New", self)
@@ -34,7 +53,7 @@ class module(QToolBar):
 
         # view menu
         view_menu = QMenu("View", self)
-        
+
         # create a submenu for buttons
         buttons_submenu = QMenu("Buttons", self)
         button1_action = QAction("Button 1", self)
@@ -43,7 +62,7 @@ class module(QToolBar):
         buttons_submenu.addAction(button1_action)
         buttons_submenu.addAction(button2_action)
         buttons_submenu.addAction(button3_action)
-        
+
         # add the submenu to the 'View' menu
         view_menu.addMenu(buttons_submenu)
 
@@ -61,25 +80,25 @@ class module(QToolBar):
 
         # add File menu to toolbar
         self.file_menu = QAction("File", self)
-        self.file_menu.triggered.connect(lambda: self._PopUp(file_menu, self.file_menu))
+        self.file_menu.triggered.connect(lambda: self._pop_up(file_menu, self.file_menu))
         self.addAction(self.file_menu)
 
         # add Settings menu to toolbar
         self.settings_menu = QAction("Settings", self)
-        self.settings_menu.triggered.connect(lambda: self._PopUp(settings_menu, self.settings_menu))
+        self.settings_menu.triggered.connect(lambda: self._pop_up(settings_menu, self.settings_menu))
         self.addAction(self.settings_menu)
 
         # add View menu to toolbar
         self.view_menu = QAction("View", self)
-        self.view_menu.triggered.connect(lambda: self._PopUp(view_menu, self.view_menu))
+        self.view_menu.triggered.connect(lambda: self._pop_up(view_menu, self.view_menu))
         self.addAction(self.view_menu)
 
-    def _PopUp(self, tabtoopen, trigger):
+    def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
     def new_triggered(self):
         print("New triggered")
-        
+
     def save_triggered(self):
         print("Save triggered")
         self.kagimage.save_map()
@@ -105,6 +124,6 @@ class module(QToolBar):
 
     def button3_triggered(self):
         print("Button 3 clicked")
-    
+
     def test_in_kag_triggered(self):
         print("Test in kag clicked")

@@ -1,54 +1,85 @@
-from base.CTile import CTile
-from base.CBlob import CBlob
-from typing import Union
-from core.scripts.Communicator import Communicator
-from utils.vec import vec
-from PyQt6.QtGui import QPixmap
-from base.ImageHandler import ImageHandler
-from base.CTileList import CTileList
+"""
+Handles the rendering of objects for the canvas class.
+"""
+
 import inspect
 import os
+from typing import Union
+
+from PyQt6.QtGui import QPixmap
+
+from base.cblob import CBlob
+from base.ctile import CTile
+from base.ctile_list import CTileList
+from base.image_handler import ImageHandler
+from core.scripts.communicator import Communicator
+from utils.vec import vec
 
 class Renderer:
+    """
+    Renders items on the screen for the canvas.
+    """
     def __init__(self) -> None:
         self.communicator = Communicator()
-        self.Images = ImageHandler()
-        self.TileList = CTileList()
+        self.images = ImageHandler()
+        self.tile_list = CTileList()
 
-    def handleRender(self, placing: Union[str, CTile, CBlob], scene_pos: vec, snapped_pos: vec, click_index: int, eraser: bool, z: int = 0) -> None:
+    def render(self, placing: str, pos: vec, tm_pos: vec, eraser: bool) -> None:
+        """
+        Handles the rendering of an object on the canvas.
+
+        Args:
+            placing (Union[str, CTile, CBlob]): The object to render.
+            pos (vec): The position of the object on the canvas.
+            tm_pos (vec): The snapped position of the object on the canvas.
+            eraser (bool): Whether or not to erase the object.
+        """
+        z = 0
         if isinstance(placing, (CTile, CBlob)):
-            placing = placing.name
-            try: # idk why but this apparently crashes app sometimes
+            if z == 0: # default z
                 z = placing.z
-            except: pass
 
-        canvas = self.communicator.getCanvas()
+            placing = placing.name
 
-        if canvas.tilemap[snapped_pos.x][snapped_pos.y] is not None:
-            canvas.removeExistingItemFromScene((snapped_pos.x, snapped_pos.y))
-        if eraser: 
+        canvas = self.communicator.get_canvas()
+
+        if canvas.tilemap[tm_pos.x][tm_pos.y] is not None:
+            canvas.remove_existing_item_from_scene((tm_pos.x, tm_pos.y))
+        if eraser:
             return
 
-        pixmap: QPixmap = self.Images.getImage(placing)
-        
+        pixmap: QPixmap = self.images.get_image(placing)
+
         if pixmap is None:
-            print(f"Warning: Failed to get image for {placing} at line {inspect.currentframe().f_lineno} of {os.path.basename(__file__)}")
+            line = inspect.currentframe().f_lineno
+            fn = os.path.basename(__file__)
+            print(f"Warning: Failed to get image for {placing} at line {line} of {fn}")
             return
 
-        item: Union[CTile, CBlob] = self.__makeItem(placing, (snapped_pos.x, snapped_pos.y))
+        # TODO: why is the renderer handling this instead of the canvas?
+        item: Union[CTile, CBlob] = self.__make_item(placing, (tm_pos.x, tm_pos.y))
 
-        pixmap_item = canvas.addItemToCanvas(pixmap, (scene_pos.x, scene_pos.y), z, placing)
+        pixmap_item = canvas.add_to_canvas(pixmap, (pos.x, pos.y), z, placing)
 
         if pixmap_item is not None:
-            canvas.tilemap[snapped_pos.x][snapped_pos.y] = item
-            canvas.last_placed_pos = [snapped_pos.x, snapped_pos.y]
+            canvas.tilemap[tm_pos.x][tm_pos.y] = item
 
-    def __makeItem(self, name: str, pos: tuple) -> Union[CTile, CBlob]:
-        img: QPixmap = self.Images.getImage(name)
+    def __make_item(self, name: str, pos: tuple) -> Union[CTile, CBlob]:
+        """
+        Creates a new item (CTile or CBlob) based on the provided name and position.
+
+        Args:
+            name (str): The name of the item to create.
+            pos (tuple): The position of the item to create.
+
+        Returns:
+            Union[CTile, CBlob]: The created item, either a CTile or a CBlob.
+        """
+        img: QPixmap = self.images.get_image(name)
 
         x, y = pos
         pos = vec(x, y)
 
-        if self.TileList.getTileByName(name) is None:
+        if self.tile_list.get_tile_by_name(name) is None:
             return CBlob(img, name, pos, 0)
         return CTile(img, name, pos, 0, True)

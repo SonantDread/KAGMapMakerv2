@@ -1,10 +1,11 @@
+
+
 # Collection of custom classes for different solutions
 
-from utils.vec import vec
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtWidgets import QMenu, QWidget
-from PyQt6.QtGui import QHideEvent
 from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QHideEvent
+from PyQt6.QtWidgets import QMenu, QWidget
 
 class ui_module(QWidget):
     def __init__(self, parent = None):

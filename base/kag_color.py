@@ -1,15 +1,19 @@
-from base.CBlobList import CBlobList
-
+"""
+Stores the ARGB colors that are used in BasePNGLoader.as
+"""
 class KagColor:
-	def __init__(self):
-		self.BlobList = CBlobList()
-		self.vanilla_colors = { # the _0 / _1 is for team, -1 = no team
+    """
+	Stores the ARGB colors that are used in BasePNGLoader.as
+    """
+    def __init__(self):
+        self.vanilla_colors = { # the _0 / _1 is for team, -1 = no team
 								# r0 = up, r90 = right, r180 = down, r270 = left
 								# if we have a red wooden door rotated left, it would be 'wooden_door_1_r270'
 								# if a blob only has 1 available team in the list it won't have a _1 or _-1
 								# TODO: these should be CBlob or CTile classes instead of just a dictionary
 								# TODO: organize these into sections
-								# TODO: figure out how to use the getTeamFromChannel & getAngleFromChannel in BasePNGLoader.as for team / rotation
+								# TODO: figure out how to use the getTeamFromChannel & getAngleFromChannel,
+								# TODO: and in BasePNGLoader.as for team / rotation
 			"sky": (255, 165, 189, 200),
 			"tile_ground": (255, 132, 71, 21),
 			"tile_ground_back": (255, 59, 20, 6),
@@ -100,7 +104,7 @@ class KagColor:
 			"sponge": (255, 220, 0, 180),
 			"chest": (255, 240, 193, 80),
 			"fishy": (255, 121, 168, 163),
-			# "lever": (255, 0, 255, 255), # apparently lever & the main blue spawn both use same color, so we can't actually place the lever
+			# "lever": (255, 0, 255, 255), # apparently lever & the main blue spawn both use same color, so we can't actually use the lever
 			"pressure_plate": (255, 16, 255, 255),
 			"push_button": (255, 32, 255, 255),
 			"coin_slot": (255, 48, 255, 255),
@@ -164,17 +168,3 @@ class KagColor:
 			"barracks": (255, 217, 218, 255),
 			"storage": (255, 217, 255, 239),
 		}
-
-	# return ARGB color
-	def getColor(self, name: str) -> tuple:
-		return self.vanilla_colors[name]
-
-	# return RGB color
-	def getColorRGB(self, name: str) -> tuple:
-		return self.tiles[name][1:]
-
-	def getTileNames(self) -> list:
-		return list(self.tiles.keys())
-
-	def getTileColors(self) -> list:
-		return list(self.tiles.values())

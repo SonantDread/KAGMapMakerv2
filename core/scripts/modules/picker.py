@@ -1,33 +1,62 @@
-# handles the GUI of picking items
-import sys
-from PyQt6.QtCore import Qt, QPoint, QSize
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtWidgets import QPushButton, QScrollArea, QSpacerItem
+"""
+Handles the GUI of selecting blocks, blobs and everything else.
+"""
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtCore import QPoint, QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import (QPushButton, QScrollArea, QSpacerItem, QGridLayout,
+                            QWidget, QTabWidget, QSizePolicy)
+
+from base.cblob_list import CBlobList
+from base.ctile_list import CTileList
+from core.scripts.communicator import Communicator
 from core.scripts.ui_module import ui_module
-from base.CTileList import CTileList
-from base.CBlobList import CBlobList
-from core.scripts.Communicator import Communicator
 
 SCROLLBAR_SIZE_WIDTH = 15
 BUTTON_WIDTH, BUTTON_HEIGHT = 40, 40
 
 class SelectionButton(QPushButton):
+    """
+    Used for the block & blob selection buttons because
+    there isn't a good built in right click handler.
+    """
     def __init__(self, item_name: str, communicator: Communicator, parent = None):
         super().__init__(parent)
         self.name = item_name
         self.communicator = communicator
 
-    def setSelectedItem(self, item_name: str, lmb: int):
-        self.communicator.selectItem(item_name, lmb)
+    def set_selected_item(self, item_name: str, lmb: int):
+        """
+        Sets the currently selected item in the application.
+
+        Args:
+            item_name (str): The name of the item to select.
+            lmb (int): The mouse button that triggered the selection (1 for left, 0 for right).
+
+        Returns:
+            None
+        """
+        self.communicator.select_item(item_name, lmb)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.setSelectedItem(self.name, 1)
-        elif event.button() == Qt.MouseButton.RightButton:
-            self.setSelectedItem(self.name, 0)
+        """
+        Handles mouse press events to select an item.
 
-class module(ui_module):
+        Parameters:
+            event: A QMouseEvent object containing information about the mouse press event.
+
+        Returns:
+            None
+        """
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.set_selected_item(self.name, 1)
+        elif event.button() == Qt.MouseButton.RightButton:
+            self.set_selected_item(self.name, 0)
+
+class Module(ui_module):
+    """
+    The picker menu for blocks, blobs and whatever else.
+    """
     def __init__(self, parent = None):
         super().__init__(self)
         self.setParent(parent)
@@ -37,56 +66,71 @@ class module(ui_module):
 
         self.communicator = Communicator()
 
-    def setupUi(self):
-        SIZE = self._getTabSize(32, 7, SCROLLBAR_SIZE_WIDTH)
+        self.grid_layout_widget = self.grid_layout = self.tab_widget = None
+        self.tiles = self.modded = self.entities = None
+
+    def setup_ui(self):
+        """
+        Sets up the user interface for the module, including the grid layout, tab widget, 
+        scroll areas, and other UI elements. It also connects the slots to the signals and 
+        sets up the mouse press/release/move events.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        size = self._get_tab_size(32, 7, SCROLLBAR_SIZE_WIDTH)
         # Create a widget to hold the tab widget
-        self.gridLayoutWidget = QtWidgets.QWidget(parent = self.parent_widget)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 25, SIZE, SIZE))
-        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.grid_layout_widget = QWidget(parent = self.parent_widget)
+        self.grid_layout_widget.setGeometry(QtCore.QRect(0, 25, size, size))
+        self.grid_layout_widget.setObjectName("grid_layout_widget")
 
         # Create a grid layout to contain the tab widget
-        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout.setObjectName("gridLayout")
+        self.grid_layout = QGridLayout(self.grid_layout_widget)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_layout.setObjectName("gridLayout")
 
         # Create the tab widget
-        self.tabWidget = QtWidgets.QTabWidget(parent = self.gridLayoutWidget)
-        self.tabWidget.setObjectName("tabWidget")
-        self.tabWidget.setGeometry(QtCore.QRect(0, 25, SIZE, SIZE))
+        self.tab_widget = QTabWidget(parent = self.grid_layout_widget)
+        self.tab_widget.setObjectName("tabWidget")
+        self.tab_widget.setGeometry(QtCore.QRect(0, 25, size, size))
 
         # Create the scroll areas for each tab
-        self.tiles = QtWidgets.QScrollArea()
+        self.tiles = QScrollArea()
         self.tiles.setObjectName("tiles")
-        self.tiles.setGeometry(QtCore.QRect(0, 25, SIZE, SIZE))
+        self.tiles.setGeometry(QtCore.QRect(0, 25, size, size))
         self.tiles.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.tiles.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tabWidget.addTab(self.tiles, "")
+        self.tab_widget.addTab(self.tiles, "")
         # Add the blocks to the tiles tab
-        self.setupBlocks(self.tiles)
+        self.setup_blocks(self.tiles)
 
-        self.entities = QtWidgets.QScrollArea() # TODO: sort the blobs into categories under the Entities tab
+        # TODO: sort the blobs into categories under the Entities tab
+        self.entities = QScrollArea()
         self.entities.setObjectName("entities")
-        self.entities.setGeometry(QtCore.QRect(0, 25, SIZE, SIZE))
+        self.entities.setGeometry(QtCore.QRect(0, 25, size, size))
         self.entities.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.entities.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tabWidget.addTab(self.entities, "")
+        self.tab_widget.addTab(self.entities, "")
         # Add the blobs to the entities tab
-        self.setupBlobs(self.entities)
+        self.setup_blobs(self.entities)
 
         # TODO: have tab called "Other" for things that don't fit into Tiles or Blobs
-        self.modded = QtWidgets.QScrollArea() # TODO: add JSON templates for modded tiles & blobs
+        self.modded = QScrollArea() # TODO: add JSON templates for modded tiles & blobs
         self.modded.setObjectName("modded")
-        self.modded.setGeometry(QtCore.QRect(0, 25, SIZE, SIZE))
+        self.modded.setGeometry(QtCore.QRect(0, 25, size, size))
         self.modded.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.modded.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tabWidget.addTab(self.modded, "")
+        self.tab_widget.addTab(self.modded, "")
 
         # Add the tab widget to the grid layout
-        self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
+        self.grid_layout.addWidget(self.tab_widget, 0, 0, 1, 1)
         # Translate the UI
         self.retranslateUi()
         # Set the current index of the tab widget to 0
-        self.tabWidget.setCurrentIndex(0)
+        self.tab_widget.setCurrentIndex(0)
         # Connect the slots to the signals
         QtCore.QMetaObject.connectSlotsByName(self.parent_widget)
 
@@ -98,24 +142,35 @@ class module(ui_module):
 
         # Add default selection to brush
         tiles = CTileList().vanilla_tiles_collection
-        self.communicator.selectItem(tiles[0], 0)
-        self.communicator.selectItem(tiles[1], 1)
+        self.communicator.select_item(tiles[0], 0)
+        self.communicator.select_item(tiles[1], 1)
 
-    def setupBlocks(self, tab: QScrollArea) -> None:
+    def setup_blocks(self, tab: QScrollArea) -> None:
+        """
+        Sets up the blocks in the given tab by creating a scroll widget and layout, 
+        then populating it with buttons representing the blocks in the vanilla tiles collection.
+        
+        Args:
+            tab (QScrollArea): The tab to set up the blocks in.
+        
+        Returns:
+            None
+        """
         blocks = CTileList().vanilla_tiles_collection
         x, y = 0, 0
 
-        scroll_widget = QtWidgets.QWidget(tab)
-        scroll_layout = QtWidgets.QGridLayout(scroll_widget)
+        scroll_widget = QWidget(tab)
+        scroll_layout = QGridLayout(scroll_widget)
 
         scroll_layout.setSpacing(0)
         scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         for block in blocks:
-            if block.name == "" or block.name is None or block.img is None or block.name == "tile_empty":
+            n = block.name
+            if n == "" or n is None or n == "tile_empty" or block.img is None:
                 continue
 
-            self._makeButton(scroll_layout, x, y, block.name, block.img)
+            self._make_button(scroll_layout, x, y, block.name, block.img)
 
             x += 1
             if x * BUTTON_WIDTH >= tab.width() - 64:
@@ -126,12 +181,22 @@ class module(ui_module):
         tab.setWidget(scroll_widget)
         tab.setWidgetResizable(True)
 
-    def setupBlobs(self, tab: QScrollArea) -> None:
+    def setup_blobs(self, tab: QScrollArea) -> None:
+        """
+        Sets up the blobs in the given tab by creating a scroll widget and layout, 
+        then populating it with buttons representing the blobs in the vanilla maploader collection.
+        
+        Args:
+            tab (QScrollArea): The tab to set up the blobs in.
+        
+        Returns:
+            None
+        """
         blobs = CBlobList().vanilla_maploader_blobs
         x, y = 0, 0
 
-        scroll_widget = QtWidgets.QWidget(tab)
-        scroll_layout = QtWidgets.QGridLayout(scroll_widget)
+        scroll_widget = QWidget(tab)
+        scroll_layout = QGridLayout(scroll_widget)
 
         scroll_layout.setSpacing(0)
         scroll_layout.setVerticalSpacing(0)
@@ -141,7 +206,7 @@ class module(ui_module):
             if blob.name == "" or blob.name is None or blob.img is None:
                 continue
 
-            self._makeButton(scroll_layout, x, y, blob.name, blob.img)
+            self._make_button(scroll_layout, x, y, blob.name, blob.img)
 
             x += 1
             if x * BUTTON_WIDTH >= tab.width() - 64:
@@ -152,21 +217,23 @@ class module(ui_module):
         tab.setWidget(scroll_widget)
         tab.setWidgetResizable(True)
 
-    def _makeButton(self, layout: QtWidgets.QGridLayout, x: int, y: int, name: str, img: QPixmap) -> None:
+    def _make_button(self, layout: QGridLayout, x: int, y: int, name: str, img: QPixmap) -> None:
         button = SelectionButton(name, self.communicator, layout.parentWidget())
         button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-        button.setIcon(self._scaleImage(img))
+        button.setIcon(self._scale_image(img))
         button.setIconSize(QSize(BUTTON_WIDTH, BUTTON_HEIGHT))
 
         button.setContentsMargins(0, 0, 0, 0)
         button.setMaximumSize(BUTTON_WIDTH, BUTTON_HEIGHT)
 
         if x != 0 or y != 0: # not in first row, add a spacer to prevent it being weird
-            layout.addItem(QSpacerItem(self._getTabSize(32, 7, SCROLLBAR_SIZE_WIDTH), 2, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding))
+            ex = QSizePolicy.Policy.Expanding
+            layout.addItem(QSpacerItem(self._get_tab_size(32, 7, SCROLLBAR_SIZE_WIDTH), 2, ex, ex))
 
         layout.addWidget(button, y, x)
 
-    def _scaleImage(self, img: QPixmap) -> QIcon: # TODO: make this work better than it currently does
+    # TODO: make this work better than it currently does
+    def _scale_image(self, img: QPixmap) -> QIcon:
         """
         Scales the given QPixmap to a specified target size while maintaining its aspect ratio,
         and returns the scaled image as a QIcon.
@@ -193,11 +260,23 @@ class module(ui_module):
 
         return QIcon(final_pixmap)
 
-    def _getTabSize(self, button_size: int, amount_of_buttons: int, scrollbar_width: int) -> int:
+    def _get_tab_size(self, button_size: int, amount_of_buttons: int, scrollbar_width: int) -> int:
         return int((button_size * amount_of_buttons) + scrollbar_width)
 
     def retranslateUi(self):
+        """
+        Retranslates the UI elements of the current object.
+        
+        This method is used to update the text of the UI elements to match the current language.
+        
+        Parameters:
+            None
+        
+        Returns:
+            None
+        """
         _translate = QtCore.QCoreApplication.translate
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tiles), _translate("menu", "Tiles"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.entities), _translate("menu", "Entities"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.modded), _translate("menu", "Modded"))
+        tw = self.tab_widget
+        tw.setTabText(tw.indexOf(self.tiles), _translate("menu", "Tiles"))
+        tw.setTabText(tw.indexOf(self.entities), _translate("menu", "Entities"))
+        tw.setTabText(tw.indexOf(self.modded), _translate("menu", "Modded"))

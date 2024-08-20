@@ -1,13 +1,17 @@
-# core implementation of the lazy image loading, shared between every instance
-from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QImage
-from base.CTile import CTile
-from base.CBlob import CBlob
-from typing import Union
+"""
+Handles all image loading.
+"""
+import inspect #TODO: should be able to handle getting world.png
 import os
-import inspect
+from typing import Union
+
 from PIL import Image
+from PyQt6.QtGui import QPixmap
 
 class SingletonMeta(type):
+    """
+    Used to share code between all instances of the class.
+    """
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -17,9 +21,12 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 class ImageHandler(metaclass = SingletonMeta):
+    """
+    Used to handle all image loading.
+    """
     def __init__(self) -> None:
         self.loaded_images = {}
-        self.tile_indexes = { # used to get correct sprite in world.png
+        self.tile_indexes = { # should just be from ctile_list but circular import error
             "tile_empty": int(0),
             "tile_ground": int(16),
             "tile_grassy_ground": int(23),
@@ -35,33 +42,45 @@ class ImageHandler(metaclass = SingletonMeta):
             "tile_thickstone": int(208),
             "tile_castle_moss": int(224),
             "tile_castle_back_moss": int(227),
+            "sky": int(400),
         }
         exec_path = os.path.dirname(os.path.realpath(__file__))
         self.basepath = os.path.join(exec_path, "Sprites", "MapMaker")
 
-    def getImage(self, name: Union[str, int]) -> QPixmap:
+    def get_image(self, name: Union[str, int]) -> QPixmap:
+        """
+        Retrieves an image based on the provided name or index.
+
+        Args:
+            name (Union[str, int]): The name or index of the image to retrieve.
+
+        Returns:
+            QPixmap: The retrieved image, or None if the image does not exist.
+        """
         if isinstance(name, int): # handle input of index for a block
-            name = self._getTileNameByIndex(name)
+            name = self._get_tile_name_by_index(name)
 
         if self.loaded_images.get(name) is not None:
             return self.loaded_images.get(name)
 
         # image doesnt exist
-        img = self._getItemPNGByName(name)
+        img = self._get_item_png_by_name(name)
 
         if img is not None:
             return img
 
-        print(f"Image not found: {name}. Unable to load in line {inspect.currentframe().f_lineno} of {os.path.basename(__file__)}")
+        line = inspect.currentframe().f_lineno
+        fn = os.path.basename(__file__)
+        print(f"Image not found: {name}. Unable to load in line {line} of {fn}")
         return None
 
-    def _getItemPNGByName(self, name: str) -> QPixmap:
+    def _get_item_png_by_name(self, name: str) -> QPixmap:
         if name in self.tile_indexes:
-            return self._getTilePNGByIndex(self.tile_indexes[name])
+            return self._get_tile_png_by_index(self.tile_indexes[name])
 
-        return self._loadImage(name)
+        return self._load_image(name)
 
-    def _loadImage(self, name: str) -> QPixmap:
+    def _load_image(self, name: str) -> QPixmap:
         try:
             path = os.path.join(self.basepath, name + ".png")
 
@@ -72,18 +91,18 @@ class ImageHandler(metaclass = SingletonMeta):
             self.loaded_images.update({name: img.toqpixmap()})
             return img.toqpixmap()
 
-        except:
+        except FileNotFoundError:
             print(f"Image not found: {name}")
-            return None # img not found
+            return None
 
-    def _getTilePNGByIndex(self, index: int) -> QPixmap:
-        # open world.png
-        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sprites", "Default", "world.png")
+    def _get_tile_png_by_index(self, index: int) -> QPixmap:
+        name = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(name, "Sprites", "Default", "world.png")
         image = Image.open(image_path)
         image = image.convert("RGBA") # prevent errors with alpha translation
 
-        width, height = image.size
-        sections_w, sections_h = width // 8, height // 8
+        width = image.size[0]
+        sections_w = width // 8
 
         # calculate coordinates for the specified index
         x = (index % sections_w) * 8
@@ -91,12 +110,12 @@ class ImageHandler(metaclass = SingletonMeta):
 
         # crop the world.png to get the correct image
         img: QPixmap = image.crop((x, y, x + 8, y + 8)).toqpixmap()
-        self.loaded_images.update({self._getTileNameByIndex(index): img})
+        self.loaded_images.update({self._get_tile_name_by_index(index): img})
         return img
-    
-    def _getTileNameByIndex(self, index: int) -> str:
+
+    def _get_tile_name_by_index(self, index: int) -> str:
         names: dict = {v: k for k, v in self.tile_indexes.items()}
-        
+
         if index in names:
             return names[index]
         raise ValueError(f"Index {index} not found in tile_indexes.")

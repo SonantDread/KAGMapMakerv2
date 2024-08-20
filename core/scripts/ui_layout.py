@@ -35,7 +35,7 @@ class ui:
                 module = importlib.util.module_from_spec(module_spec)
                 module_spec.loader.exec_module(module)
 
-                class_name = 'module'
+                class_name = 'Module'
                 class_object = getattr(module, class_name)
 
                 # create an instance of the class
@@ -50,4 +50,4 @@ class ui:
 
     def load(self):
         for module in self.modules:
-            module.setupUi()
+            module.setup_ui()
