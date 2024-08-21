@@ -16,7 +16,7 @@ from base.ctile_list import CTileList
 from base.kag_image import KagImage
 from base.renderer import Renderer
 from core.scripts.communicator import Communicator
-from utils.vec import vec
+from utils.vec import Vec2f
 
 class Canvas(QGraphicsView):
     """
@@ -32,7 +32,7 @@ class Canvas(QGraphicsView):
         self.communicator = Communicator()
         self.communicator.set_canvas(self)
         self.setScene(self.canvas)
-        self.geometry = vec(300, 300)
+        self.geometry = Vec2f(300, 300)
         self.size = size # map size
         self.grid_group = QGraphicsItemGroup()
 
@@ -143,8 +143,8 @@ class Canvas(QGraphicsView):
                 if item is not None:
                     scene_x = x * self.grid_spacing
                     scene_y = y * self.grid_spacing
-                    scene_pos = vec(scene_x, scene_y)
-                    self.renderer.render(item.name, scene_pos, vec(x, y), False)
+                    scene_pos = Vec2f(scene_x, scene_y)
+                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False)
 
     # TODO: shouldnt pass name string, instead should just use communicator to get name
     def _using_eraser(self, name: str) -> bool:
@@ -257,8 +257,8 @@ class Canvas(QGraphicsView):
         scene_x = grid_x * self.grid_spacing # for the actual location on the canvas
         scene_y = grid_y * self.grid_spacing
 
-        scene_pos = vec(scene_x, scene_y)
-        snapped_pos = vec(grid_x, grid_y)
+        scene_pos = Vec2f(scene_x, scene_y)
+        snapped_pos = Vec2f(grid_x, grid_y)
         self.renderer.render(placing_tile, scene_pos, snapped_pos, eraser)
 
     def remove_existing_item_from_scene(self, pos: tuple) -> None:

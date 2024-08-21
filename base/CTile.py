@@ -2,7 +2,7 @@
 Holds basic information for tiles.
 """
 from PyQt6.QtGui import QPixmap
-from utils.vec import vec
+from utils.vec import Vec2f
 
 class CTile:
     """
@@ -15,7 +15,7 @@ class CTile:
         layer (int): The layer of the tile.
         z (int): The depth of the tile in the background rendering.
     """
-    def __init__(self, img: QPixmap, name: str, pos: vec, layer: int, z: int = 0) -> None:
+    def __init__(self, img: QPixmap, name: str, pos: Vec2f, layer: int, z: int = 0) -> None:
         self.img: QPixmap = img
         self.name: str = name
         self.pos: tuple = pos

@@ -1,12 +1,13 @@
 """
 Handles all image loading.
 """
-import inspect #TODO: should be able to handle getting world.png
+import inspect
 import os
 from typing import Union
 
 from PIL import Image
 from PyQt6.QtGui import QPixmap
+from utils.file_handler import FileHandler
 
 class SingletonMeta(type):
     """
@@ -25,6 +26,7 @@ class ImageHandler(metaclass = SingletonMeta):
     Used to handle all image loading.
     """
     def __init__(self) -> None:
+        self.file_handler = FileHandler()
         self.loaded_images = {}
         self.tile_indexes = { # should just be from ctile_list but circular import error
             "tile_empty": int(0),
@@ -81,24 +83,23 @@ class ImageHandler(metaclass = SingletonMeta):
         return self._load_image(name)
 
     def _load_image(self, name: str) -> QPixmap:
-        try:
-            path = os.path.join(self.basepath, name + ".png")
+        path = os.path.join(self.basepath, name + ".png")
 
-            img = Image.open(path)
-            img.convert("RGBA")
-            img.load()
-
-            self.loaded_images.update({name: img.toqpixmap()})
-            return img.toqpixmap()
-
-        except FileNotFoundError:
-            print(f"Image not found: {name}")
+        if not self.file_handler.does_path_exist(path):
+            # todo: uncomment this when water_backdirt is available
+            # raise FileNotFoundError(f"File not found: {path}")
             return None
 
+        img = Image.open(path)
+        img.convert("RGBA")
+        img.load()
+
+        self.loaded_images.update({name: img.toqpixmap()})
+        return img.toqpixmap()
+
     def _get_tile_png_by_index(self, index: int) -> QPixmap:
-        name = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.join(name, "Sprites", "Default", "world.png")
-        image = Image.open(image_path)
+        world = self.file_handler.get_world_path()
+        image = Image.open(world)
         image = image.convert("RGBA") # prevent errors with alpha translation
 
         width = image.size[0]
@@ -108,7 +109,7 @@ class ImageHandler(metaclass = SingletonMeta):
         x = (index % sections_w) * 8
         y = (index // sections_w) * 8
 
-        # crop the world.png to get the correct image
+        # crop the png to get the correct image
         img: QPixmap = image.crop((x, y, x + 8, y + 8)).toqpixmap()
         self.loaded_images.update({self._get_tile_name_by_index(index): img})
         return img

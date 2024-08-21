@@ -13,7 +13,7 @@ from base.ctile import CTile
 from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
 from core.scripts.communicator import Communicator
-from utils.vec import vec
+from utils.vec import Vec2f
 
 class Renderer:
     """
@@ -24,14 +24,14 @@ class Renderer:
         self.images = ImageHandler()
         self.tile_list = CTileList()
 
-    def render(self, placing: str, pos: vec, tm_pos: vec, eraser: bool) -> None:
+    def render(self, placing: str, pos: Vec2f, tm_pos: Vec2f, eraser: bool) -> None:
         """
         Handles the rendering of an object on the canvas.
 
         Args:
             placing (Union[str, CTile, CBlob]): The object to render.
-            pos (vec): The position of the object on the canvas.
-            tm_pos (vec): The snapped position of the object on the canvas.
+            pos (Vec2f): The position of the object on the canvas.
+            tm_pos (Vec2f): The snapped position of the object on the canvas.
             eraser (bool): Whether or not to erase the object.
         """
         z = 0
@@ -43,8 +43,10 @@ class Renderer:
 
         canvas = self.communicator.get_canvas()
 
+        # remove rendered item if it exists
         if canvas.tilemap[tm_pos.x][tm_pos.y] is not None:
             canvas.remove_existing_item_from_scene((tm_pos.x, tm_pos.y))
+
         if eraser:
             return
 
@@ -56,7 +58,6 @@ class Renderer:
             print(f"Warning: Failed to get image for {placing} at line {line} of {fn}")
             return
 
-        # TODO: why is the renderer handling this instead of the canvas?
         item: Union[CTile, CBlob] = self.__make_item(placing, (tm_pos.x, tm_pos.y))
 
         pixmap_item = canvas.add_to_canvas(pixmap, (pos.x, pos.y), z, placing)
@@ -78,7 +79,7 @@ class Renderer:
         img: QPixmap = self.images.get_image(name)
 
         x, y = pos
-        pos = vec(x, y)
+        pos = Vec2f(x, y)
 
         if self.tile_list.get_tile_by_name(name) is None:
             return CBlob(img, name, pos, 0)

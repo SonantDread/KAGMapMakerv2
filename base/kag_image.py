@@ -17,10 +17,10 @@ from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
 from base.kag_color import KagColor
 from core.scripts.communicator import Communicator
-from utils.vec import vec
+from utils.vec import Vec2f
+from utils.file_handler import FileHandler
+from utils.config_handler import ConfigHandler
 
-# TODO: update config handling instead of having this file handle some config
-# TODO: have a better way of handling filepaths
 class KagImage:
     """
     Handles saving, loading, rendering and testing maps in KAG.
@@ -31,6 +31,7 @@ class KagImage:
         self.last_saved_location = None
         self.tilelist = CTileList()
         self.images = ImageHandler()
+        self.file_handler = FileHandler()
 
     def save_map(self, filepath: str = None, force_ask: bool = False):
         """
@@ -108,6 +109,9 @@ class KagImage:
         if isinstance(filepath, tuple):
             filepath = filepath[0]
 
+        if not self.file_handler.does_path_exist(filepath):
+            raise FileNotFoundError(f"File not found: {filepath}")
+
         canvas = self._get_canvas()
         tilemap = Image.open(filepath).convert("RGBA")
         rev_lookup = self.colors.vanilla_colors
@@ -141,8 +145,8 @@ class KagImage:
 
         # check if we should return CTile
         if self.tilelist.does_tile_exist(name):
-            return CTile(img, raw_name, vec(pos[0], pos[1]), 0)
-        return CBlob(img, raw_name, vec(pos[0], pos[1]), 0, team)
+            return CTile(img, raw_name, Vec2f(pos[0], pos[1]), 0)
+        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team)
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
         """
@@ -216,19 +220,9 @@ class KagImage:
         return file_path
 
     def _get_kag_path(self) -> str:
-        path = 'settings/config.json'
+        path = ConfigHandler().get_config_item("kag_path")
 
-        try:
-            with open(path, 'r', encoding = 'utf-8') as json_file:
-                data = json.load(json_file)
-
-                kag_path = data['kag_path']
-                return kag_path
-
-        except FileNotFoundError:
-            print(f"Could not find {path}")
-
-        return None
+        return str(path)
 
     def _ask_save_location(self) -> str:
         if self.last_saved_location is None: # todo: 2nd arg should be to maps folder

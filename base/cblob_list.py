@@ -6,7 +6,8 @@ import os
 
 from base.cblob import CBlob
 from base.image_handler import ImageHandler
-from utils.vec import vec
+from utils.vec import Vec2f
+from utils.file_handler import FileHandler
 
 
 class CBlobList:
@@ -14,6 +15,7 @@ class CBlobList:
     Stores a list of all the available blobs.
     """
     def __init__(self):
+        self.file_handler = FileHandler()
         self.exec_path = os.path.dirname(os.path.realpath(__file__)) # where this file is
         self.sprite_path = os.path.join(self.exec_path, "Sprites")
         self.images = ImageHandler()
@@ -46,7 +48,11 @@ class CBlobList:
         """
         names = []
 
-        with open(os.path.join(self.exec_path, "Bloblist.txt"), encoding = 'utf-8') as f:
+        path = os.path.join(self.exec_path, "Bloblist.txt")
+        if not self.file_handler.does_path_exist(path):
+            raise FileExistsError(f"{path} does not exist.")
+
+        with open(path, encoding = 'utf-8') as f:
             for item in f.readlines():
                 names.append(item.strip())
 
@@ -56,7 +62,7 @@ class CBlobList:
         return list(set(names))
 
     def _to_blob_class(self, name: str) -> CBlob:
-        return CBlob(self.images.get_image(name), name, vec(0, 0), 0, 0, self._get_fakez(name))
+        return CBlob(self.images.get_image(name), name, Vec2f(0, 0), 0, 0, self._get_fakez(name))
 
     # until we have a good way to get the z indexes of blobs we can use this
     # TODO: maybe in bloblist.txt, allow for adding a ', #' for a Z index

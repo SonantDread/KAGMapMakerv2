@@ -3,16 +3,18 @@ Used to compile all scripts into a functional app.
 Run the map maker in terminal by using 'python app.py'.
 """
 
+import atexit
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget
-from PyQt6.QtCore import QEvent
 
-from utils.windowsettings import Window
-from utils.mainconfig import Config
-from core.scripts.ui_layout import ui
+from PyQt6.QtCore import QEvent
+from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
+
+from canvas import Canvas
 from core.scripts.communicator import Communicator
 from core.scripts.toolbar import Toolbar
-from canvas import Canvas
+from core.scripts.ui_layout import ui
+from utils.config_handler import ConfigHandler
+
 
 class App(QMainWindow):
     """
@@ -34,8 +36,8 @@ class App(QMainWindow):
         self.addToolBar(self.toolbar)
 
         print("Setting up main window")
-        cfg = self.config = Config()
-        cfg.build.connect(self.quit)
+        self.config_handler = ConfigHandler()
+        self.config_handler.load_config(self)
 
         print("Loading UI")
         self.main_widget = QWidget(self)
@@ -49,10 +51,6 @@ class App(QMainWindow):
         self.ui_layout = ui(self.main_widget)
         self.ui_layout.load()
 
-        window = cfg.window = Window()
-        window.ui_window = self
-        window.SetupWindow()
-
         # load canvas
         print("Loading Canvas")
         self.canvas = Canvas((200, 130))
@@ -62,17 +60,19 @@ class App(QMainWindow):
 
         self.communicator = Communicator()
         self._announce("RUNNING APP")
+        atexit.register(self.save_on_exit)
 
-    def closeEvent(self, event) -> None:
+    def save_on_exit(self) -> None:
         """
-        Handles the close event of the application.
+        Saves the current application configuration on exit.
 
-        Saves the current configuration when the application is closed.
+        Args:
+            None
 
-        Parameters:
-            event (QEvent): The close event.
+        Returns:
+            None
         """
-        self.config.build_from_active_window(event)
+        self.config_handler.save_config(self)
 
     def quit(self, event: QEvent) -> None:
         """

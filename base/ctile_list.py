@@ -4,9 +4,9 @@ Stores a list of all the available tiles.
 from base.ctile import CTile
 from base.image_handler import ImageHandler
 from base.kag_color import KagColor
-from utils.vec import vec
+from utils.vec import Vec2f
 
-tile_size = vec(8, 8)
+tile_size = Vec2f(8, 8)
 
 class CTileList:
     """
@@ -17,20 +17,20 @@ class CTileList:
         self.images = ImageHandler()
 
         self.vanilla_tiles_collection = [
-            CTile(self.images.get_image(0  ), "tile_empty",            vec(0,0), 0, -5000),
-            CTile(self.images.get_image(16 ), "tile_ground",           vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(32 ), "tile_ground_back",      vec(0,0), 0, -600 ),
-            CTile(self.images.get_image(25 ), "tile_grass",            vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(48 ), "tile_castle",           vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(224), "tile_castle_moss",      vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(64 ), "tile_castle_back",      vec(0,0), 0, -600 ),
-            CTile(self.images.get_image(227), "tile_castle_back_moss", vec(0,0), 0, -600 ),
-            CTile(self.images.get_image(80 ), "tile_gold",             vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(96 ), "tile_stone",            vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(208), "tile_thickstone",       vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(106), "tile_bedrock",          vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(196), "tile_wood",             vec(0,0), 0, 500  ),
-            CTile(self.images.get_image(173), "tile_wood_back",        vec(0,0), 0, -600 )
+            CTile(self.images.get_image(0  ), "tile_empty",            Vec2f(0,0), 0, -5000),
+            CTile(self.images.get_image(16 ), "tile_ground",           Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(32 ), "tile_ground_back",      Vec2f(0,0), 0, -600 ),
+            CTile(self.images.get_image(25 ), "tile_grass",            Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(48 ), "tile_castle",           Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(224), "tile_castle_moss",      Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(64 ), "tile_castle_back",      Vec2f(0,0), 0, -600 ),
+            CTile(self.images.get_image(227), "tile_castle_back_moss", Vec2f(0,0), 0, -600 ),
+            CTile(self.images.get_image(80 ), "tile_gold",             Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(96 ), "tile_stone",            Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(208), "tile_thickstone",       Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(106), "tile_bedrock",          Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(196), "tile_wood",             Vec2f(0,0), 0, 500  ),
+            CTile(self.images.get_image(173), "tile_wood_back",        Vec2f(0,0), 0, -600 )
         ]
         ## for KAG but will also use here to try to keep it similar,
         # can be changed later if its a problem
