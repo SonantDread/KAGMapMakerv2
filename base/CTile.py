@@ -2,7 +2,7 @@
 Holds basic information for tiles.
 """
 from PyQt6.QtGui import QPixmap
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 
 class CTile:
     """

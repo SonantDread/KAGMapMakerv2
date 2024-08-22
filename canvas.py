@@ -16,7 +16,7 @@ from base.ctile_list import CTileList
 from base.kag_image import KagImage
 from base.renderer import Renderer
 from core.scripts.communicator import Communicator
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 
 class Canvas(QGraphicsView):
     """

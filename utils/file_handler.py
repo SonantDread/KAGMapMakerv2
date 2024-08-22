@@ -12,16 +12,18 @@ class FileHandler:
         self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
         self.world_path = os.path.join(self.base_path, "base", "Sprites", "Default", "world.png")
         self.mapmaker_images = os.path.join(self.base_path, "base", "Sprites", "MapMaker")
+
         self.config_path = os.path.join(self.base_path, "settings", "config.json")
         self.default_config_path = os.path.join(self.base_path, "settings", "readonly_config.json")
+        self.gui_modules_path = os.path.join(self.base_path, "core", "scripts", "modules")
 
     def does_path_exist(self, path: str):
         """
         Checks if a given file path exists.
-        
+
         Args:
             path (str): The file path to check.
-        
+
         Returns:
             bool: True if the path exists, False otherwise.
         """
@@ -33,7 +35,7 @@ class FileHandler:
     def get_world_path(self):
         """
         Returns the path to the world file.
-        
+
         Returns:
             str: The path to the world file.
         """
@@ -47,7 +49,7 @@ class FileHandler:
             str: The path to the configuration file.
         """
         return self.config_path
-    
+
     def get_default_config_path(self):
         """
         Returns the path to the default configuration file.
@@ -56,6 +58,15 @@ class FileHandler:
             str: The path to the default configuration file.
         """
         return self.default_config_path
+
+    def get_gui_modules_path(self):
+        """
+        Returns the path to the modules directory for the GUI.
+
+        Returns:
+            str: Returns the path to the modules directory for the GUI.
+        """
+        return self.gui_modules_path
 
     def does_sprite_exist(self, name: str) -> bool:
         """

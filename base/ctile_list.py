@@ -4,7 +4,7 @@ Stores a list of all the available tiles.
 from base.ctile import CTile
 from base.image_handler import ImageHandler
 from base.kag_color import KagColor
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 
 tile_size = Vec2f(8, 8)
 

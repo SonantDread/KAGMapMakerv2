@@ -6,7 +6,7 @@ import os
 
 from base.cblob import CBlob
 from base.image_handler import ImageHandler
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 from utils.file_handler import FileHandler
 
 

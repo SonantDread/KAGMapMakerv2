@@ -12,9 +12,8 @@ from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
 from canvas import Canvas
 from core.scripts.communicator import Communicator
 from core.scripts.toolbar import Toolbar
-from core.scripts.ui_layout import ui
+from core.scripts.gui_module_handler import GUIModuleHandler
 from utils.config_handler import ConfigHandler
-
 
 class App(QMainWindow):
     """
@@ -48,8 +47,8 @@ class App(QMainWindow):
         self.layout = QHBoxLayout(self.main_widget)
         self.main_widget.setLayout(self.layout)
 
-        self.ui_layout = ui(self.main_widget)
-        self.ui_layout.load()
+        self.ui_layout = GUIModuleHandler(self)
+        self.ui_layout.setup_modules()
 
         # load canvas
         print("Loading Canvas")

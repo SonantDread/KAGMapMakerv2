@@ -17,7 +17,7 @@ from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
 from base.kag_color import KagColor
 from core.scripts.communicator import Communicator
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 from utils.file_handler import FileHandler
 from utils.config_handler import ConfigHandler
 

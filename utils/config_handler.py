@@ -6,7 +6,7 @@ import json
 from PyQt6.QtWidgets import QMainWindow
 
 from utils.file_handler import FileHandler
-from utils.vec import Vec2f
+from utils.vec2f import Vec2f
 
 class SingletonMeta(type):
     """
