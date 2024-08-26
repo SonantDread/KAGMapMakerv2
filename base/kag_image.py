@@ -16,7 +16,7 @@ from base.ctile import CTile
 from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
 from base.kag_color import KagColor
-from core.scripts.communicator import Communicator
+from core.communicator import Communicator
 from utils.vec2f import Vec2f
 from utils.file_handler import FileHandler
 from utils.config_handler import ConfigHandler
@@ -52,7 +52,7 @@ class KagImage:
         colors = self.colors.vanilla_colors
 
         sky = self.argb_to_rgba(colors.get("sky"))
-        image = Image.new("RGBA", size = canvas.get_size(), color = sky)
+        image = Image.new("RGBA", size = (canvas.get_size().x, canvas.get_size().y), color = sky)
 
         for x, row in enumerate(tilemap):
             for y, tile in enumerate(row):

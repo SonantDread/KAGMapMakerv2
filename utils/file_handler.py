@@ -15,7 +15,7 @@ class FileHandler:
 
         self.config_path = os.path.join(self.base_path, "settings", "config.json")
         self.default_config_path = os.path.join(self.base_path, "settings", "readonly_config.json")
-        self.gui_modules_path = os.path.join(self.base_path, "core", "scripts", "modules")
+        self.gui_modules_path = os.path.join(self.base_path, "core", "modules")
 
     def does_path_exist(self, path: str):
         """

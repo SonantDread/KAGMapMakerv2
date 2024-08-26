@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (QPushButton, QScrollArea, QSpacerItem, QGridLayout,
 
 from base.cblob_list import CBlobList
 from base.ctile_list import CTileList
-from core.scripts.communicator import Communicator
+from core.communicator import Communicator
 
 SCROLLBAR_SIZE_WIDTH = 15
 BUTTON_WIDTH, BUTTON_HEIGHT = 40, 40
@@ -56,8 +56,9 @@ class Module(QWidget):
     """
     The picker menu for blocks, blobs and whatever else.
     """
-    def __init__(self, parent=None):
-        super().__init__(parent)  # Call the QWidget constructor correctly
+    def __init__(self, parent = None):
+        super().__init__(parent)
+        self.setParent(parent)
         self.parent_widget = parent
         self.offset = QPoint()
 

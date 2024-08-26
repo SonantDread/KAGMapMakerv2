@@ -15,7 +15,7 @@ from base.cblob_list import CBlobList
 from base.ctile_list import CTileList
 from base.kag_image import KagImage
 from base.renderer import Renderer
-from core.scripts.communicator import Communicator
+from core.communicator import Communicator
 from utils.vec2f import Vec2f
 
 class Canvas(QGraphicsView):
@@ -23,7 +23,7 @@ class Canvas(QGraphicsView):
     The main drawing and interaction surface within the map maker.
     It manages the display and manipulation of map elements while handling user input.
     """
-    def __init__(self, size: tuple) -> None:
+    def __init__(self, size: Vec2f) -> None:
         super().__init__()
         self.exec_path = os.path.dirname(os.path.realpath(__file__))
         self.renderer = Renderer()
@@ -32,7 +32,7 @@ class Canvas(QGraphicsView):
         self.communicator = Communicator()
         self.communicator.set_canvas(self)
         self.setScene(self.canvas)
-        self.geometry = Vec2f(300, 300)
+        # self.geometry = Vec2f(300, 300)
         self.size = size # map size
         self.grid_group = QGraphicsItemGroup()
 
@@ -57,13 +57,12 @@ class Canvas(QGraphicsView):
         self.holding_lmb = False
         self.holding_rmb = False
         self.holding_scw = False
-        self.holding_shift = False
 
         self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
         self._last_pan_point = None
 
         # TODO: this should be a dictionary of positions instead of a 2d array
-        self.tilemap = [[None for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.tilemap = [[None for _ in range(self.size.y)] for _ in range(self.size.x)]
         self.graphics_items = {}
 
         self._build_tile_grid()
@@ -137,8 +136,8 @@ class Canvas(QGraphicsView):
         self._build_tile_grid()
 
         # Redraw all items
-        for x in range(self.size[0]):
-            for y in range(self.size[1]):
+        for x in range(self.size.x):
+            for y in range(self.size.y):
                 item = self.tilemap[x][y]
                 if item is not None:
                     scene_x = x * self.grid_spacing
@@ -178,13 +177,13 @@ class Canvas(QGraphicsView):
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
 
-        for x in range(0, self.size[0] * self.grid_spacing + 1, self.grid_spacing):
-            line = self.canvas.addLine(x, 0, x, self.size[0] * self.grid_spacing, pen)
+        for x in range(0, self.size.x * self.grid_spacing + 1, self.grid_spacing):
+            line = self.canvas.addLine(x, 0, x, self.size.x * self.grid_spacing, pen)
             self.grid_group.addToGroup(line)
 
         # Create horizontal grid lines
-        for y in range(0, self.size[1] * self.grid_spacing + 1, self.grid_spacing):
-            line = self.canvas.addLine(0, y, self.size[1] * self.grid_spacing, y, pen)
+        for y in range(0, self.size.y * self.grid_spacing + 1, self.grid_spacing):
+            line = self.canvas.addLine(0, y, self.size.y * self.grid_spacing, y, pen)
             self.grid_group.addToGroup(line)
 
         self.canvas.addItem(self.grid_group)
@@ -227,7 +226,7 @@ class Canvas(QGraphicsView):
             None
         """
         background_color = QColor(200, 220, 240)
-        width, height = self.size[0] * self.grid_spacing, self.size[1] * self.grid_spacing
+        width, height = self.size.x * self.grid_spacing, self.size.y * self.grid_spacing
         pen = QPen(Qt.GlobalColor.transparent)
         rect = self.canvas.addRect(0, 0, width, height, pen, QBrush(background_color))
         self.canvas.addItem(rect)
@@ -293,7 +292,7 @@ class Canvas(QGraphicsView):
         """
         x, y = self._snap_to_grid(pos)
 
-        # Remove existing item if present
+        # remove existing item if present
         if self.tilemap[x][y] is not None:
             self.remove_existing_item_from_scene((x, y))
 
@@ -302,10 +301,12 @@ class Canvas(QGraphicsView):
             return None
 
         # create new item
+        # TODO: fix this code with proper offsets
         pixmap_item = QGraphicsPixmapItem(img)
         pixmap_item.setScale(self.zoom_factor * self.default_zoom_scale)
-        width, height = img.width(), img.height()
-        pixmap_item.setPos(int(pos[0] - width), int(pos[1] - height))
+
+        newpos = self.__get_offset(name, img)
+        pixmap_item.setPos(int(pos[0] - newpos.x), int(pos[1] - newpos.y))
         pixmap_item.setZValue(z)
 
         self.canvas.addItem(pixmap_item)
@@ -313,6 +314,127 @@ class Canvas(QGraphicsView):
         self.graphics_items[(x, y)] = pixmap_item
 
         return pixmap_item
+
+    # using this function until better solution is found so mapmaker is usable
+    # TODO: (MAYBE) each of the blobs should have a template, and include offset position
+    # TODO: these should snap to the grid
+    def __get_offset(self, name: str, sprite: QPixmap) -> Vec2f:
+        w, h = sprite.width(), sprite.height()
+        zf, zs = self.zoom_factor, self.default_zoom_scale
+
+        # TODO: check if these offsets correctly load into KAG with how they currently are viewed
+        # place from bottom center + offset
+        if name == "tree" or name == "grain":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "ballista":
+            return Vec2f(w + (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "catapult":
+            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "bomber":
+            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "airship":
+            return Vec2f(w + (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "bison":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "chest":
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (10 * zf * zs)))
+
+        if name == "chicken":
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "crate":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "ctf_flag":
+            return Vec2f(w + (14 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "dinghy":
+            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
+
+        if name == "dummy":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "ladder":
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (16 * zf * zs)))
+
+        if name == "keg":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "longboat":
+            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
+
+        if name == "mine":
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "mounted_bow":
+            return Vec2f(w - (6 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "necromancer" or name == "princess":
+            return Vec2f(w - (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "nursery":
+            return Vec2f(w + (2 * zf * zs), ((h * zf * zs) - (16 * zf * zs)))
+
+        if name == "raft":
+            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (14 * zf * zs)))
+
+        if name == "saw":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "shark":
+            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
+
+        if name == "trampoline":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "workbench":
+            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if "door" in name:
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        names = [
+            "mat_gold",
+            "mat_stone",
+            "mat_wood"
+        ]
+
+        if name in names:
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        names = [
+            "mat_firearrows",
+            "mat_waterarrows",
+            "mat_bombarrows"
+        ]
+
+        if name in names:
+            return Vec2f(w - (3 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
+
+        names = [
+            "knight_shop",
+            "builder_shop",
+            "archer_shop",
+            "barracks",
+            "factory",
+            "tunnel",
+            "storage",
+            "quarters",
+            "kitchen",
+            "boat_shop"
+        ]
+
+        # place from center
+        if name in names:
+            return Vec2f(w * 0.5 + (9 * zf * zs), h * 0.5 + (4 * zf * zs))
+
+        return Vec2f(0, 0)
 
     def _snap_to_grid(self, pos) -> tuple:
         """
@@ -403,32 +525,6 @@ class Canvas(QGraphicsView):
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
-    def keyPressEvent(self, event) -> None:
-        """
-        Handles key press events on the canvas.
-
-        Parameters:
-            event: A Qt event object containing information about the key press.
-
-        Returns:
-            None
-        """
-        if event.key() == Qt.Key.Key_Shift:
-            self.holding_shift = True
-
-    def keyReleaseEvent(self, event) -> None:
-        """
-        Handles key release events on the canvas.
-
-        Parameters:
-            event: A Qt event object containing information about the key release.
-
-        Returns:
-            None
-        """
-        if event.key() == Qt.Key.Key_Shift:
-            self.holding_shift = False
-
     # TODO: fix this chatgpt code so it zooms into cursor and not randomly on canvas
     def wheelEvent(self, event) -> None:
         """
@@ -500,4 +596,4 @@ class Canvas(QGraphicsView):
             bool: True if the position is out of bounds, False otherwise.
         """
         x, y = pos
-        return x < 0 or y < 0 or x >= self.size[0] or y >= self.size[1]
+        return x < 0 or y < 0 or x >= self.size.x or y >= self.size.y

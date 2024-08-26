@@ -12,7 +12,7 @@ from base.cblob import CBlob
 from base.ctile import CTile
 from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
-from core.scripts.communicator import Communicator
+from core.communicator import Communicator
 from utils.vec2f import Vec2f
 
 class Renderer:

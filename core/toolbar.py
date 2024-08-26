@@ -14,6 +14,7 @@ class Toolbar(QToolBar):
     """
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.setParent(parent)
         self.kagimage = KagImage()
         self.setup_ui()
 
@@ -94,6 +95,7 @@ class Toolbar(QToolBar):
         self.addAction(self.view_menu)
 
     def _pop_up(self, tabtoopen, trigger):
+        print("popup")
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
     def new_triggered(self):

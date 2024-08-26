@@ -17,29 +17,27 @@ class GUIModuleHandler:
     def __init__(self, window: QMainWindow):
         self.fh = FileHandler()
         self.app_window = window
-        self.modules = []
-        self._get_modules()
+        self.modules = self._get_modules()
 
     def setup_modules(self) -> None:
         """
         Sets up the GUI modules by loading and initializing them.
-        
+
         Iterates over the list of modules retrieved by `_get_modules`, checks if each module exists,
         loads the module, and creates an instance of the module's `Module` class.
-        
+
         If the module instance has a `setup_ui` method, it is called to set up the module's UI.
-        
+
         The module instance is then added to the list of modules.
-        
+
         Parameters:
             None
-        
+
         Returns:
             None
         """
-        modules = self._get_modules()
-
-        for path in modules:
+        loaded_modules = []
+        for path in self.modules:
             if not self.fh.does_path_exist(path):
                 continue
 
@@ -49,7 +47,9 @@ class GUIModuleHandler:
                 if hasattr(module_instance, 'setup_ui'):
                     module_instance.setup_ui()
 
-                self.modules.append(module_instance)
+                loaded_modules.append(module_instance)
+
+        self.modules = loaded_modules
 
     def _get_modules(self) -> list:
         """

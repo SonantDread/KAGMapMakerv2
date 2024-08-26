@@ -10,10 +10,11 @@ from PyQt6.QtCore import QEvent
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
 
 from canvas import Canvas
-from core.scripts.communicator import Communicator
-from core.scripts.toolbar import Toolbar
-from core.scripts.gui_module_handler import GUIModuleHandler
+from core.communicator import Communicator
+from core.toolbar import Toolbar
+from core.gui_module_handler import GUIModuleHandler
 from utils.config_handler import ConfigHandler
+from utils.vec2f import Vec2f
 
 class App(QMainWindow):
     """
@@ -28,11 +29,6 @@ class App(QMainWindow):
         """
         self._announce("STARTING APP")
         super().__init__()
-        self.installEventFilter(self)
-
-        self.toolbar = Toolbar()
-        self.toolbar.setMovable(False)
-        self.addToolBar(self.toolbar)
 
         print("Setting up main window")
         self.config_handler = ConfigHandler()
@@ -50,9 +46,13 @@ class App(QMainWindow):
         self.ui_layout = GUIModuleHandler(self)
         self.ui_layout.setup_modules()
 
+        self.toolbar = Toolbar(self)
+        self.toolbar.setMovable(False)
+        self.addToolBar(self.toolbar)
+
         # load canvas
         print("Loading Canvas")
-        self.canvas = Canvas((200, 130))
+        self.canvas = Canvas(Vec2f(200, 130))
 
         # add canvas to layout
         self.layout.addWidget(self.canvas)
