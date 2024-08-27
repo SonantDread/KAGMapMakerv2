@@ -44,7 +44,7 @@ class KagImage:
         Returns:
             None
         """
-        if filepath is None or filepath is "" or force_ask:
+        if filepath is None or filepath == "" or force_ask:
             filepath = self._ask_save_location()
 
         canvas = self._get_canvas()

@@ -9,7 +9,8 @@ from datetime import datetime
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QTransform
-from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsScene, QGraphicsView)
+from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem,
+                            QGraphicsScene, QGraphicsView, QSizePolicy)
 
 from base.cblob_list import CBlobList
 from base.ctile_list import CTileList
@@ -50,8 +51,10 @@ class Canvas(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setBackgroundBrush(QColor(165, 189, 200, 255)) # background color
         self.setMinimumSize(200, 200) # cannot be smaller than this
-        self.setMaximumSize(1000, 1000) # TODO: should be resizable but isnt?
+        self.setMaximumSize(1000, 1000)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8)
+
         self._build_background_rect()
 
         self.holding_lmb = False
