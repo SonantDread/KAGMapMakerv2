@@ -9,7 +9,7 @@ class KagColor:
         self.vanilla_colors = { # the _0 / _1 is for team, -1 = no team
 								# r0 = up, r90 = right, r180 = down, r270 = left
 								# if we have a red wooden door rotated left, it would be 'wooden_door_1_r270'
-								# if a blob only has 1 available team in the list it won't have a _1 or _-1
+								# if a blob only has 1 available team (or rotation) in the list it won't have a _1 or _-1
 								# TODO: these should be CBlob or CTile classes instead of just a dictionary
 								# TODO: organize these into sections
 								# TODO: figure out how to use the getTeamFromChannel & getAngleFromChannel,
@@ -34,7 +34,7 @@ class KagColor:
 			"necromancer": (255, 158, 58, 187),
 			"necromancer_teleport": (255, 98, 26, 131), # TODO: needs implementation
 			"redbarrier": (255, 228, 55, 113),
-			"tent_0": (255, 0, 255, 255), # TODO: needs implementation with saving, called 'blue main spawn' in code -----
+			"tent": (255, 0, 255, 255), # TODO: needs implementation with saving, called 'blue main spawn' in code -----
 			"tent_1": (255, 255, 0, 0),
 			"tent_2": (255, 157, 202, 34),
 			"tent_3": (255, 211, 121, 224),
@@ -42,7 +42,7 @@ class KagColor:
 			"tent_5": (255, 46, 229, 162),
 			"tent_6": (255, 95, 132, 236),
 			"tent_7": (255, 196, 207, 161),
-			"ctf_flag_0": (255, 0, 200, 200), # called 'blue spawn' in kag code
+			"ctf_flag": (255, 0, 200, 200), # called 'blue spawn' in kag code
 			"ctf_flag_1": (255, 200, 0, 0),
 			"ctf_flag_3": (255, 158, 58, 204),
 			"ctf_flag_5": (255, 79, 155, 127),
@@ -70,7 +70,7 @@ class KagColor:
 			"bison": (255, 183, 86, 70),
 			"chicken": (255, 141, 38, 20),
 			"ladder": (255, 43, 21, 9),
-			"platform_r0": (255, 255, 146, 57), # TODO: needs implementation -----
+			"platform": (255, 255, 146, 57), # TODO: needs implementation -----
 			"platform_r90": (255, 255, 146, 56),
 			"platform_r180": (255, 255, 146, 55),
 			"platform_r270": (255, 255, 146, 54),

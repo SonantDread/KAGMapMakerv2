@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QWidgetAction
 from PyQt6.QtGui import QAction
 
 from base.kag_image import KagImage
-# TODO: fix this file up when filepath manager is added
 
 class Toolbar(QToolBar):
     """
@@ -95,7 +94,6 @@ class Toolbar(QToolBar):
         self.addAction(self.view_menu)
 
     def _pop_up(self, tabtoopen, trigger):
-        print("popup")
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
     def new_triggered(self):

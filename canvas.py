@@ -10,14 +10,17 @@ from datetime import datetime
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QTransform
 from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem,
-                            QGraphicsScene, QGraphicsView, QSizePolicy)
+                             QGraphicsScene, QGraphicsView, QSizePolicy)
 
+from base.cblob import CBlob
 from base.cblob_list import CBlobList
+from base.ctile import CTile
 from base.ctile_list import CTileList
 from base.kag_image import KagImage
 from base.renderer import Renderer
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
+
 
 class Canvas(QGraphicsView):
     """
@@ -31,7 +34,6 @@ class Canvas(QGraphicsView):
         self.canvas = QGraphicsScene()
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
         self.communicator = Communicator()
-        self.communicator.set_canvas(self)
         self.setScene(self.canvas)
         # self.geometry = Vec2f(300, 300)
         self.size = size # map size
@@ -72,8 +74,6 @@ class Canvas(QGraphicsView):
 
         self.tile_list = CTileList()
         self.blob_list = CBlobList()
-
-        # TODO: be able to resize canvas for the 'new' map button
 
         # SAVE MAP WHEN EXITING MAP MAKER
         atexit.register(self._save_map_at_exit, datetime.now())
@@ -116,7 +116,6 @@ class Canvas(QGraphicsView):
         if self.grid_group:
             self.grid_group.setVisible(show if show is not None else not is_visible)
 
-    # TODO: need to verify this chatgpt code isnt trash
     def force_rerender(self) -> None:
         """
         Re-renders the entire canvas by re-drawing all items in the tilemap.
@@ -144,8 +143,7 @@ class Canvas(QGraphicsView):
                     scene_pos = Vec2f(scene_x, scene_y)
                     self.renderer.render(item.name, scene_pos, Vec2f(x, y), False)
 
-    # TODO: shouldnt pass name string, instead should just use communicator to get name
-    def _using_eraser(self, name: str) -> bool:
+    def _using_eraser(self, name) -> bool:
         """
         Check if a name for a tile or blob exists.
 
@@ -155,7 +153,13 @@ class Canvas(QGraphicsView):
         Returns:
             bool: True if the position is empty, False otherwise.
         """
-        if self.tile_list.get_tile_by_name(name): # TODO: doestileexist method
+        if isinstance(name, CTile) or isinstance(name, CBlob):
+            name = name.name
+
+        if name == "tile_empty":
+            return True
+
+        if self.tile_list.does_tile_exist(name):
             return False
 
         if self.blob_list.does_blob_exist(name):
@@ -246,19 +250,20 @@ class Canvas(QGraphicsView):
         pos = self.mapToScene(event.pos())
         pos = self._snap_to_grid((pos.x(), pos.y()))
 
-        placing_tile: str = self.communicator.get_selected_tile(click_index)
+        placing_tile = self.communicator.get_selected_tile(click_index)
+
         eraser: bool = self._using_eraser(placing_tile)
 
         # do nothing if out of bounds
         if self.is_out_of_bounds(pos):
             return
 
-        grid_x, grid_y = pos # for the 2d array 'tilemap' # TODO: should be more clear w/ var name
-        scene_x = grid_x * self.grid_spacing # for the actual location on the canvas
-        scene_y = grid_y * self.grid_spacing
+        tilemap_x, tilemap_y = pos
+        scene_x = tilemap_x * self.grid_spacing # for the location on the canvas
+        scene_y = tilemap_y * self.grid_spacing
 
         scene_pos = Vec2f(scene_x, scene_y)
-        snapped_pos = Vec2f(grid_x, grid_y)
+        snapped_pos = Vec2f(tilemap_x, tilemap_y)
         self.renderer.render(placing_tile, scene_pos, snapped_pos, eraser)
 
     def remove_existing_item_from_scene(self, pos: tuple) -> None:
@@ -396,6 +401,9 @@ class Canvas(QGraphicsView):
 
         if name == "workbench":
             return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
+
+        if name == "bush":
+            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (12 * zf * zs)))
 
         if "door" in name:
             return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))

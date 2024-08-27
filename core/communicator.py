@@ -2,8 +2,6 @@
 Used for all files to communicate between each other
 All data in this class is shared.
 """
-# TODO: any class that is created more than once should be held in this.
-# TODO: execution path from app.py should be held in this file
 
 class SingletonMeta(type):
     """
@@ -22,9 +20,9 @@ class Communicator(metaclass = SingletonMeta):
     Used to communicate information between classes.
     """
     def __init__(self):
-        # TODO: make these start as a class so you can actually place them
         self.picked_tiles = ["tile_ground", "tile_empty"]
         self.canvas = None
+        self.exec_path = None
 
     def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb
         """
@@ -38,6 +36,19 @@ class Communicator(metaclass = SingletonMeta):
             None
         """
         self.picked_tiles[idx] = tile
+
+    def set_exec_path(self, path: str):
+        """
+        Sets the execution path for the application.
+
+        Args:
+            path (str): The path to set as the execution path.
+
+        Returns:
+            None
+        """
+        self.exec_path = path
+
     def get_selected_tile(self, idx: int) -> str:
         """
         Retrieves the name of the tile at the specified index.

@@ -16,6 +16,7 @@ class FileHandler:
         self.config_path = os.path.join(self.base_path, "settings", "config.json")
         self.default_config_path = os.path.join(self.base_path, "settings", "readonly_config.json")
         self.gui_modules_path = os.path.join(self.base_path, "core", "modules")
+        self.maps_path = os.path.join(self.base_path, "Maps")
 
     def does_path_exist(self, path: str):
         """
@@ -58,6 +59,18 @@ class FileHandler:
             str: The path to the default configuration file.
         """
         return self.default_config_path
+
+    def get_maps_path(self):
+        """
+        Returns the path to the maps directory.
+
+        Returns:
+            str: Returns the path to the maps directory.
+        """
+        if not self.does_path_exist(self.maps_path):
+            os.mkdir(self.maps_path)
+
+        return self.maps_path
 
     def get_gui_modules_path(self):
         """

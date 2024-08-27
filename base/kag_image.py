@@ -65,7 +65,7 @@ class KagImage:
                 if argb is None:
                     linenum = inspect.currentframe().f_lineno
                     path = os.path.basename(__file__)
-                    print(f"Item not found: {name} | Unable to load in line {linenum} of {path}")
+                    print(f"Item not found: '{name}' | Unable to load in line {linenum} of {path}")
                     continue
 
                 image.putpixel((x, y), self.argb_to_rgba(argb))
@@ -100,8 +100,7 @@ class KagImage:
         Returns:
             None
         """
-        # todo: 2nd arg should be to maps folder
-        filepath = self._ask_location("Load Map", self._get_kag_path(), False)
+        filepath = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
         if filepath is None or filepath == "":
             print("Map to load not selected. Operation cancelled.")
             return
@@ -133,6 +132,11 @@ class KagImage:
                 item = self.__make_class(name, pos)
                 print(f"Original name: {name} | Name: {item.name}")
                 new_tilemap[x][y] = item
+
+        self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
+
+    def _resize_canvas(self, size: Vec2f, canvas, new_tilemap):
+        width, height = size.x, size.y
 
         canvas.size = Vec2f(width, height)
         canvas.tilemap = new_tilemap
@@ -225,8 +229,8 @@ class KagImage:
         return str(path)
 
     def _ask_save_location(self) -> str:
-        if self.last_saved_location is None: # todo: 2nd arg should be to maps folder
-            filepath = self._ask_location("Save Map As", self._get_kag_path(), True)
+        if self.last_saved_location is None:
+            filepath = self._ask_location("Save Map As", self.file_handler.get_maps_path(), True)
             if filepath is None or filepath == "":
                 print("Save location not selected. Operation cancelled.")
                 return

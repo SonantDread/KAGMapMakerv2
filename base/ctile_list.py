@@ -67,7 +67,7 @@ class CTileList:
             CTile: The CTile object with the matching name, or None if no match is found.
         """
         for tile in self.vanilla_tiles_collection:
-            if tile.name is name:
+            if tile.name == name:
                 return tile
 
         return None
@@ -83,7 +83,7 @@ class CTileList:
             bool: True if the tile exists, False otherwise.
         """
         for tile in self.vanilla_tiles_collection:
-            if tile.name is name:
+            if tile.name == name:
                 return True
 
         return False

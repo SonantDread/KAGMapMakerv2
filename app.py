@@ -5,6 +5,7 @@ Run the map maker in terminal by using 'python app.py'.
 
 import atexit
 import sys
+import os
 
 from PyQt6.QtCore import QEvent
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
@@ -58,6 +59,8 @@ class App(QMainWindow):
         self.layout.addWidget(self.canvas)
 
         self.communicator = Communicator()
+        self.communicator.set_canvas(self.canvas)
+        self.communicator.set_exec_path(os.path.dirname(os.path.abspath(__file__)))
         self._announce("RUNNING APP")
         atexit.register(self.save_on_exit)
 
