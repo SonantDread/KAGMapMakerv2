@@ -2,6 +2,6 @@ __pycache__
 .vscode
 Maps
 settings/config.json
-settings/config.json
 .venv
 .git
+.github
