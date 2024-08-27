@@ -64,7 +64,6 @@ class Canvas(QGraphicsView):
         self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
         self._last_pan_point = None
 
-        # TODO: this should be a dictionary of positions instead of a 2d array
         self.tilemap = [[None for _ in range(self.size.y)] for _ in range(self.size.x)]
         self.graphics_items = {}
 
@@ -135,9 +134,6 @@ class Canvas(QGraphicsView):
         if hasattr(self, 'graphics_items'):
             self.graphics_items.clear()
 
-        # Rebuild the grid
-        self._build_tile_grid()
-
         # Redraw all items
         for x in range(self.size.x):
             for y in range(self.size.y):
@@ -179,6 +175,8 @@ class Canvas(QGraphicsView):
         """
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
+
+        self.grid_group = QGraphicsItemGroup()
 
         for x in range(0, self.size.x * self.grid_spacing + 1, self.grid_spacing):
             line = self.canvas.addLine(x, 0, x, self.size.x * self.grid_spacing, pen)
@@ -327,7 +325,7 @@ class Canvas(QGraphicsView):
 
         # TODO: check if these offsets correctly load into KAG with how they currently are viewed
         # place from bottom center + offset
-        if name == "tree" or name == "grain":
+        if name == "tree" or name == "grain" or name == "tent":
             return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
 
         if name == "ballista":

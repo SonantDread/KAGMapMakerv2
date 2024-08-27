@@ -134,7 +134,7 @@ class KagImage:
                 print(f"Original name: {name} | Name: {item.name}")
                 new_tilemap[x][y] = item
 
-        canvas.size = (width, height)
+        canvas.size = Vec2f(width, height)
         canvas.tilemap = new_tilemap
         canvas.force_rerender()
 
