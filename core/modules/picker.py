@@ -68,7 +68,7 @@ class Module(QWidget):
         self.communicator = Communicator()
 
         self.grid_layout_widget = self.grid_layout = self.tab_widget = None
-        self.tiles = self.modded = self.entities = None
+        self.tiles = self.modded = self.entities = self.colors = None
 
     def setup_ui(self):
         """
@@ -239,8 +239,13 @@ class Module(QWidget):
         scroll_layout.setVerticalSpacing(0)
         scroll_layout.setContentsMargins(0, 0, 0, 0)
 
+        tiles, blobs = CTileList(), CBlobList()
+
         for key, val in colors.items():
             if key is None or key == "":
+                continue
+
+            if not tiles.get_tile_by_name(key) and not blobs.does_blob_exist(key):
                 continue
 
             self._make_button(scroll_layout, x, y, key, self.__get_color_image(val))
