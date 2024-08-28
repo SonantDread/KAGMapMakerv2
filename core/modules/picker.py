@@ -5,7 +5,7 @@ from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QPoint, QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (QGridLayout, QPushButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QTabWidget, QWidget)
+                            QSizePolicy, QSpacerItem, QTabWidget, QWidget)
 from PIL import Image
 
 from base.cblob_list import CBlobList
@@ -25,6 +25,7 @@ class SelectionButton(QPushButton):
         super().__init__(parent)
         self.name = item_name
         self.communicator = communicator
+        self.setToolTip(self.name.replace("_", " "))
 
     def set_selected_item(self, item_name: str, lmb: int):
         """
@@ -71,8 +72,8 @@ class Module(QWidget):
 
     def setup_ui(self):
         """
-        Sets up the user interface for the module, including the grid layout, tab widget, 
-        scroll areas, and other UI elements. It also connects the slots to the signals and 
+        Sets up the user interface for the module, including the grid layout, tab widget,
+        scroll areas, and other UI elements. It also connects the slots to the signals and
         sets up the mouse press/release/move events.
 
         Parameters:
@@ -147,12 +148,12 @@ class Module(QWidget):
 
     def setup_blocks(self, tab: QScrollArea) -> None:
         """
-        Sets up the blocks in the given tab by creating a scroll widget and layout, 
+        Sets up the blocks in the given tab by creating a scroll widget and layout,
         then populating it with buttons representing the blocks in the vanilla tiles collection.
-        
+
         Args:
             tab (QScrollArea): The tab to set up the blocks in.
-        
+
         Returns:
             None
         """
@@ -183,12 +184,12 @@ class Module(QWidget):
 
     def setup_blobs(self, tab: QScrollArea) -> None:
         """
-        Sets up the blobs in the given tab by creating a scroll widget and layout, 
+        Sets up the blobs in the given tab by creating a scroll widget and layout,
         then populating it with buttons representing the blobs in the vanilla maploader collection.
-        
+
         Args:
             tab (QScrollArea): The tab to set up the blobs in.
-        
+
         Returns:
             None
         """
@@ -219,12 +220,12 @@ class Module(QWidget):
 
     def setup_colors(self, tab: QScrollArea) -> None:
         """
-        Sets up the colors in the given tab by creating a scroll widget and layout, 
+        Sets up the colors in the given tab by creating a scroll widget and layout,
         then populating it with buttons representing the colors in the vanilla colors collection.
-        
+
         Args:
             tab (QScrollArea): The tab to set up the blobs in.
-        
+
         Returns:
             None
         """
@@ -305,12 +306,12 @@ class Module(QWidget):
     def retranslateUi(self):
         """
         Retranslates the UI elements of the current object.
-        
+
         This method is used to update the text of the UI elements to match the current language.
-        
+
         Parameters:
             None
-        
+
         Returns:
             None
         """
