@@ -4,11 +4,13 @@ Handles the GUI of selecting blocks, blobs and everything else.
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QPoint, QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import (QPushButton, QScrollArea, QSpacerItem, QGridLayout,
-                            QWidget, QTabWidget, QSizePolicy)
+from PyQt6.QtWidgets import (QGridLayout, QPushButton, QScrollArea,
+                             QSizePolicy, QSpacerItem, QTabWidget, QWidget)
+from PIL import Image
 
 from base.cblob_list import CBlobList
 from base.ctile_list import CTileList
+from base.kag_color import KagColor
 from core.communicator import Communicator
 
 SCROLLBAR_SIZE_WIDTH = 15
@@ -90,38 +92,29 @@ class Module(QWidget):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setObjectName("gridLayout")
 
-        # Create the tab widget
+        # create the tab widget
         self.tab_widget = QTabWidget(parent = self.grid_layout_widget)
         self.tab_widget.setObjectName("tabWidget")
         self.tab_widget.setGeometry(QtCore.QRect(0, 25, size, size))
 
-        # Create the scroll areas for each tab
-        self.tiles = QScrollArea()
-        self.tiles.setObjectName("tiles")
-        self.tiles.setGeometry(QtCore.QRect(0, 25, size, size))
-        self.tiles.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.tiles.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tab_widget.addTab(self.tiles, "")
-        # Add the blocks to the tiles tab
+        # create the tabs
+        self.tiles = self._make_tab("tiles", size, self.tab_widget)
         self.setup_blocks(self.tiles)
 
         # TODO: sort the blobs into categories under the Entities tab
-        self.entities = QScrollArea()
-        self.entities.setObjectName("entities")
-        self.entities.setGeometry(QtCore.QRect(0, 25, size, size))
-        self.entities.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.entities.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tab_widget.addTab(self.entities, "")
-        # Add the blobs to the entities tab
+        self.entities = self._make_tab("entities", size, self.tab_widget)
         self.setup_blobs(self.entities)
 
-        # TODO: have tab called "Other" for things that don't fit into Tiles or Blobs
-        self.modded = QScrollArea() # TODO: add JSON templates for modded tiles & blobs
-        self.modded.setObjectName("modded")
-        self.modded.setGeometry(QtCore.QRect(0, 25, size, size))
-        self.modded.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.modded.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.tab_widget.addTab(self.modded, "")
+        self.colors = self._make_tab("colors", size, self.tab_widget)
+        self.setup_colors(self.colors)
+
+        # # TODO: have tab called "Other" for things that don't fit into Tiles or Blobs
+        # self.modded = QScrollArea() # TODO: add JSON templates for modded tiles & blobs
+        # self.modded.setObjectName("modded")
+        # self.modded.setGeometry(QtCore.QRect(0, 25, size, size))
+        # self.modded.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # self.modded.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # self.tab_widget.addTab(self.modded, "")
 
         # Add the tab widget to the grid layout
         self.grid_layout.addWidget(self.tab_widget, 0, 0, 1, 1)
@@ -142,6 +135,15 @@ class Module(QWidget):
         tiles = CTileList().vanilla_tiles_collection
         self.communicator.select_item(tiles[0], 0)
         self.communicator.select_item(tiles[1], 1)
+
+    def _make_tab(self, name: str, size: int, tab_widget) -> QScrollArea:
+        new_tab = QScrollArea()
+        new_tab.setObjectName(name)
+        new_tab.setGeometry(QtCore.QRect(0, 25, size, size))
+        new_tab.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        new_tab.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        tab_widget.addTab(new_tab, "")
+        return new_tab
 
     def setup_blocks(self, tab: QScrollArea) -> None:
         """
@@ -215,6 +217,45 @@ class Module(QWidget):
         tab.setWidget(scroll_widget)
         tab.setWidgetResizable(True)
 
+    def setup_colors(self, tab: QScrollArea) -> None:
+        """
+        Sets up the colors in the given tab by creating a scroll widget and layout, 
+        then populating it with buttons representing the colors in the vanilla colors collection.
+        
+        Args:
+            tab (QScrollArea): The tab to set up the blobs in.
+        
+        Returns:
+            None
+        """
+        colors = dict(sorted(KagColor().vanilla_colors.items()))
+        x, y = 0, 0
+
+        scroll_widget = QWidget(tab)
+        scroll_layout = QGridLayout(scroll_widget)
+
+        scroll_layout.setSpacing(0)
+        scroll_layout.setVerticalSpacing(0)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
+
+        for key, val in colors.items():
+            if key is None or key == "":
+                continue
+
+            self._make_button(scroll_layout, x, y, key, self.__get_color_image(val))
+
+            x += 1
+            if x * BUTTON_WIDTH >= tab.width() - 64:
+                x = 0
+                y += 1
+
+        scroll_widget.setLayout(scroll_layout)
+        tab.setWidget(scroll_widget)
+        tab.setWidgetResizable(True)
+
+    def __get_color_image(self, color: tuple) -> QPixmap:
+        return Image.new("RGBA", (1, 1), (color[1], color[2], color[3], color[0])).toqpixmap()
+
     def _make_button(self, layout: QGridLayout, x: int, y: int, name: str, img: QPixmap) -> None:
         button = SelectionButton(name, self.communicator, layout.parentWidget())
         button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
@@ -242,7 +283,7 @@ class Module(QWidget):
         Returns:
             QIcon: The scaled QPixmap as a QIcon.
         """
-        target_size = QSize(64, 64)
+        target_size = QSize(32, 32)
 
         scaled_img = img.scaled(target_size, Qt.AspectRatioMode.KeepAspectRatio)
 
@@ -277,4 +318,5 @@ class Module(QWidget):
         tw = self.tab_widget
         tw.setTabText(tw.indexOf(self.tiles), _translate("menu", "Tiles"))
         tw.setTabText(tw.indexOf(self.entities), _translate("menu", "Entities"))
-        tw.setTabText(tw.indexOf(self.modded), _translate("menu", "Modded"))
+        tw.setTabText(tw.indexOf(self.colors), _translate("menu", "Colors"))
+        # tw.setTabText(tw.indexOf(self.modded), _translate("menu", "Modded"))

@@ -531,9 +531,11 @@ class Canvas(QGraphicsView):
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
+    # todo: fully fix it still kind of snapping to edges
     def wheelEvent(self, event) -> None:
         """
-        Handles wheel events on the canvas, allowing for zooming and panning without snapping to edges.
+        Handles wheel events on the canvas,
+        allowing for zooming and panning without snapping to edges.
 
         Parameters:
             event: A Qt event object containing information about the wheel event.
