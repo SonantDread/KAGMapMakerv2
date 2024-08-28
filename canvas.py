@@ -43,7 +43,6 @@ class Canvas(QGraphicsView):
 
         self.default_zoom_scale = 3 # scales zoom level up from small to comfotable
         self.zoom_factor = 1        # current zoom
-        self.zoom_minmax = [0.1, 5] # max zoom (count default_zoom_scale as 1)
 
         self.setMouseTracking(True) # allow for constant update of cursor position (mouseMoveEvent)
         self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
@@ -63,7 +62,6 @@ class Canvas(QGraphicsView):
         self.holding_rmb = False
         self.holding_scw = False
 
-        self.current_cursor_pos = [0, 0] # updates every frame to current cursor position
         self._last_pan_point = None
 
         self.tilemap = [[None for _ in range(self.size.y)] for _ in range(self.size.x)]
@@ -307,10 +305,10 @@ class Canvas(QGraphicsView):
             return None
 
         # create new item
-        # TODO: fix this code with proper offsets
         pixmap_item = QGraphicsPixmapItem(img)
         pixmap_item.setScale(self.zoom_factor * self.default_zoom_scale)
 
+        # TODO: fix this code with proper offsets
         newpos = self.__get_offset(name, img)
         pixmap_item.setPos(int(pos[0] - newpos.x), int(pos[1] - newpos.y))
         pixmap_item.setZValue(z)
@@ -518,7 +516,6 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        self.current_cursor_pos = event.pos()
         if self.holding_lmb:
             self._place_item(event, 1)
 
@@ -534,10 +531,9 @@ class Canvas(QGraphicsView):
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
-    # TODO: fix this chatgpt code so it zooms into cursor and not randomly on canvas
     def wheelEvent(self, event) -> None:
         """
-        Handles wheel events on the canvas, allowing for zooming and panning.
+        Handles wheel events on the canvas, allowing for zooming and panning without snapping to edges.
 
         Parameters:
             event: A Qt event object containing information about the wheel event.
@@ -545,54 +541,30 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            zoom_in_factor = self.zoom_change_factor
-            zoom_out_factor = 1 / zoom_in_factor
-
-            # Get the position before scaling, in scene coords
-            old_pos = self.mapToScene(self.current_cursor_pos)
-
-            scale_factor = zoom_in_factor if event.angleDelta().y() > 0 else zoom_out_factor
-            # Calculate the new scale factor and clamp it
-            new_scale = self.transform().m11() * scale_factor
-            min_scale = self.zoom_minmax[0]  # Minimum zoom level
-            max_scale = self.zoom_minmax[1]   # Maximum zoom level
-
-            if min_scale <= new_scale <= max_scale:
-                self.scale(scale_factor, scale_factor)
-
-                # Get the position after scaling, in scene coords
-                new_pos = self.mapToScene(self.current_cursor_pos)
-
-                # Move scene to old position
-                delta = new_pos - old_pos
-                self.translate(delta.x(), delta.y())
-
-            else:
-                # Keep the scene fixed if at zoom limits
-                if new_scale < min_scale:
-                    self.setTransform(QTransform().scale(min_scale, min_scale))
-
-                elif new_scale > max_scale:
-                    self.setTransform(QTransform().scale(max_scale, max_scale))
+        if event.angleDelta().y() > 0:
+            factor = self.zoom_change_factor
         else:
-            # Determine the current spacing considering the zoom factor
-            curr_space = self.grid_spacing / self.transform().m11()
+            factor = 1 / self.zoom_change_factor
 
-            vscrollval = self.verticalScrollBar().value()
-            hscrollval = self.horizontalScrollBar().value()
+        view_pos = event.position()
+        scene_pos = self.mapToScene(view_pos.toPoint())
 
-            if event.angleDelta().y() > 0: # move view down
-                self.verticalScrollBar().setValue(vscrollval - int(curr_space))
-            else: # move view up
-                self.verticalScrollBar().setValue(vscrollval + int(curr_space))
+        original_scene_rect = self.sceneRect()
+        self.scale(factor, factor)
 
-            if event.angleDelta().x() > 0: # move view right
-                self.horizontalScrollBar().setValue(hscrollval - int(curr_space))
-            elif event.angleDelta().x() < 0: # move view left
-                self.horizontalScrollBar().setValue(hscrollval + int(curr_space))
+        new_pos = self.mapFromScene(scene_pos)
+        delta = new_pos - view_pos.toPoint()
 
-        super().wheelEvent(event)
+        # adjust scene rect to prevent snapping
+        adjusted_scene_rect = self.mapToScene(self.viewport().rect()).boundingRect()
+
+        # ensure adjusted rect is not smaller than the original
+        adjusted_scene_rect = adjusted_scene_rect.united(original_scene_rect)
+        self.setSceneRect(adjusted_scene_rect)
+
+        # scroll the view to maintain the same relative position
+        self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + delta.x())
+        self.verticalScrollBar().setValue(self.verticalScrollBar().value() + delta.y())
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """
