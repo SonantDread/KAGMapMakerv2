@@ -3,7 +3,6 @@ Used to handle saving, loading, rendering and testing maps in KAG.
 """
 
 import inspect
-import json
 import os
 import re
 from tkinter import filedialog
@@ -49,6 +48,7 @@ class KagImage:
 
         canvas = self._get_canvas()
         tilemap = canvas.get_tilemap()
+        tilemap = self._get_translated_tilemap(tilemap)
         colors = self.colors.vanilla_colors
 
         sky = self.argb_to_rgba(colors.get("sky"))
@@ -132,6 +132,8 @@ class KagImage:
                 item = self.__make_class(name, pos)
                 print(f"Original name: {name} | Name: {item.name}")
                 new_tilemap[x][y] = item
+
+        new_tilemap = self._get_translated_tilemap(new_tilemap)
 
         self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
 
@@ -241,3 +243,32 @@ class KagImage:
             filepath = filepath[0]
 
         return str(filepath)
+
+    # required because trees can be multiple blocks tall
+    def _get_translated_tilemap(self, tilemap: list) -> list:
+        if tilemap is None:
+            print(f"Failed to get tilemap in kag_image.py: {inspect.currentframe().f_lineno}")
+            return None
+
+        newmap = []
+        for column in tilemap:
+            new_column = []
+            tree_group = []
+
+            for pixel in column:
+                if pixel is not None and pixel.name == "tree":
+                    tree_group.append(pixel)
+                else:
+                    if tree_group:
+                        new_column.extend([None] * (len(tree_group) - 1))
+                        new_column.append(tree_group[-1])
+                        tree_group = []
+                    new_column.append(pixel)
+
+            if tree_group:
+                new_column.extend([None] * (len(tree_group) - 1))
+                new_column.append(tree_group[-1])
+
+            newmap.append(new_column)
+
+        return newmap

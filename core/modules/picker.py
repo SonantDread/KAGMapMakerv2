@@ -82,6 +82,7 @@ class Module(QWidget):
         Returns:
             None
         """
+
         size = self._get_tab_size(32, 7, SCROLLBAR_SIZE_WIDTH)
         # Create a widget to hold the tab widget
         self.grid_layout_widget = QWidget(parent = self.parent_widget)
@@ -245,6 +246,7 @@ class Module(QWidget):
             if key is None or key == "":
                 continue
 
+            # invalid item
             if not tiles.get_tile_by_name(key) and not blobs.does_blob_exist(key):
                 continue
 

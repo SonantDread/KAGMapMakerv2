@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QTransform
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
 from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QSizePolicy)
 
@@ -126,6 +126,8 @@ class Canvas(QGraphicsView):
         """
         # Clear the canvas
         self.canvas.clear()
+
+        self._build_background_rect()
 
         # Clear the graphics_items dictionary
         if hasattr(self, 'graphics_items'):

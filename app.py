@@ -44,6 +44,7 @@ class App(QMainWindow):
         self.layout = QHBoxLayout(self.main_widget)
         self.main_widget.setLayout(self.layout)
 
+        # picker menu
         self.ui_layout = GUIModuleHandler(self)
         self.ui_layout.setup_modules()
 
