@@ -98,6 +98,7 @@ class Toolbar(QToolBar):
 
     def new_triggered(self):
         print("New triggered")
+        self.kagimage.new_map()
 
     def save_triggered(self):
         print("Save triggered")

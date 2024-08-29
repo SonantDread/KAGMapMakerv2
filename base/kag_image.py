@@ -1,5 +1,5 @@
 """
-Used to handle saving, loading, rendering and testing maps in KAG.
+Used to handle creating, saving, loading, rendering and testing maps in KAG.
 """
 
 import inspect
@@ -9,6 +9,8 @@ from tkinter import filedialog
 from typing import Union
 
 from PIL import Image
+
+from PyQt6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QPushButton, QDialog
 
 from base.cblob import CBlob
 from base.ctile import CTile
@@ -32,7 +34,38 @@ class KagImage:
         self.images = ImageHandler()
         self.file_handler = FileHandler()
 
-    def save_map(self, filepath: str = None, force_ask: bool = False):
+    def new_map(self) -> None:
+        """
+        Used to create a new KAG map.
+        
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        dialog = TwoInputDialog()
+        result = dialog.exec()
+
+        if result == QDialog.DialogCode.Accepted:
+            width, height = dialog.get_inputs()
+            try:
+                width = int(width)
+                height = int(height)
+                self._create_new_map(width, height)
+
+            except ValueError:
+                print("Invalid input. Width and height must be integers.")
+        else:
+            print("New map creation cancelled.")
+
+    def _create_new_map(self, width: int, height: int) -> None:
+        canvas = self._get_canvas()
+        new_tilemap = [[None for _ in range(height)] for _ in range(width)]
+        self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
+        print(f"New map created with dimensions: {width}x{height}")
+
+    def save_map(self, filepath: str = None, force_ask: bool = False) -> None:
         """
         Saves a KAG map to a file.
 
@@ -48,7 +81,7 @@ class KagImage:
 
         canvas = self._get_canvas()
         tilemap = canvas.get_tilemap()
-        tilemap = self._get_translated_tilemap(tilemap)
+        tilemap = self.__get_translated_tilemap(tilemap)
         colors = self.colors.vanilla_colors
 
         sky = self.argb_to_rgba(colors.get("sky"))
@@ -78,7 +111,7 @@ class KagImage:
         except FileNotFoundError as e:
             print(f"Failed to save image: {e}")
 
-    def save_map_as(self):
+    def save_map_as(self) -> None:
         """
         Saves a KAG map to a file, always asking for a save location.
 
@@ -90,7 +123,7 @@ class KagImage:
         """
         self.save_map(force_ask = True)
 
-    def load_map(self):
+    def load_map(self) -> None:
         """
         Loads a KAG map from a file.
 
@@ -133,11 +166,11 @@ class KagImage:
                 print(f"Original name: {name} | Name: {item.name}")
                 new_tilemap[x][y] = item
 
-        new_tilemap = self._get_translated_tilemap(new_tilemap)
+        new_tilemap = self.__get_translated_tilemap(new_tilemap)
 
         self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
 
-    def _resize_canvas(self, size: Vec2f, canvas, new_tilemap):
+    def _resize_canvas(self, size: Vec2f, canvas, new_tilemap) -> None:
         width, height = size.x, size.y
 
         canvas.size = Vec2f(width, height)
@@ -245,7 +278,7 @@ class KagImage:
         return str(filepath)
 
     # required because trees can be multiple blocks tall
-    def _get_translated_tilemap(self, tilemap: list) -> list:
+    def __get_translated_tilemap(self, tilemap: list) -> list:
         if tilemap is None:
             print(f"Failed to get tilemap in kag_image.py: {inspect.currentframe().f_lineno}")
             return None
@@ -272,3 +305,56 @@ class KagImage:
             newmap.append(new_column)
 
         return newmap
+
+class TwoInputDialog(QDialog):
+    """
+    Used as the input box for the new map size.
+    """
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("New Map")
+        self.setFixedSize(300, 150)
+
+        # create widgets
+        width_label = QLabel("Width:")
+        height_label = QLabel("Height:")
+        self.width_input = QLineEdit()
+        self.height_input = QLineEdit()
+        ok_button = QPushButton("Continue")
+        cancel_button = QPushButton("Cancel")
+
+        # connect buttons to signals
+        ok_button.clicked.connect(self.accept)
+        cancel_button.clicked.connect(self.reject)
+
+        # create layout
+        width_layout = QHBoxLayout()
+        width_layout.addWidget(width_label)
+        width_layout.addWidget(self.width_input)
+
+        height_layout = QHBoxLayout()
+        height_layout.addWidget(height_label)
+        height_layout.addWidget(self.height_input)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(width_layout)
+        main_layout.addLayout(height_layout)
+        main_layout.addLayout(button_layout)
+
+        self.setLayout(main_layout)
+
+    def get_inputs(self):
+        """
+        Retrieves the text input from the width and height input fields
+        and returns them as a tuple of strings.
+
+        Returns:
+            tuple: A tuple containing the text from the width input field
+            and the text from the height input field.
+        """
+        return (self.width_input.text(), self.height_input.text())
