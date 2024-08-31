@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QShortcut, QKeySequence
 from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QSizePolicy)
 
@@ -41,7 +41,7 @@ class Canvas(QGraphicsView):
 
         self.zoom_change_factor = 1.1
 
-        self.default_zoom_scale = 3 # scales zoom level up from small to comfotable
+        self.default_zoom_scale = 3 # scales zoom level up from small to comfortable
         self.zoom_factor = 1        # current zoom
 
         self.setMouseTracking(True) # allow for constant update of cursor position (mouseMoveEvent)
@@ -51,7 +51,7 @@ class Canvas(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) # no scroll bars
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setBackgroundBrush(QColor(165, 189, 200, 255)) # background color
-        self.setMinimumSize(200, 200) # cannot be smaller than this
+        self.setMinimumSize(200, 200)
         self.setMaximumSize(1000, 1000)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8)
@@ -61,6 +61,7 @@ class Canvas(QGraphicsView):
         self.holding_lmb = False
         self.holding_rmb = False
         self.holding_scw = False
+        self.holding_shift = False
 
         self._last_pan_point = None
 
@@ -73,8 +74,38 @@ class Canvas(QGraphicsView):
         self.tile_list = CTileList()
         self.blob_list = CBlobList()
 
+        self.rotation = 0
+
         # SAVE MAP WHEN EXITING MAP MAKER
         atexit.register(self._save_map_at_exit, datetime.now())
+
+        # create shortcuts for handling key events
+        self.create_shortcuts()
+
+    def create_shortcuts(self):
+        """
+        Creates global shortcuts to rotation.
+        """
+        # space key
+        space_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
+        space_shortcut.activated.connect(self.handle_space_press)
+
+        # shift + space
+        modifier = Qt.KeyboardModifier.ShiftModifier
+        shift_space_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_Space), self)
+        shift_space_shortcut.activated.connect(self.handle_shift_space_press)
+
+    def handle_space_press(self):
+        """
+        Handles Space key press.
+        """
+        self.rotate(False)
+
+    def handle_shift_space_press(self):
+        """
+        Handles Shift + Space key press.
+        """
+        self.rotate(True)
 
     def get_tilemap(self) -> list:
         """
@@ -141,7 +172,29 @@ class Canvas(QGraphicsView):
                     scene_x = x * self.grid_spacing
                     scene_y = y * self.grid_spacing
                     scene_pos = Vec2f(scene_x, scene_y)
-                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False)
+                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False, self.rotation)
+
+    def rotate(self, rev: bool) -> None:
+        """
+        Rotates the selected item by 90 degrees, either clockwise or counter-clockwise.
+
+        Args:
+            rev (bool): Whether to rotate clockwise (True) or counter-clockwise (False).
+
+        Returns:
+            None
+        """
+        r = self.rotation
+        add = -90 if rev else 90
+
+        r = (r + add) % 360
+
+        if r < 0:
+            r += 360
+        elif r >= 360:
+            r -= 360
+
+        self.rotation = r
 
     def _using_eraser(self, name) -> bool:
         """
@@ -264,7 +317,7 @@ class Canvas(QGraphicsView):
 
         scene_pos = Vec2f(scene_x, scene_y)
         snapped_pos = Vec2f(tilemap_x, tilemap_y)
-        self.renderer.render(placing_tile, scene_pos, snapped_pos, eraser)
+        self.renderer.render(placing_tile, scene_pos, snapped_pos, eraser, self.rotation)
 
     def remove_existing_item_from_scene(self, pos: tuple) -> None:
         """

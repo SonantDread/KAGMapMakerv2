@@ -82,9 +82,8 @@ class KagImage:
         canvas = self._get_canvas()
         tilemap = canvas.get_tilemap()
         tilemap = self.__get_translated_tilemap(tilemap)
-        colors = self.colors.vanilla_colors
 
-        sky = self.argb_to_rgba(colors.get("sky"))
+        sky = self.argb_to_rgba(self.colors.get_color_by_name("sky"))
         image = Image.new("RGBA", size = (canvas.get_size().x, canvas.get_size().y), color = sky)
 
         for x, row in enumerate(tilemap):
@@ -93,7 +92,7 @@ class KagImage:
                     continue
                 # TODO: should take into account for teams when they are added
                 name = tile.name
-                argb = colors.get(name)
+                argb = self.colors.get_color_by_name(name)
 
                 if argb is None:
                     linenum = inspect.currentframe().f_lineno
@@ -105,7 +104,7 @@ class KagImage:
 
         try:
             image.save(filepath)
-            print(f"Image saved to: {filepath}")
+            print(f"Map saved to: {filepath}")
             self.last_saved_location = filepath
 
         except FileNotFoundError as e:
@@ -146,8 +145,6 @@ class KagImage:
 
         canvas = self._get_canvas()
         tilemap = Image.open(filepath).convert("RGBA")
-        rev_lookup = self.colors.vanilla_colors
-        rev_lookup = {v: k for k, v in rev_lookup.items()}
 
         width, height = tilemap.size
 
@@ -155,7 +152,7 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                name = rev_lookup.get(pixel)
+                name = self.colors.get_name_by_color(pixel) # TODO: for map saving and loading, implement rotation
 
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
@@ -181,11 +178,11 @@ class KagImage:
         raw_name = self._get_raw_name(name)
         img = self.images.get_image(raw_name)
         team = self._get_team(name)
+        rotation = self._get_canvas().rotation
 
-        # check if we should return CTile
         if self.tilelist.does_tile_exist(name):
             return CTile(img, raw_name, Vec2f(pos[0], pos[1]), 0)
-        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team)
+        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team, r = rotation)
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
         """

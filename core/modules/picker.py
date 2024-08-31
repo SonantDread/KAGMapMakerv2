@@ -230,7 +230,7 @@ class Module(QWidget):
         Returns:
             None
         """
-        colors = dict(sorted(KagColor().vanilla_colors.items()))
+        colors = KagColor().vanilla_colors
         x, y = 0, 0
 
         scroll_widget = QWidget(tab)
@@ -242,15 +242,17 @@ class Module(QWidget):
 
         tiles, blobs = CTileList(), CBlobList()
 
-        for key, val in colors.items():
-            if key is None or key == "":
+        for item in colors:
+            name = item.name
+            color = item.color
+            if name is None or name == "":
                 continue
 
             # invalid item
-            if not tiles.get_tile_by_name(key) and not blobs.does_blob_exist(key):
+            if not tiles.get_tile_by_name(name) and not blobs.does_blob_exist(name):
                 continue
 
-            self._make_button(scroll_layout, x, y, key, self.__get_color_image(val))
+            self._make_button(scroll_layout, x, y, name, self.__get_color_image(color))
 
             x += 1
             if x * BUTTON_WIDTH >= tab.width() - 64:

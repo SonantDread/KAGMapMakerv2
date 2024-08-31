@@ -6,14 +6,17 @@ import inspect
 import os
 from typing import Union
 
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QTransform
 
 from base.cblob import CBlob
 from base.ctile import CTile
 from base.ctile_list import CTileList
 from base.image_handler import ImageHandler
+from base.kag_color import KagColor
+
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
+
 
 class Renderer:
     """
@@ -23,8 +26,9 @@ class Renderer:
         self.communicator = Communicator()
         self.images = ImageHandler()
         self.tile_list = CTileList()
+        self.kag_color = KagColor()
 
-    def render(self, placing: str, pos: Vec2f, tm_pos: Vec2f, eraser: bool) -> None:
+    def render(self, placing: str, pos: Vec2f, tm_pos: Vec2f, eraser: bool, rotation: int) -> None:
         """
         Handles the rendering of an object on the canvas.
 
@@ -58,6 +62,9 @@ class Renderer:
             print(f"Warning: Failed to get image for {placing} at line {line} of {fn}")
             return
 
+        if self.kag_color.is_rotatable(placing):
+            pixmap = self._rotate_blob(pixmap, rotation)
+
         item: Union[CTile, CBlob] = self.__make_item(placing, (tm_pos.x, tm_pos.y))
 
         pixmap_item = canvas.add_to_canvas(pixmap, (pos.x, pos.y), z, placing)
@@ -84,3 +91,8 @@ class Renderer:
         if self.tile_list.get_tile_by_name(name) is None:
             return CBlob(img, name, pos, 0)
         return CTile(img, name, pos, 0, True)
+
+    def _rotate_blob(self, pixmap: QPixmap, degrees: int) -> None:
+        rotated_pixmap = QTransform().rotate(degrees)
+        pixmap = pixmap.transformed(rotated_pixmap)
+        return pixmap
