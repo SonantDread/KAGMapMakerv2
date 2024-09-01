@@ -50,8 +50,8 @@ class KagImage:
         if result == QDialog.DialogCode.Accepted:
             width, height = dialog.get_inputs()
             try:
-                width = int(width)
-                height = int(height)
+                width = int(width.strip())
+                height = int(height.strip())
                 self._create_new_map(width, height)
 
             except ValueError:
@@ -87,12 +87,17 @@ class KagImage:
         image = Image.new("RGBA", size = (canvas.get_size().x, canvas.get_size().y), color = sky)
 
         for x, row in enumerate(tilemap):
-            for y, tile in enumerate(row):
-                if tile is None:
+            for y, item in enumerate(row):
+                if item is None:
                     continue
                 # TODO: should take into account for teams when they are added
-                name = tile.name
-                argb = self.colors.get_color_by_name(name)
+                name = item.name
+                rotation = item.rotation
+                team = None
+                if isinstance(item, CBlob):
+                    team = item.team
+
+                argb = self.colors.get_color_by_name(name, team, rotation)
 
                 if argb is None:
                     linenum = inspect.currentframe().f_lineno
@@ -152,15 +157,14 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                name = self.colors.get_name_by_color(pixel) # TODO: for map saving and loading, implement rotation
+                name, rotation = self.colors.get_item_by_color(pixel)
 
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
 
                 pos = (x, y)
 
-                item = self.__make_class(name, pos)
-                print(f"Original name: {name} | Name: {item.name}")
+                item = self.__make_class(name, pos, rotation)
                 new_tilemap[x][y] = item
 
         new_tilemap = self.__get_translated_tilemap(new_tilemap)
@@ -174,15 +178,14 @@ class KagImage:
         canvas.tilemap = new_tilemap
         canvas.force_rerender()
 
-    def __make_class(self, name: str, pos: tuple) -> Union[CTile, CBlob]:
+    def __make_class(self, name: str, pos: tuple, rotation: int) -> Union[CTile, CBlob]:
         raw_name = self._get_raw_name(name)
         img = self.images.get_image(raw_name)
         team = self._get_team(name)
-        rotation = self._get_canvas().rotation
 
         if self.tilelist.does_tile_exist(name):
             return CTile(img, raw_name, Vec2f(pos[0], pos[1]), 0)
-        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team, r = rotation)
+        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team, 0, rotation)
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
         """

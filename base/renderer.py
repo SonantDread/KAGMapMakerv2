@@ -65,14 +65,14 @@ class Renderer:
         if self.kag_color.is_rotatable(placing):
             pixmap = self._rotate_blob(pixmap, rotation)
 
-        item: Union[CTile, CBlob] = self.__make_item(placing, (tm_pos.x, tm_pos.y))
+        item: Union[CTile, CBlob] = self.__make_item(placing, (tm_pos.x, tm_pos.y), rotation)
 
         pixmap_item = canvas.add_to_canvas(pixmap, (pos.x, pos.y), z, placing)
 
         if pixmap_item is not None:
             canvas.tilemap[tm_pos.x][tm_pos.y] = item
 
-    def __make_item(self, name: str, pos: tuple) -> Union[CTile, CBlob]:
+    def __make_item(self, name: str, pos: tuple, rotation: int) -> Union[CTile, CBlob]:
         """
         Creates a new item (CTile or CBlob) based on the provided name and position.
 
@@ -89,7 +89,7 @@ class Renderer:
         pos = Vec2f(x, y)
 
         if self.tile_list.get_tile_by_name(name) is None:
-            return CBlob(img, name, pos, 0)
+            return CBlob(img, name, pos, 0, r = rotation)
         return CTile(img, name, pos, 0, True)
 
     def _rotate_blob(self, pixmap: QPixmap, degrees: int) -> None:

@@ -155,16 +155,14 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        # Clear the canvas
         self.canvas.clear()
-
         self._build_background_rect()
 
-        # Clear the graphics_items dictionary
+        # clear the graphics_items dictionary
         if hasattr(self, 'graphics_items'):
             self.graphics_items.clear()
 
-        # Redraw all items
+        # redraw all items
         for x in range(self.size.x):
             for y in range(self.size.y):
                 item = self.tilemap[x][y]
@@ -172,7 +170,11 @@ class Canvas(QGraphicsView):
                     scene_x = x * self.grid_spacing
                     scene_y = y * self.grid_spacing
                     scene_pos = Vec2f(scene_x, scene_y)
-                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False, self.rotation)
+                    rotation = None
+                    if isinstance(item, CBlob):
+                        rotation = item.rotation
+
+                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False, rotation)
 
     def rotate(self, rev: bool) -> None:
         """

@@ -18,7 +18,6 @@ class KagColor:
     """
     def __init__(self):
         self.vanilla_colors = [
-            # TODO: these should be CBlob or CTile classes instead of just a dictionary
             # TODO: organize these into sections
             # TODO: figure out how to use the getTeamFromChannel & getAngleFromChannel,
             # TODO: and in BasePNGLoader.as for team / rotation
@@ -177,40 +176,69 @@ class KagColor:
 			KAGMapItem("storage",               (255, 217, 255, 239))
         ]
 
-    def get_color_by_name(self, name: str) -> tuple:
+    def get_color_by_name(self, name: str, team: int = None, rotation: int = None) -> tuple:
         """
-        Retrieves a color by its name.
+        Retrieves a color by its name, and optionally by team and rotation.
 
         Args:
             name (str): The name of the color to retrieve.
+            team (int, optional): The team number to match.
+            rotation (int, optional): The rotation number to match.
 
         Returns:
-            tuple: The color of the item with the matching name, or None if no match is found.
+            tuple: The color of the item matching the criteria, or None if no match is found.
         """
+        best_match = None
+        best_match_score = -1
 
         for item in self.vanilla_colors:
             if item.name == name:
-                return item.color
+                current_score = 0
 
-        return None
+                if team is not None:
+                    if item.team == team:
+                        current_score += 1
+                    else:
+                        continue # team doesnt match, skip it
 
-    def get_name_by_color(self, color: tuple) -> str:
+                if rotation is not None:
+                    if item.rotation == rotation:
+                        current_score += 1
+                    else:
+                        continue # rotation doesnt match, skip it
+
+                # update best match
+                if current_score > best_match_score:
+                    best_match = item
+                    best_match_score = current_score
+
+                    # perfect match, return immediately
+                    teamsc = (1 if team is not None else 0)
+                    rotationsc = (1 if rotation is not None else 0)
+                    if best_match_score == teamsc + rotationsc:
+                        return item.color
+
+        return best_match.color if best_match else None
+
+    def get_item_by_color(self, color: tuple) -> tuple:
         """
-        Retrieves the name of an item by its color.
+        Retrieves an item from the vanilla_colors list by its color.
 
         Args:
-            color (tuple): The color of the item to retrieve.
+            color (tuple): The color to search for.
 
         Returns:
-            str: The name of the item with the matching color, or None if no match is found.
+            str: The name and rotation of the item with the matching color,
+            or None if no match is found.
         """
+
         for item in self.vanilla_colors:
             if item.color == color:
-                return item.name
+                return (item.name, item.rotation)
 
         return None
 
-    def is_rotatable(self, name: str):
+    def is_rotatable(self, name: str) -> bool:
         """
         Checks if an item with the given name is rotatable.
 
