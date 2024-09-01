@@ -92,9 +92,10 @@ class KagImage:
                     continue
                 # TODO: should take into account for teams when they are added
                 name = item.name
-                rotation = item.rotation
+                rotation = None
                 team = None
                 if isinstance(item, CBlob):
+                    rotation = item.rotation
                     team = item.team
 
                 argb = self.colors.get_color_by_name(name, team, rotation)
