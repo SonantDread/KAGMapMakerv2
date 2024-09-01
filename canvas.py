@@ -82,6 +82,45 @@ class Canvas(QGraphicsView):
         # create shortcuts for handling key events
         self.create_shortcuts()
 
+        self._adjust_scene_for_map()
+
+    def _adjust_scene_for_map(self):
+        # internal map size
+        internal_map_width = self.size.x * self.grid_spacing
+        internal_map_height = self.size.y * self.grid_spacing
+
+        # desired view size (ie: viewport size)
+        desired_view_width = self.viewport().width()
+        desired_view_height = self.viewport().height()
+
+        # calculate the extra space for panning
+        s = .8 # as a percentage
+        extra_width = desired_view_width * s
+        extra_height = desired_view_height * s
+
+        # set the scene rect to allow panning
+        self.scene().setSceneRect(
+            -extra_width, -extra_height, 
+            internal_map_width + 2 * extra_width, 
+            internal_map_height + 2 * extra_height
+        )
+
+        self.setSceneRect(self.scene().sceneRect())
+        self.centerOn(internal_map_width / 2, internal_map_height / 2)
+
+    def resizeEvent(self, event) -> None:
+        """
+        Handles the resize event of the QGraphicsView to adjust the scene accordingly.
+        
+        Parameters:
+            event: A Qt resize event object containing information about the resize.
+        
+        Returns:
+            None
+        """
+        super().resizeEvent(event)
+        self._adjust_scene_for_map()
+
     def create_shortcuts(self):
         """
         Creates global shortcuts to rotation.
@@ -580,7 +619,7 @@ class Canvas(QGraphicsView):
             self._place_item(event, 0)
 
         if self.holding_scw:
-            # Calculate how much the mouse has moved
+            # calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
 
@@ -588,7 +627,6 @@ class Canvas(QGraphicsView):
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
-    # todo: fully fix it still kind of snapping to edges
     def wheelEvent(self, event) -> None:
         """
         Handles wheel events on the canvas,
@@ -605,25 +643,21 @@ class Canvas(QGraphicsView):
         else:
             factor = 1 / self.zoom_change_factor
 
+        # Get the position where the wheel event occurred in view coordinates
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
 
-        original_scene_rect = self.sceneRect()
+        # Scale the view
         self.scale(factor, factor)
 
-        new_pos = self.mapFromScene(scene_pos)
-        delta = new_pos - view_pos.toPoint()
+        # Calculate the position delta
+        new_scene_pos = self.mapToScene(view_pos.toPoint())
+        delta = new_scene_pos - scene_pos
 
-        # adjust scene rect to prevent snapping
-        adjusted_scene_rect = self.mapToScene(self.viewport().rect()).boundingRect()
+        # Adjust scroll bars to maintain the same relative position
+        self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
+        self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 
-        # ensure adjusted rect is not smaller than the original
-        adjusted_scene_rect = adjusted_scene_rect.united(original_scene_rect)
-        self.setSceneRect(adjusted_scene_rect)
-
-        # scroll the view to maintain the same relative position
-        self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + delta.x())
-        self.verticalScrollBar().setValue(self.verticalScrollBar().value() + delta.y())
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """
