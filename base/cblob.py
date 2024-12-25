@@ -23,5 +23,5 @@ class CBlob:
         self.pos = pos
         self.layer = layer # unused for now
         self.team = team
-        self.z = z # TODO: if a Z value isn't specified, it should be based on the sprite size
+        self.z = z
         self.rotation = r

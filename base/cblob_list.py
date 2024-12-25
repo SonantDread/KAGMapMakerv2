@@ -64,8 +64,7 @@ class CBlobList:
     def _to_blob_class(self, name: str) -> CBlob:
         return CBlob(self.images.get_image(name), name, Vec2f(0, 0), 0, 0, self._get_fakez(name))
 
-    # until we have a good way to get the z indexes of blobs we can use this
-    # TODO: maybe in bloblist.txt, allow for adding a ', #' for a Z index
+    #* until we have a good way to get the z indexes of blobs we can use this
     def _get_fakez(self, name: str) -> int:
         if "shop" in name: # see CTileList.py line 33
             return -500

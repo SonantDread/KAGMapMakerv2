@@ -8,6 +8,16 @@ from PyQt6.QtWidgets import QMainWindow
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
 
+
+class ConfigFile:
+    """
+    Stores the name, values, and path of a configuration file.
+    """
+    def __init__(self, name: str, values: str, path: str):
+        self.name = name
+        self.cfg = values
+        self.path = path
+
 class SingletonMeta(type):
     """
     Used to share code between all instances of the class.
@@ -20,155 +30,67 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
-class ConfigHandler(metaclass = SingletonMeta):
+class ConfigHandler(metaclass=SingletonMeta):
     """
     Handles the configuration saving and loading for the app.
     """
     def __init__(self):
         self.fh = FileHandler()
-        self.config_path = self.fh.get_config_path()
         self.default_config_path = self.fh.get_default_config_path()
+        self.config_path = self.fh.get_config_path()
+        self.configs = {}
+        self._iterator = None
 
-    def save_config(self, cfg: QMainWindow) -> None:
+    def save_window_config(self, window: QMainWindow) -> None:
         """
-        Saves the configuration of the QMainWindow `cfg` to a JSON file.
+        Saves the configuration of the application to a JSON file.
 
         Args:
-            cfg (QMainWindow): The QMainWindow object whose configuration is to be saved.
+            cfg (QMainWindow): The window to save the configuration of.
 
         Returns:
             None
         """
         try:
+            # load user's config
             with open(self.config_path, 'r', encoding = 'utf-8') as f:
-                config = json.load(f)
+                cfg = json.load(f)
 
-        except (FileNotFoundError, json.JSONDecodeError):
-            config = {}
+        except FileNotFoundError:
+            try:
+                # load default config
+                with open(self.default_config_path, 'r', encoding = 'utf-8') as f:
+                    cfg = json.load(f)
 
-        # update window size and offset
-        if 'window' not in config:
-            config['window'] = {}
+            except FileNotFoundError as exc:
+                raise SystemExit("Could not find user config or default config file.") from exc
 
-        window_size = self.__get_window_size(cfg)
-        window_offset = self.__get_window_offset(cfg)
+        # check if window config is empty
+        if not cfg.get("window"):
+            raise SystemExit("Could not find user config or default config file.")
 
-        config['window']['size'] = {
-            'width': window_size.x,
-            'height': window_size.y
+        # assume any error below this point is fault of user for
+        # not having a config file or having an invalid config file
+        win_size = self.__get_window_size(window)
+        win_offset = self.__get_window_offset(window)
+
+        cfg['window']['size'] = {
+            'width': win_size.x,
+            'height': win_size.y
         }
-        config['window']['offset'] = {
-            'x': window_offset.x,
-            'y': window_offset.y
+
+        cfg['window']['offset'] = {
+            'x': win_offset.x,
+            'y': win_offset.y
         }
 
-        # save updated config back to the file
         with open(self.config_path, 'w', encoding = 'utf-8') as f:
-            json.dump(config, f, indent = 4)
-        
-        print("Config saved to file.", f'x: {window_offset.x}, y: {window_offset.y}')
+            json.dump(cfg, f, indent = 4)
 
-    def save_config_item(self, item: str, val):
+    def load_window_config(self, window: QMainWindow) -> None:
         """
-        Saves a specific configuration item to the JSON file.
-
-        Args:
-            item (str): The name of the item to save.
-            val: The value to save for the item.
-
-        Returns:
-            None
-        """
-        try:
-            with open(self.config_path, 'r', encoding = 'utf-8') as f:
-                config = json.load(f)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            config = {}
-
-        # update the specific item
-        keys = item.split('.')
-        current = config
-        for key in keys[:-1]:
-            current = current.setdefault(key, {})
-        current[keys[-1]] = val
-
-        # save the updated config back to the file
-        with open(self.config_path, 'w', encoding = 'utf-8') as f:
-            json.dump(config, f, indent = 4)
-
-    def get_config_item(self, name: str):
-        """
-        Retrieves a specific configuration item from the JSON file.
-
-        Args:
-            name (str): The name of the item to retrieve.
-
-        Returns:
-            The value of the configuration item, or None if not found.
-        """
-        try:
-            with open(self.config_path, 'r', encoding = 'utf-8') as f:
-                config = json.load(f)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            return None
-
-        keys = name.split('.')
-        current = config
-        for key in keys:
-            if key not in current:
-                return None
-            current = current[key]
-        return current
-
-    def _reset_config_item(self, item: str):
-        """
-        Resets a specific configuration item to its default value.
-
-        Args:
-            item (str): The name of the item to reset.
-
-        Returns:
-            None
-        """
-        try:
-            with open(self.default_config_path, 'r', encoding = 'utf-8') as f:
-                default_config = json.load(f)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            print(f"Could not load default config from {self.default_config_path}")
-            return
-
-        try:
-            with open(self.config_path, 'r', encoding = 'utf-8') as f:
-                config = json.load(f)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            config = {}
-
-        # get default value
-        keys = item.split('.')
-        default_value = default_config
-        for key in keys:
-            if key not in default_value:
-                print(f"Item '{item}' not found in default config")
-                return
-            default_value = default_value[key]
-
-        # update config with the default value
-        current = config
-        for key in keys[:-1]:
-            current = current.setdefault(key, {})
-        current[keys[-1]] = default_value
-
-        # Save the updated config back to the file
-        with open(self.config_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=4)
-
-    def load_config(self, window: QMainWindow) -> None:
-        """
-        Loads the configuration and applies it to the given QMainWindow.
+        Loads the configuration of the window from a file and
+        applies it to the application.
 
         Args:
             window (QMainWindow): The window to apply the configuration to.
@@ -176,31 +98,141 @@ class ConfigHandler(metaclass = SingletonMeta):
         Returns:
             None
         """
-        try:
-            with open(self.config_path, 'r', encoding = 'utf-8') as f:
-                cfg = json.load(f)
+        window_cfg_file = self._get_config_file('window', self.fh.get_config_path())
+        if window_cfg_file is None:
+            raise FileNotFoundError("Window configuration not found.")
 
-        except FileNotFoundError:
-            print("Could not find the config file. Attempting to load default.")
-            try:
-                with open(self.default_config_path, 'r', encoding = 'utf-8') as f:
-                    cfg = json.load(f)
+        window_cfg = window_cfg_file.cfg.get("window", {})
+        window.setWindowTitle("KAG Map Maker")
 
-            except FileNotFoundError as exc:
-                raise FileNotFoundError("Could not find config or default config file.") from exc
+        offset = Vec2f()
+        offset.x = window_cfg.get("offset", -1).get("x", 0)
+        offset.y = window_cfg.get("offset", -1).get("y", 0)
 
-        except json.JSONDecodeError:
-            print("Could not load config.")
+        size = Vec2f()
+        size.x = window_cfg.get("size", -1).get("width", 1920 * 0.75)
+        size.y = window_cfg.get("size", -1).get("height", 1080 * 0.75)
+
+        # if invalid values, do nothing instead
+        if(offset.x == -1 or offset.y == -1 or size.x == -1 or size.y == -1):
             return None
 
-        # default, can't change
-        window.setWindowTitle('KAG Map Maker')
-        cfg = cfg.get('window', {})
-
-        offset = Vec2f(cfg.get('offset', {}).get('x', 0), cfg.get('offset', {}).get('y', 0))
-        size = Vec2f(cfg.get('size', {}).get('width', 1920), cfg.get('size', {}).get('height', 1080))
-
         window.setGeometry(offset.x, offset.y, size.x, size.y)
+
+    def save_config_file(self, name: str) -> None:
+        """
+        Saves a config to a file.
+
+        Args:
+            name (str): The name of the configuration to save.
+
+        Returns:
+            None
+        """
+        cfg = self._get_config_file(name).cfg
+        if cfg == {} or cfg is None:
+            return
+
+        with open(self.config_path, 'w', encoding = 'utf-8') as f:
+            json.dump(cfg, f, indent = 4)
+
+    def unload_config(self, name: str) -> None:
+        """
+        Unloads a config by its loaded name.
+
+        Args:
+            name (str): The name of the configuration to unload.
+
+        Returns:
+            None
+        """
+        if name in self.configs:
+            del self.configs[name]
+
+    def update_config_item(self, cfg_file: str, item: str, val: any) -> None:
+        if self._get_config_file(cfg_file) is None:
+            raise FileNotFoundError(f"Configuration file {cfg_file} not found.")
+
+        cfg = self._get_cfg(cfg_file)
+        # split into config paths
+        keys = item.split(".")
+        for key in keys:
+            cfg = cfg[key]
+
+        cfg = val
+
+    def load_config_file(self, file_path: str, name: str) -> None:
+        try:
+            with open(file_path, 'r', encoding = 'utf-8') as f:
+                print('cfg')
+                cfg = json.load(f)
+
+        except FileNotFoundError as exc:
+            raise FileNotFoundError("File not found.") from exc
+
+        self.configs.update({name: ConfigFile(name, cfg, file_path)})
+
+    def get_config_item(self, name: str, item: str) -> any:
+        cfg = self._get_cfg(name)
+        if cfg is None:
+            raise NotImplementedError("Config item not found.")
+
+        keys = item.split(".")
+        for key in keys:
+            cfg = cfg.get(key)
+            if cfg is None:
+                raise NotImplementedError(f"Configuration item '{item}' not found in '{name}'.")
+
+        return cfg
+
+    def reload_config_file(self, file: str) -> None:
+        with open(file, 'r', encoding = 'utf-8') as f:
+            cfg = json.load(f)
+
+        self._get_config_file(file).cfg = cfg
+
+    def get_modded_data(self, config_name: str) -> list:
+        cfg_list = self._get_cfg(config_name)
+        if not cfg_list:
+            raise FileNotFoundError(f"Configuration '{config_name}' not found.")
+
+        # use only the first dictionary in the list
+        cfg = cfg_list[0]
+
+        sprite = cfg.get("sprite", {})
+        properties = sprite.get("properties", {})
+
+        data = [
+            cfg.get("type"),
+            cfg.get("name"),
+            cfg.get("displayName"),
+            cfg.get("section_name"),
+            sprite.get("image"),
+            sprite.get("z_index"),
+            properties.get("is_rotatable"),
+            properties.get("can_swap_teams"),
+            properties.get("team"),
+            sprite.get("offset"),
+            cfg.get("search_keywords")
+        ]
+
+        return data
+
+    def _get_config_file(self, cfg: str, fp = None) -> ConfigFile:
+        if cfg in self.configs:
+            return self.configs.get(cfg)
+
+        # attempt to load config
+        if fp is not None:
+            self.load_config_file(fp, cfg)
+            return self.configs.get(cfg)
+
+        # config not found
+        return None
+
+    def _get_cfg(self, name: str, fp: str = None) -> dict:
+        cfg_file = self._get_config_file(name, fp)
+        return cfg_file.cfg if cfg_file else None
 
     def __get_window_size(self, window: QMainWindow):
         size = window.size()

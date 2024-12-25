@@ -9,8 +9,7 @@ from datetime import datetime
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QShortcut, QKeySequence
-from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsPixmapItem,
-                             QGraphicsScene, QGraphicsView, QSizePolicy)
+from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy)
 
 from base.cblob import CBlob
 from base.cblob_list import CBlobList
@@ -20,7 +19,6 @@ from base.kag_image import KagImage
 from base.renderer import Renderer
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
-
 
 class Canvas(QGraphicsView):
     """
@@ -35,7 +33,6 @@ class Canvas(QGraphicsView):
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
         self.communicator = Communicator()
         self.setScene(self.canvas)
-        # self.geometry = Vec2f(300, 300)
         self.size = size # map size
         self.grid_group = QGraphicsItemGroup()
 
@@ -100,8 +97,8 @@ class Canvas(QGraphicsView):
 
         # set the scene rect to allow panning
         self.scene().setSceneRect(
-            -extra_width, -extra_height, 
-            internal_map_width + 2 * extra_width, 
+            -extra_width, -extra_height,
+            internal_map_width + 2 * extra_width,
             internal_map_height + 2 * extra_height
         )
 
@@ -111,10 +108,10 @@ class Canvas(QGraphicsView):
     def resizeEvent(self, event) -> None:
         """
         Handles the resize event of the QGraphicsView to adjust the scene accordingly.
-        
+
         Parameters:
             event: A Qt resize event object containing information about the resize.
-        
+
         Returns:
             None
         """
@@ -127,48 +124,12 @@ class Canvas(QGraphicsView):
         """
         # space key
         space_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
-        space_shortcut.activated.connect(self.handle_space_press)
+        space_shortcut.activated.connect(lambda: self.rotate(False))
 
         # shift + space
         modifier = Qt.KeyboardModifier.ShiftModifier
         shift_space_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_Space), self)
-        shift_space_shortcut.activated.connect(self.handle_shift_space_press)
-
-    def handle_space_press(self):
-        """
-        Handles Space key press.
-        """
-        self.rotate(False)
-
-    def handle_shift_space_press(self):
-        """
-        Handles Shift + Space key press.
-        """
-        self.rotate(True)
-
-    def get_tilemap(self) -> list:
-        """
-        Returns the current tilemap of the canvas.
-
-        Args:
-            None
-
-        Returns:
-            list: A 2D list representing the map.
-        """
-        return self.tilemap
-
-    def get_size(self) -> tuple:
-        """
-        Returns the size of the canvas as a tuple.
-
-        Args:
-            None
-
-        Returns:
-            tuple: A tuple containing the width and height of the canvas.
-        """
-        return self.size
+        shift_space_shortcut.activated.connect(lambda: self.rotate(True))
 
     def set_grid_visible(self, show: bool = None) -> None:
         """
@@ -213,7 +174,7 @@ class Canvas(QGraphicsView):
                     if isinstance(item, CBlob):
                         rotation = item.rotation
 
-                    self.renderer.render(item.name, scene_pos, Vec2f(x, y), False, rotation)
+                    self.renderer.render_item(item.name, scene_pos, Vec2f(x, y), False, rotation)
 
     def rotate(self, rev: bool) -> None:
         """
@@ -312,7 +273,6 @@ class Canvas(QGraphicsView):
         file_path = os.path.join(path, file_name)
 
         KagImage().save_map(file_path + ".png")
-        print(f"Map saved to: {file_path}")
 
     def _build_background_rect(self) -> None:
         """
@@ -330,7 +290,7 @@ class Canvas(QGraphicsView):
         rect = self.canvas.addRect(0, 0, width, height, pen, QBrush(background_color))
         self.canvas.addItem(rect)
 
-    def _place_item(self, event, click_index: int) -> None:
+    def place_item(self, event, click_index: int) -> None:
         """
         Places an item on the canvas based on the given event and click index.
 
@@ -342,10 +302,9 @@ class Canvas(QGraphicsView):
             None
         """
         pos = self.mapToScene(event.pos())
-        pos = self._snap_to_grid((pos.x(), pos.y()))
+        pos = self.snap_to_grid((pos.x(), pos.y()))
 
         placing_tile = self.communicator.get_selected_tile(click_index)
-
         eraser: bool = self._using_eraser(placing_tile)
 
         # do nothing if out of bounds
@@ -358,67 +317,24 @@ class Canvas(QGraphicsView):
 
         scene_pos = Vec2f(scene_x, scene_y)
         snapped_pos = Vec2f(tilemap_x, tilemap_y)
-        self.renderer.render(placing_tile, scene_pos, snapped_pos, eraser, self.rotation)
+        self.renderer.render_item(placing_tile, scene_pos, snapped_pos, eraser, self.rotation)
 
-    def remove_existing_item_from_scene(self, pos: tuple) -> None:
-        """
-        Removes an existing item from the scene at the specified position (in tilemap coordinates).
+        if self.communicator.settings.get("mirrored over x", False):
+            # calculate mirrored position
+            mirrored_x = self.size.x - 1 - tilemap_x
+            mirrored_scene_x = mirrored_x * self.grid_spacing
 
-        Args:
-            pos (tuple): The position of the item to be removed.
+            # only place if mirrored position is valid
+            if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
+                mirrored_scene_pos = Vec2f(mirrored_scene_x, scene_y)
+                mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
 
-        Returns:
-            None
-        """
-        x, y = pos
-        if self.tilemap[x][y] is not None:
-            if (x, y) in self.graphics_items:
-                self.canvas.removeItem(self.graphics_items[(x, y)])
-                del self.graphics_items[(x, y)]
-            self.tilemap[x][y] = None
-
-    def add_to_canvas(self, img: QPixmap, pos: tuple, z: int, name: str) -> QGraphicsPixmapItem:
-        """
-        Adds an item to the canvas at the specified position.
-
-        Args:
-            img (QPixmap): The pixmap to be added to the canvas.
-            pos (tuple): The position of the item in the canvas.
-            z (int): The z-value of the item.
-            name (str): The name of the item.
-
-        Returns:
-            QGraphicsPixmapItem: The added pixmap item, or None if the pixmap is None.
-        """
-        x, y = self._snap_to_grid(pos)
-
-        # remove existing item if present
-        if self.tilemap[x][y] is not None:
-            self.remove_existing_item_from_scene((x, y))
-
-        if img is None:
-            print(f"Warning: img is None for item {name} at position {pos}")
-            return None
-
-        # create new item
-        pixmap_item = QGraphicsPixmapItem(img)
-        pixmap_item.setScale(self.zoom_factor * self.default_zoom_scale)
-
-        # TODO: fix this code with proper offsets
-        newpos = self.__get_offset(name, img)
-        pixmap_item.setPos(int(pos[0] - newpos.x), int(pos[1] - newpos.y))
-        pixmap_item.setZValue(z)
-
-        self.canvas.addItem(pixmap_item)
-
-        self.graphics_items[(x, y)] = pixmap_item
-
-        return pixmap_item
+                self.renderer.render_item(placing_tile, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
 
     # using this function until better solution is found so mapmaker is usable
-    # TODO: (MAYBE) each of the blobs should have a template, and include offset position
+    # TODO: each of the blobs should have a template, and include offset position
     # TODO: these should snap to the grid
-    def __get_offset(self, name: str, sprite: QPixmap) -> Vec2f:
+    def get_offset(self, name: str, sprite: QPixmap) -> Vec2f:
         w, h = sprite.width(), sprite.height()
         zf, zs = self.zoom_factor, self.default_zoom_scale
 
@@ -539,7 +455,7 @@ class Canvas(QGraphicsView):
 
         return Vec2f(0, 0)
 
-    def _snap_to_grid(self, pos) -> tuple:
+    def snap_to_grid(self, pos) -> tuple:
         """
         Snaps a given position to the nearest grid point.
 
@@ -565,12 +481,12 @@ class Canvas(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton: # place blocks
             self.holding_lmb = True
 
-            self._place_item(event, 1)
+            self.place_item(event, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.holding_rmb = True
 
-            self._place_item(event, 0)
+            self.place_item(event, 0)
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
@@ -613,19 +529,24 @@ class Canvas(QGraphicsView):
             None
         """
         if self.holding_lmb:
-            self._place_item(event, 1)
+            self.place_item(event, 1)
 
         elif self.holding_rmb:
-            self._place_item(event, 0)
+            self.place_item(event, 0)
 
         if self.holding_scw:
             # calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
 
-            # Scroll the view accordingly
+            # and scroll view accordingly
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+
+        # render the cursor
+        scene_pos = self.mapToScene(event.pos())
+        x, y = self.snap_to_grid((scene_pos.x(), scene_pos.y()))
+        self.renderer.render_cursor(Vec2f(x * self.grid_spacing, y * self.grid_spacing))
 
     def wheelEvent(self, event) -> None:
         """
@@ -643,18 +564,13 @@ class Canvas(QGraphicsView):
         else:
             factor = 1 / self.zoom_change_factor
 
-        # Get the position where the wheel event occurred in view coordinates
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
-
-        # Scale the view
         self.scale(factor, factor)
 
-        # Calculate the position delta
         new_scene_pos = self.mapToScene(view_pos.toPoint())
         delta = new_scene_pos - scene_pos
 
-        # Adjust scroll bars to maintain the same relative position
         self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
         self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 

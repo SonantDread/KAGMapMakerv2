@@ -1,17 +1,22 @@
 """
 Handles the GUI of selecting blocks, blobs and everything else.
 """
+import os
+
+from PIL import Image
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QPoint, QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (QGridLayout, QPushButton, QScrollArea,
                             QSizePolicy, QSpacerItem, QTabWidget, QWidget)
-from PIL import Image
 
 from base.cblob_list import CBlobList
 from base.ctile_list import CTileList
+from base.custom_items import CustomItem
 from base.kag_color import KagColor
 from core.communicator import Communicator
+from utils.file_handler import FileHandler
+from utils.vec2f import Vec2f
 
 SCROLLBAR_SIZE_WIDTH = 15
 BUTTON_WIDTH, BUTTON_HEIGHT = 40, 40
@@ -21,11 +26,28 @@ class SelectionButton(QPushButton):
     Used for the block & blob selection buttons because
     there isn't a good built in right click handler.
     """
-    def __init__(self, item_name: str, communicator: Communicator, parent = None):
+    def __init__(self, item_name: str, display_name: str, section_name: str, image: QPixmap,
+                z_index: int = None, rotatable: bool = False, team_swappable: bool = False,
+                team: int = 0, offset: Vec2f = None, search_keywords: list = None,
+                communicator: Communicator = None, parent = None):
         super().__init__(parent)
+        # names
         self.name = item_name
+        self.display_name = display_name
+        self.section_name = section_name
+        # sprite
+        self.image = image
+        self.z_index = z_index
+        self.rotatable = rotatable
+        self.team_swappable = team_swappable
+        self.team = team
+        self.offset = offset
+        #* searchable keywords (for future)
+        self.search_keywords = search_keywords
+
         self.communicator = communicator
-        self.setToolTip(self.name.replace("_", " "))
+        self.display_name = str(self.display_name)
+        self.setToolTip(self.display_name.strip())
 
     def set_selected_item(self, item_name: str, lmb: int):
         """
@@ -110,13 +132,9 @@ class Module(QWidget):
         self.colors = self._make_tab("colors", size, self.tab_widget)
         self.setup_colors(self.colors)
 
-        # # TODO: have tab called "Other" for things that don't fit into Tiles or Blobs
-        # self.modded = QScrollArea() # TODO: add JSON templates for modded tiles & blobs
-        # self.modded.setObjectName("modded")
-        # self.modded.setGeometry(QtCore.QRect(0, 25, size, size))
-        # self.modded.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # self.modded.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        # self.tab_widget.addTab(self.modded, "")
+        # TODO: have tab called "Other" for things that don't fit into Tiles or Blobs
+        self.modded = self._make_tab("modded", size, self.tab_widget)
+        self.setup_modded_items(self.modded)
 
         # Add the tab widget to the grid layout
         self.grid_layout.addWidget(self.tab_widget, 0, 0, 1, 1)
@@ -263,11 +281,53 @@ class Module(QWidget):
         tab.setWidget(scroll_widget)
         tab.setWidgetResizable(True)
 
+    def setup_modded_items(self, tab: QScrollArea) -> None:
+        # todo: section_name is WIP (should split items into horizontal sections for easier finding)
+        # todo: each mod should be split into a section
+        # todo: searchbar should allow searching by loaded mods
+
+        modded_path = FileHandler().modded_items_path
+
+        files = []
+        # put json files into files list with full path
+        for root, _, fn in os.walk(modded_path):
+            files.extend([os.path.join(root, f.strip()) for f in fn if f.strip().endswith(".json")
+                        and root.split("\\")[-1] != "_ExampleMod"])
+
+        # make tabs with relative data
+        scroll_widget = QWidget(tab)
+        scroll_layout = QGridLayout(scroll_widget)
+
+        scroll_layout.setSpacing(0)
+        scroll_layout.setVerticalSpacing(0)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
+
+        x, y = 0, 0
+
+        for file in files:
+            button: SelectionButton = self._get_modded_button(file)
+            self._make_modded_button(button, scroll_layout, x, y)
+
+            x += 1
+            if x * BUTTON_WIDTH >= tab.width() - 64:
+                x = 0
+                y += 1
+
+        scroll_widget.setLayout(scroll_layout)
+        tab.setWidget(scroll_widget)
+        tab.setWidgetResizable(True)
+
+    def _get_modded_button(self, file: str) -> SelectionButton:
+        data = CustomItem(file)
+
+        return SelectionButton(*data.get_data(), self.communicator, None)
+
     def __get_color_image(self, color: tuple) -> QPixmap:
         return Image.new("RGBA", (1, 1), (color[1], color[2], color[3], color[0])).toqpixmap()
 
     def _make_button(self, layout: QGridLayout, x: int, y: int, name: str, img: QPixmap) -> None:
-        button = SelectionButton(name, self.communicator, layout.parentWidget())
+        # todo: vanilla items should have their own config file for easier handling
+        button = SelectionButton(name, name.replace("_", " "), "", img, communicator = self.communicator, parent = layout.parentWidget())
         button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
         button.setIcon(self._scale_image(img))
         button.setIconSize(QSize(BUTTON_WIDTH, BUTTON_HEIGHT))
@@ -275,27 +335,63 @@ class Module(QWidget):
         button.setContentsMargins(0, 0, 0, 0)
         button.setMaximumSize(BUTTON_WIDTH, BUTTON_HEIGHT)
 
-        if x != 0 or y != 0: # not in first row, add a spacer to prevent it being weird
+        if x != 0 or y != 0: # item not in first row, add a spacer to prevent it being weird
             ex = QSizePolicy.Policy.Expanding
             layout.addItem(QSpacerItem(self._get_tab_size(32, 7, SCROLLBAR_SIZE_WIDTH), 2, ex, ex))
 
         layout.addWidget(button, y, x)
 
-    # TODO: make this work better than it currently does
-    def _scale_image(self, img: QPixmap) -> QIcon:
+    def _make_modded_button(self, button: SelectionButton, layout: QGridLayout,
+                            x: int, y: int) -> None:
+
+        button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        button.setIcon(self._scale_image(button.image))
+        button.setIconSize(QSize(BUTTON_WIDTH, BUTTON_HEIGHT))
+
+        button.setContentsMargins(0, 0, 0, 0)
+        button.setMaximumSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+
+        if x != 0 or y != 0: # item not in first row, add a spacer to prevent it being weird
+            ex = QSizePolicy.Policy.Expanding
+            layout.addItem(QSpacerItem(self._get_tab_size(32, 7, SCROLLBAR_SIZE_WIDTH), 2, ex, ex))
+
+        layout.addWidget(button, y, x)
+
+    # it is what it is
+    def _scale_image(self, img) -> QIcon:
         """
-        Scales the given QPixmap to a specified target size while maintaining its aspect ratio,
+        Scales the given image to a specified target size while maintaining its aspect ratio,
         and returns the scaled image as a QIcon.
 
         Args:
-            img (QPixmap): The QPixmap to be scaled.
+            img: The image to be scaled (can be QPixmap, PIL Image, or path string)
 
         Returns:
-            QIcon: The scaled QPixmap as a QIcon.
+            QIcon: The scaled image as a QIcon.
         """
         target_size = QSize(32, 32)
 
-        scaled_img = img.scaled(target_size, Qt.AspectRatioMode.KeepAspectRatio)
+        # convert input to QPixmap if needed
+        if isinstance(img, str):
+            # if img is a file path
+            pixmap = QPixmap(img)
+        elif isinstance(img, Image.Image):
+            # if img is a PIL Image
+            pixmap = QPixmap.fromImage(img.toqimage())
+        elif isinstance(img, QPixmap):
+            # if img is already a QPixmap
+            pixmap = img
+        else:
+            print(f"Unsupported image type: {type(img)}")
+            # return an empty icon if conversion fails
+            return QIcon()
+
+        # check if the pixmap is valid
+        if pixmap.isNull():
+            print("Failed to create valid pixmap")
+            return QIcon()
+
+        scaled_img = pixmap.scaled(target_size, Qt.AspectRatioMode.KeepAspectRatio)
 
         final_pixmap = QPixmap(target_size)
         final_pixmap.fill(Qt.GlobalColor.transparent)
@@ -329,4 +425,4 @@ class Module(QWidget):
         tw.setTabText(tw.indexOf(self.tiles), _translate("menu", "Tiles"))
         tw.setTabText(tw.indexOf(self.entities), _translate("menu", "Entities"))
         tw.setTabText(tw.indexOf(self.colors), _translate("menu", "Colors"))
-        # tw.setTabText(tw.indexOf(self.modded), _translate("menu", "Modded"))
+        tw.setTabText(tw.indexOf(self.modded), _translate("menu", "Modded"))

@@ -1,0 +1,15 @@
+[
+    {
+        "type": "tile",
+        "name": "sand",
+        "displayName": "Sand",
+        "section_name": "block",
+        "sprite": {
+            "image": 220,
+            "z_index": 500
+        },
+        "search_keywords": [
+            ""
+        ]
+    }
+]

@@ -80,11 +80,11 @@ class KagImage:
             filepath = self._ask_save_location()
 
         canvas = self._get_canvas()
-        tilemap = canvas.get_tilemap()
+        tilemap = canvas.tilemap
         tilemap = self.__get_translated_tilemap(tilemap)
 
         sky = self.argb_to_rgba(self.colors.get_color_by_name("sky"))
-        image = Image.new("RGBA", size = (canvas.get_size().x, canvas.get_size().y), color = sky)
+        image = Image.new("RGBA", size = (canvas.size.x, canvas.size.y), color = sky)
 
         for x, row in enumerate(tilemap):
             for y, item in enumerate(row):
@@ -180,13 +180,12 @@ class KagImage:
         canvas.force_rerender()
 
     def __make_class(self, name: str, pos: tuple, rotation: int) -> Union[CTile, CBlob]:
-        raw_name = self._get_raw_name(name)
-        img = self.images.get_image(raw_name)
+        img = self.images.get_image(name)
         team = self._get_team(name)
 
         if self.tilelist.does_tile_exist(name):
-            return CTile(img, raw_name, Vec2f(pos[0], pos[1]), 0)
-        return CBlob(img, raw_name, Vec2f(pos[0], pos[1]), 0, team, 0, rotation)
+            return CTile(img, name, Vec2f(pos[0], pos[1]), 0)
+        return CBlob(img, name, Vec2f(pos[0], pos[1]), 0, team, 0, rotation)
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
         """
@@ -213,18 +212,6 @@ class KagImage:
         """
         r, g, b, a = rgba
         return (a, r, g, b)
-
-    def _get_raw_name(self, name: str) -> str:
-        if not name:
-            return None
-
-        # handle rotation
-        for suffix in ["_r0", "_r90", "_r180", "_r270"]:
-            if name.endswith(suffix):
-                name = name[:-len(suffix)]
-
-        pattern = r"_\-?([0-7]|-1)$"
-        return re.sub(pattern, "", name)
 
     def _get_team(self, name: str) -> int:
         pattern = r"_\-?([0-7]|-1)$"

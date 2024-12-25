@@ -6,6 +6,8 @@ from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QWidgetAction
 from PyQt6.QtGui import QAction
 
 from base.kag_image import KagImage
+from core.communicator import Communicator
+# from base.renderer import Renderer # todo: force cursor to get rendered when mirrored over x
 
 class Toolbar(QToolBar):
     """
@@ -15,19 +17,14 @@ class Toolbar(QToolBar):
         super().__init__(parent)
         self.setParent(parent)
         self.kagimage = KagImage()
+        self.communicator = Communicator()
         self.setup_ui()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """
         Sets up the UI for the toolbar, including the file, settings, and view menus.
         This function creates the menu actions, adds them to their respective menus,
         and connects the actions to their corresponding functions.
-
-        Parameters:
-            None
-
-        Returns:
-            None
         """
         # file menu
         file_menu = QMenu("File", self)
@@ -46,9 +43,9 @@ class Toolbar(QToolBar):
 
         # settings menu
         settings_menu = QMenu("Settings", self)
-        example_checkbox = QCheckBox("Example Checkbox", self)
+        mirror_x = QCheckBox("Mirror Over X-Axis", self)
         settings_widget_action = QWidgetAction(self)
-        settings_widget_action.setDefaultWidget(example_checkbox)
+        settings_widget_action.setDefaultWidget(mirror_x)
         settings_menu.addAction(settings_widget_action)
 
         # view menu
@@ -67,28 +64,28 @@ class Toolbar(QToolBar):
         view_menu.addMenu(buttons_submenu)
 
         # connect actions to functions
-        new_action.triggered.connect(self.new_triggered)
-        save_action.triggered.connect(self.save_triggered)
-        save_as_action.triggered.connect(self.save_as_triggered)
-        load_action.triggered.connect(self.load_triggered)
+        new_action.triggered.connect(lambda: self.kagimage.new_map())
+        save_action.triggered.connect(lambda: self.kagimage.save_map())
+        save_as_action.triggered.connect(lambda: self.kagimage.save_map_as())
+        load_action.triggered.connect(lambda: self.kagimage.load_map())
         render_action.triggered.connect(self.render_triggered)
-        example_checkbox.toggled.connect(self.example_checkbox_toggled)
+        mirror_x.toggled.connect(lambda x: self.toggle_mirrored_x(x))
         button1_action.triggered.connect(self.button1_triggered)
         button2_action.triggered.connect(self.button2_triggered)
         button3_action.triggered.connect(self.button3_triggered)
         test_in_kag.triggered.connect(self.test_in_kag_triggered)
 
-        # add File menu to toolbar
+        # add 'File' menu to toolbar
         self.file_menu = QAction("File", self)
         self.file_menu.triggered.connect(lambda: self._pop_up(file_menu, self.file_menu))
         self.addAction(self.file_menu)
 
-        # add Settings menu to toolbar
+        # add 'Settings' menu to toolbar
         self.settings_menu = QAction("Settings", self)
-        self.settings_menu.triggered.connect(lambda: self._pop_up(settings_menu, self.settings_menu))
+        self.settings_menu.triggered.connect(lambda:self._pop_up(settings_menu, self.settings_menu))
         self.addAction(self.settings_menu)
 
-        # add View menu to toolbar
+        # add 'View' menu to toolbar
         self.view_menu = QAction("View", self)
         self.view_menu.triggered.connect(lambda: self._pop_up(view_menu, self.view_menu))
         self.addAction(self.view_menu)
@@ -96,23 +93,17 @@ class Toolbar(QToolBar):
     def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
-    def new_triggered(self):
-        print("New triggered")
-        self.kagimage.new_map()
-
-    def save_triggered(self):
-        print("Save triggered")
-        self.kagimage.save_map()
-
-    def save_as_triggered(self):
-        print("Save As triggered")
-        self.kagimage.save_map_as()
-
-    def load_triggered(self):
-        self.kagimage.load_map()
-
     def render_triggered(self):
-        print("Render triggered")
+        print("Render triggered") #todo: implement this
+
+    def toggle_mirrored_x(self, checked: bool) -> None:
+        """
+        Toggles the mirrored over x setting based on checkbox state.
+        
+        Args:
+            checked (bool): The new state of the checkbox
+        """
+        self.communicator.settings['mirrored over x'] = checked
 
     def example_checkbox_toggled(self, checked):
         print(f"Example Checkbox toggled: {checked}")

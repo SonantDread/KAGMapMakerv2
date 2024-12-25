@@ -2,4 +2,4 @@
 extension-pkg-whitelist=PyQt6
 
 [BASIC]
-good-names=mousePressEvent, mouseReleaseEvent, keyPressEvent, keyReleaseEvent, wheelEvent, mouseMoveEvent, closeEvent, retranslateUi
+good-names=mousePressEvent, mouseReleaseEvent, keyPressEvent, keyReleaseEvent, wheelEvent, mouseMoveEvent, closeEvent, retranslateUi, resizeEvent

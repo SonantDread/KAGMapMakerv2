@@ -20,4 +20,4 @@ class CTile:
         self.name: str = name
         self.pos: tuple = pos
         self.layer: int = layer
-        self.z: int = z # how far to render in the background
+        self.z: int = z

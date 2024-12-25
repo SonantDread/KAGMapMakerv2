@@ -1,0 +1,28 @@
+[
+    {
+        "type": "tile",
+        "name": "sand",
+        "display_name": "Sand",
+        "section_name": "block",
+        "sprite": {
+            "image": 220,
+            "z_index": 500
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "sand_backwall",
+        "section_name": "background",
+        "display_name": "Sand Backwall",
+        "sprite": {
+            "image": "sand_backwall.png",
+            "z_index": -600
+        },
+        "search_keywords": [
+            "background"
+        ]
+    }
+]

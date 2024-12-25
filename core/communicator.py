@@ -23,6 +23,7 @@ class Communicator(metaclass = SingletonMeta):
         self.picked_tiles = ["tile_ground", "tile_empty"]
         self.canvas = None
         self.exec_path = None
+        self.settings = {}
 
     def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb
         """

@@ -2,6 +2,7 @@
 Used to handle file paths and file loading.
 """
 import os
+from pathlib import Path
 
 class FileHandler:
     """
@@ -17,6 +18,7 @@ class FileHandler:
         self.default_config_path = os.path.join(self.base_path, "settings", "readonly_config.json")
         self.gui_modules_path = os.path.join(self.base_path, "core", "modules")
         self.maps_path = os.path.join(self.base_path, "Maps")
+        self.modded_items_path = os.path.join(self.base_path, "Modded")
 
     def does_path_exist(self, path: str):
         """
@@ -81,7 +83,16 @@ class FileHandler:
         """
         return self.gui_modules_path
 
-    def does_sprite_exist(self, name: str) -> bool:
+    def get_modded_items_path(self) -> str:
+        """
+        Returns the path to the modded items.
+
+        Returns:
+            str: Returns the path to the modded items.
+        """
+        return self.modded_items_path
+
+    def does_sprite_exist(self, name: str, fp: str = None) -> bool:
         """
         Checks if a sprite with the given name exists in the sprites directory.
 
@@ -94,8 +105,40 @@ class FileHandler:
         if not isinstance(name, str):
             name = str(name)
 
-        path = os.path.join(self.base_path, "base", "Sprites")
-        for _, _, files in os.walk(path):
+        if fp is None:
+            fp = os.path.join(self.base_path, "base", "Sprites")
+
+        for _, _, files in os.walk(fp):
             if name in files:
                 return True
         return False
+
+    def get_file_truename(self, fp: str) -> str:
+        """
+        Returns the actual name of the file provided
+        
+        Args:
+            fp (str): The filepath
+            
+        Returns:
+            str: The name of the file
+        """
+        return Path(fp).name.split(".")[0]
+
+    def get_modded_item_path(self, name: str, fp: str) -> str:
+        """
+        Returns the full path to the modded item with the given name in the given path
+
+        Args:
+            name (str): The name of the modded item to find
+            fp (str): The path to search for the modded item
+
+        Returns:
+            str: The full path to the modded item if found, None otherwise
+        """
+
+        for root, _, files in os.walk(fp):
+            if name in files:
+                return os.path.join(root, name)
+
+        return None

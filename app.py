@@ -33,7 +33,7 @@ class App(QMainWindow):
 
         print("Setting up main window")
         self.config_handler = ConfigHandler()
-        self.config_handler.load_config(self)
+        self.config_handler.load_window_config(self)
 
         print("Loading UI")
         self.main_widget = QWidget(self)
@@ -75,7 +75,7 @@ class App(QMainWindow):
         Returns:
             None
         """
-        self.config_handler.save_config(self)
+        self.config_handler.save_window_config(self)
 
     def quit(self, event: QEvent) -> None:
         """
