@@ -9,6 +9,9 @@ class Vec2f:
         self.x = x
         self.y = y
 
+    def __iter__(self):
+        return iter((self.x, self.y))
+
     def __add__(self, other):
         return Vec2f(self.x + other.x, self.y + other.y)
 

@@ -137,44 +137,49 @@ class Renderer:
         """
         canvas = self.communicator.get_canvas()
         if self.cursor_graphics_item is None:
-            self.__setup_cursor(canvas)
+            self.setup_cursor()
 
-        self.cursor_graphics_item[0].setPos(pos.x, pos.y)
+        try:
+            self.cursor_graphics_item[0].setPos(pos.x, pos.y)
 
-        if self.communicator.settings.get("mirrored over x", False):
-            # calculate mirrored position
-            grid_x = pos.x / canvas.grid_spacing
-            mirrored_grid_x = canvas.size.x - 1 - grid_x
-            mirrored_scene_x = mirrored_grid_x * canvas.grid_spacing
+            if self.communicator.settings.get("mirrored over x", False):
+                # calculate mirrored position
+                grid_x = pos.x / canvas.grid_spacing
+                mirrored_grid_x = canvas.size.x - 1 - grid_x
+                mirrored_scene_x = mirrored_grid_x * canvas.grid_spacing
 
-            # show mirrored cursor
-            self.cursor_graphics_item[1].setPos(mirrored_scene_x, pos.y)
-            self.cursor_graphics_item[1].setOpacity(1)
-        else:
-            self.cursor_graphics_item[1].setOpacity(0)
+                # show mirrored cursor
+                self.cursor_graphics_item[1].setPos(mirrored_scene_x, pos.y)
+                self.cursor_graphics_item[1].setOpacity(1)
+            else:
+                self.cursor_graphics_item[1].setOpacity(0)
 
-    def __setup_cursor(self, canvas) -> None:
-        if self.cursor_graphics_item is None:
-            cursor_image = self.images.get_image("cursor")
-            if cursor_image is None:
-                raise ValueError("Cursor image not found. Ensure 'cursor.png' asset is available.")
+        except RuntimeError:
+            self.setup_cursor()
+            self.render_cursor(pos)
 
-            # create main cursor
-            main_cursor = QGraphicsPixmapItem(cursor_image)
-            main_cursor.setZValue(9999)
-            base_scale = canvas.zoom_factor * canvas.default_zoom_scale
-            main_cursor.setScale(base_scale * (8 / 10))
+    def setup_cursor(self) -> None:
+        canvas = self.communicator.get_canvas()
+        cursor_image = self.images.get_image("cursor")
+        if cursor_image is None:
+            raise ValueError("Cursor image not found. Ensure 'cursor.png' asset is available.")
 
-            # create mirrored cursor
-            mirror_cursor = QGraphicsPixmapItem(cursor_image)
-            mirror_cursor.setZValue(9999)
-            mirror_cursor.setScale(base_scale * (8 / 10))
-            mirror_cursor.setOpacity(0)
+        # create main cursor
+        main_cursor = QGraphicsPixmapItem(cursor_image)
+        main_cursor.setZValue(9999)
+        base_scale = canvas.zoom_factor * canvas.default_zoom_scale
+        main_cursor.setScale(base_scale * (8 / 10))
 
-            canvas.canvas.addItem(main_cursor)
-            canvas.canvas.addItem(mirror_cursor)
+        # create mirrored cursor
+        mirror_cursor = QGraphicsPixmapItem(cursor_image)
+        mirror_cursor.setZValue(9999)
+        mirror_cursor.setScale(base_scale * (8 / 10))
+        mirror_cursor.setOpacity(0)
 
-            self.cursor_graphics_item = [main_cursor, mirror_cursor]
+        canvas.canvas.addItem(main_cursor)
+        canvas.canvas.addItem(mirror_cursor)
+
+        self.cursor_graphics_item = [main_cursor, mirror_cursor]
 
     def __make_item(self, name: str, pos: tuple, rotation: int) -> Union[CTile, CBlob]:
         """
