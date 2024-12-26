@@ -10,15 +10,15 @@ class FileHandler:
     """
     def __init__(self) -> None:
         # path to the map maker folder
-        self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-        self.world_path = os.path.join(self.base_path, "base", "Sprites", "Default", "world.png")
-        self.mapmaker_images = os.path.join(self.base_path, "base", "Sprites", "MapMaker")
+        self.default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        self.world_path = os.path.join(self.default_path, "base", "Sprites", "Default", "world.png")
+        self.mapmaker_images = os.path.join(self.default_path, "base", "Sprites", "MapMaker")
 
-        self.config_path = os.path.join(self.base_path, "settings", "config.json")
-        self.default_config_path = os.path.join(self.base_path, "settings", "readonly_config.json")
-        self.gui_modules_path = os.path.join(self.base_path, "core", "modules")
-        self.maps_path = os.path.join(self.base_path, "Maps")
-        self.modded_items_path = os.path.join(self.base_path, "Modded")
+        self.config_path = os.path.join(self.default_path, "settings", "config.json")
+        self.default_config_path = os.path.join(self.default_path, "settings", "readonly_config.json")
+        self.gui_modules_path = os.path.join(self.default_path, "core", "modules")
+        self.maps_path = os.path.join(self.default_path, "Maps")
+        self.modded_items_path = os.path.join(self.default_path, "Modded")
 
     def does_path_exist(self, path: str):
         """
@@ -35,33 +35,6 @@ class FileHandler:
 
         return os.path.exists(path)
 
-    def get_world_path(self):
-        """
-        Returns the path to the world file.
-
-        Returns:
-            str: The path to the world file.
-        """
-        return self.world_path
-
-    def get_config_path(self):
-        """
-        Returns the path to the configuration file.
-
-        Returns:
-            str: The path to the configuration file.
-        """
-        return self.config_path
-
-    def get_default_config_path(self):
-        """
-        Returns the path to the default configuration file.
-
-        Returns:
-            str: The path to the default configuration file.
-        """
-        return self.default_config_path
-
     def get_maps_path(self):
         """
         Returns the path to the maps directory.
@@ -73,24 +46,6 @@ class FileHandler:
             os.mkdir(self.maps_path)
 
         return self.maps_path
-
-    def get_gui_modules_path(self):
-        """
-        Returns the path to the modules directory for the GUI.
-
-        Returns:
-            str: Returns the path to the modules directory for the GUI.
-        """
-        return self.gui_modules_path
-
-    def get_modded_items_path(self) -> str:
-        """
-        Returns the path to the modded items.
-
-        Returns:
-            str: Returns the path to the modded items.
-        """
-        return self.modded_items_path
 
     def does_sprite_exist(self, name: str, fp: str = None) -> bool:
         """
@@ -106,7 +61,7 @@ class FileHandler:
             name = str(name)
 
         if fp is None:
-            fp = os.path.join(self.base_path, "base", "Sprites")
+            fp = os.path.join(self.default_path, "base", "Sprites")
 
         for _, _, files in os.walk(fp):
             if name in files:

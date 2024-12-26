@@ -246,11 +246,6 @@ class KagImage:
 
         return file_path
 
-    def _get_kag_path(self) -> str:
-        path = ConfigHandler().get_config_item("kag_path")
-
-        return str(path)
-
     def _ask_save_location(self) -> str:
         if self.last_saved_location is None:
             filepath = self._ask_location("Save Map As", self.file_handler.get_maps_path(), True)

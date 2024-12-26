@@ -36,8 +36,8 @@ class ConfigHandler(metaclass=SingletonMeta):
     """
     def __init__(self):
         self.fh = FileHandler()
-        self.default_config_path = self.fh.get_default_config_path()
-        self.config_path = self.fh.get_config_path()
+        self.readonly_config_path = self.fh.default_config_path
+        self.config_path = self.fh.config_path
         self.configs = {}
         self._iterator = None
 
@@ -59,7 +59,7 @@ class ConfigHandler(metaclass=SingletonMeta):
         except FileNotFoundError:
             try:
                 # load default config
-                with open(self.default_config_path, 'r', encoding = 'utf-8') as f:
+                with open(self.readonly_config_path, 'r', encoding = 'utf-8') as f:
                     cfg = json.load(f)
 
             except FileNotFoundError as exc:
@@ -98,7 +98,7 @@ class ConfigHandler(metaclass=SingletonMeta):
         Returns:
             None
         """
-        window_cfg_file = self._get_config_file('window', self.fh.get_config_path())
+        window_cfg_file = self._get_config_file('window', self.fh.config_path)
         if window_cfg_file is None:
             raise FileNotFoundError("Window configuration not found.")
 

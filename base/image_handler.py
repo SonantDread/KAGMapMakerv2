@@ -185,7 +185,7 @@ class ImageHandler(metaclass = SingletonMeta):
         return img.toqpixmap()
 
     def _get_tile_png_by_index(self, index: int) -> QPixmap:
-        world = self.file_handler.get_world_path()
+        world = self.file_handler.world_path
         image = Image.open(world)
         image = image.convert("RGBA") # prevent errors with alpha translation
 

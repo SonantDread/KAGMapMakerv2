@@ -2,11 +2,17 @@
 The toolbar for the file, settings, view, etc.
 """
 
+import os
+import shutil
+import subprocess
+
 from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QWidgetAction
 from PyQt6.QtGui import QAction
 
 from base.kag_image import KagImage
 from core.communicator import Communicator
+from utils.config_handler import ConfigHandler
+from utils.file_handler import FileHandler
 # from base.renderer import Renderer # todo: force cursor to get rendered when mirrored over x
 
 class Toolbar(QToolBar):
@@ -99,11 +105,51 @@ class Toolbar(QToolBar):
     def toggle_mirrored_x(self, checked: bool) -> None:
         """
         Toggles the mirrored over x setting based on checkbox state.
-        
+
         Args:
             checked (bool): The new state of the checkbox
         """
         self.communicator.settings['mirrored over x'] = checked
+
+    def test_in_kag_triggered(self):
+        fh = FileHandler()
+        config_handler = ConfigHandler()
+        config_handler.load_config_file(config_handler.config_path, "config.json")
+        kag_base_path = config_handler.get_config_item("config.json", "kag_path")
+
+        if kag_base_path is None:
+            config_handler.load_config_file(config_handler.readonly_config_path, "config.json")
+            kag_base_path = config_handler.get_config_item("readonly_config.json", "kag_path")
+
+        if kag_base_path is None:
+            print("No KAG path found in config file.")
+            return
+
+        kag_script_path = os.path.join(kag_base_path, "Base", "Scripts", "MapMaker_Autostart.as")
+        kag_map_path = os.path.join(kag_base_path, "Base", "Maps", "MapMaker_Map.png")
+        autostart_script = os.path.join(fh.default_path, "base", "MapMaker_Autostart.as")
+        command = "KAG.exe autostart Scripts/MapMaker_Autostart.as noautoupdate nolauncher"
+
+        # ensure files exist to actually test maps
+        if fh.does_path_exist(autostart_script) and not fh.does_path_exist(kag_script_path):
+            shutil.copy(autostart_script, kag_script_path)
+
+        if fh.does_path_exist(kag_base_path):
+            self.kagimage.save_map(kag_map_path)
+
+        try:
+            kag_executable = os.path.join(kag_base_path, "KAG.exe")
+            command = [
+                kag_executable,
+                "autostart",
+                "Scripts/MapMaker_Autostart.as",
+                "noautoupdate",
+                "nolauncher"
+            ]
+            subprocess.Popen(command, cwd = kag_base_path)
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing KAG command: {e}")
 
     def example_checkbox_toggled(self, checked):
         print(f"Example Checkbox toggled: {checked}")
@@ -116,6 +162,3 @@ class Toolbar(QToolBar):
 
     def button3_triggered(self):
         print("Button 3 clicked")
-
-    def test_in_kag_triggered(self):
-        print("Test in kag clicked")
