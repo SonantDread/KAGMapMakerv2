@@ -24,6 +24,8 @@ class Communicator(metaclass = SingletonMeta):
         self.canvas = None
         self.exec_path = None
         self.settings = {}
+        self.mouse_pos = () # must be empty tuple
+        self.recent_mouse_pos = self.mouse_pos
 
     def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb
         """

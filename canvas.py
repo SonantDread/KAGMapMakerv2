@@ -290,9 +290,9 @@ class Canvas(QGraphicsView):
         rect = self.canvas.addRect(0, 0, width, height, pen, QBrush(background_color))
         self.canvas.addItem(rect)
 
-    def place_item(self, event, click_index: int) -> None:
+    def add_item(self, event, click_index: int) -> None:
         """
-        Places an item on the canvas based on the given event and click index.
+        Requests to add an item at position
 
         Args:
             event: The event that triggered the item placement.
@@ -301,17 +301,66 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        pos = self.mapToScene(event.pos())
-        pos = self.snap_to_grid((pos.x(), pos.y()))
+        recent_pos = self.communicator.mouse_pos
+        self.communicator.recent_mouse_pos = recent_pos
+
+        pos = self.get_grid_pos(event)
+        self.place_items_inbetween(event, recent_pos, pos, click_index)
+    
+    def place_items_inbetween(self, event, recent_pos, pos, click_index: int) -> None:
+        """
+        Places items inbetween two positions based on the given click index.
+
+        Args:
+            event: The event that triggered the item placement.
+            recent_pos: The old position to start placing items from.
+            pos: The new position to place items up to.
+            click_index: The index of the click that triggered the item placement.
+
+        Returns:
+            None
+        """
+
+        if (len(pos) == 0 or len(recent_pos) == 0):
+            return
+        
+        delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
+        steps = max(abs(delta[0]), abs(delta[1]))
+
+        if steps == 0:
+            self.place_item(pos, click_index)
+            return
+
+        for i in range(steps + 1):
+            x = recent_pos[0] + i * delta[0] / steps
+            y = recent_pos[1] + i * delta[1] / steps
+
+            self.place_item((int(x), int(y)), click_index)
+
+        self.update_mouse_pos(event)
+
+    def place_item(self, grid_pos, click_index: int) -> None:
+        """
+        Places an item on the canvas based on the given event and click index.
+
+        Args:
+            grid_pos: The grid position to place the item at.
+            click_index: The index of the click that triggered the item placement.
+
+        Returns:
+            None
+        """
+
+        # Calculate the distance of mouse swipe and fill items inbetween
 
         placing_tile = self.communicator.get_selected_tile(click_index)
         eraser: bool = self._using_eraser(placing_tile)
 
         # do nothing if out of bounds
-        if self.is_out_of_bounds(pos):
+        if self.is_out_of_bounds(grid_pos):
             return
 
-        tilemap_x, tilemap_y = pos
+        tilemap_x, tilemap_y = grid_pos
         scene_x = tilemap_x * self.grid_spacing # for the location on the canvas
         scene_y = tilemap_y * self.grid_spacing
 
@@ -467,6 +516,20 @@ class Canvas(QGraphicsView):
         """
         x, y = pos
         return (int(x // self.grid_spacing), int(y // self.grid_spacing))
+    
+    def get_grid_pos(self, event) -> tuple:
+        """
+        Gets the grid position of the given event.
+
+        Args:
+            event: The event to get the grid position from.
+
+        Returns:
+            tuple: The grid position as a tuple of two integers.
+        """
+
+        pos = self.mapToScene(event.pos())
+        return self.snap_to_grid((pos.x(), pos.y()))
 
     def mousePressEvent(self, event) -> None:
         """
@@ -478,15 +541,23 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
+
+        self.update_mouse_pos(event)
+
         if event.button() == Qt.MouseButton.LeftButton: # place blocks
             self.holding_lmb = True
 
-            self.place_item(event, 1)
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.holding_rmb = True
 
-            self.place_item(event, 0)
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 0)
+
+        if (not self.holding_lmb):
+            self.communicator.recent_mouse_pos = self.communicator.mouse_pos
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
@@ -505,6 +576,9 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
+
+        self.update_mouse_pos(event)
+
         if event.button() == Qt.MouseButton.LeftButton:
             self.holding_lmb = False
 
@@ -529,10 +603,10 @@ class Canvas(QGraphicsView):
             None
         """
         if self.holding_lmb:
-            self.place_item(event, 1)
+            self.add_item(event, 1)
 
         elif self.holding_rmb:
-            self.place_item(event, 0)
+            self.add_item(event, 0)
 
         if self.holding_scw:
             # calculate how much the mouse has moved
@@ -547,6 +621,20 @@ class Canvas(QGraphicsView):
         scene_pos = self.mapToScene(event.pos())
         x, y = self.snap_to_grid((scene_pos.x(), scene_pos.y()))
         self.renderer.render_cursor(Vec2f(x * self.grid_spacing, y * self.grid_spacing))
+
+    def update_mouse_pos(self, event) -> None:
+        """
+        Updates the mouse position to the given event.
+
+        Args:
+            event: The event to update the mouse position to.
+
+        Returns:
+            None
+        """
+
+        self.communicator.mouse_pos = self.get_grid_pos(event)
+        self.communicator.recent_mouse_pos = self.communicator.mouse_pos
 
     def wheelEvent(self, event) -> None:
         """
@@ -566,7 +654,7 @@ class Canvas(QGraphicsView):
 
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
-        self.scale(factor, factor)
+        self.scale(factor, factor) # todo: fix this being weird and making lines
 
         new_scene_pos = self.mapToScene(view_pos.toPoint())
         delta = new_scene_pos - scene_pos
