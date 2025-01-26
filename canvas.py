@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QShortcut, QKeySequence
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QShortcut, QKeySequence, QKeyEvent
 from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy)
 
 from base.cblob import CBlob
@@ -58,6 +58,7 @@ class Canvas(QGraphicsView):
         self.holding_lmb = False
         self.holding_rmb = False
         self.holding_scw = False
+        self.holding_space = False
         self.holding_shift = False
 
         self._last_pan_point = None
@@ -531,6 +532,42 @@ class Canvas(QGraphicsView):
         pos = self.mapToScene(event.pos())
         return self.snap_to_grid((pos.x(), pos.y()))
 
+    def keyPressEvent(self, event: QKeyEvent):
+        """
+        Handles key press events on the canvas.
+
+        Args:
+            event: The key event to handle.
+
+        Returns:
+            None
+        """
+
+        if (event.key() == Qt.Key.Key_Space):
+            print("space pressed")
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            self._last_pan_point = event.pos()
+            self.holding_space = True
+            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
+
+    def keyReleaseEvent(self, event: QKeyEvent):
+        """
+        Handles key release events on the canvas.
+
+        Args:
+            event: The key event to handle.
+
+        Returns:
+            None
+        """
+        if (event.key() == Qt.Key.Key_Space):
+            print("space released")
+            self.holding_space = False
+            self.setCursor(Qt.CursorShape.ArrowCursor)
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
+            self.viewport().unsetCursor()
+
     def mousePressEvent(self, event) -> None:
         """
         Handles mouse press events on the canvas.
@@ -608,7 +645,7 @@ class Canvas(QGraphicsView):
         elif self.holding_rmb:
             self.add_item(event, 0)
 
-        if self.holding_scw:
+        if self.holding_scw or self.holding_space:
             # calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
