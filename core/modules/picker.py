@@ -12,8 +12,7 @@ from PyQt6.QtWidgets import (QGridLayout, QPushButton, QScrollArea,
 from base.citem import CItem
 from base.citemlist import CItemList
 from core.communicator import Communicator
-
-from copy import deepcopy
+from utils.vec2f import Vec2f
 
 BUTTON_WIDTH, BUTTON_HEIGHT = 48, 48
 communicator = Communicator()
@@ -92,6 +91,7 @@ class Module(QWidget):
         itemlist = CItemList()
         colors = itemlist.vanilla_tiles + itemlist.vanilla_blobs #+ others # todo
         for item in colors:
+            item.sprite.offset = Vec2f(0, 0)
             item.sprite.image = self.__get_color_image(item.get_color())
 
         self._setup_items(colors_tab, colors)

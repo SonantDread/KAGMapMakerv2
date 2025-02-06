@@ -392,7 +392,6 @@ class Canvas(QGraphicsView):
             None
         """
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
-            print("space pressed")
             self._last_pan_point = self.get_cursor_pos_on_canvas()
             self.holding_space = True
 
@@ -407,7 +406,6 @@ class Canvas(QGraphicsView):
             None
         """
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
-            print("space released")
             self.holding_space = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
@@ -487,7 +485,7 @@ class Canvas(QGraphicsView):
         if self.holding_scw or self.holding_space:
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
             self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
-            
+
             # calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
@@ -497,7 +495,7 @@ class Canvas(QGraphicsView):
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
         else:
-            self.setCursor(Qt.CursorShape.ArrowCursor) # todo: should be a function that is called here & in mouseReleaseEvent   
+            self.setCursor(Qt.CursorShape.ArrowCursor) # todo: should be a function that is called here & in mouseReleaseEvent
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
             self.viewport().unsetCursor()
         # render the cursor
