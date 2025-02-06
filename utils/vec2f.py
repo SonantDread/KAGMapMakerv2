@@ -29,7 +29,6 @@ class Vec2f:
         else:
             raise TypeError("Unsupported operand type for division")
 
-
     def __floordiv__(self, other):
         return Vec2f(self.x // other.x, self.y // other.y)
 

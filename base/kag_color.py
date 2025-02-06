@@ -12,6 +12,9 @@ class KAGMapItem:
         self.rotation = rotation
         self.team = team
 
+    def __iter__(self):
+        return iter((self.name, self.color, self.rotation, self.team))
+
 class KagColor:
     """
 	Stores the ARGB colors that are used in BasePNGLoader.as
@@ -65,7 +68,7 @@ class KagColor:
 			KAGMapItem("nursery",               (255, 217, 255, 223)),
 			KAGMapItem("research",              (255, 225, 225, 225)),
 			KAGMapItem("workbench",             (255, 0, 255, 0)),
-			KAGMapItem("campfire",              (255, 251, 226, 139)),
+			KAGMapItem("fireplace",             (255, 251, 226, 139)),
 			KAGMapItem("saw",                   (255, 202, 164, 130)),
 			KAGMapItem("tree",                  (255, 13, 103, 34)),
 			KAGMapItem("bush",                  (255, 91, 126, 24)),
@@ -73,7 +76,7 @@ class KagColor:
 			KAGMapItem("flowers",               (255, 255, 102, 255)),
 			KAGMapItem("log",                   (255, 160, 140, 40)),
 			KAGMapItem("shark",                 (255, 44, 175, 222)),
-			KAGMapItem("fish",                  (255, 121, 168, 163)),
+			KAGMapItem("fishy",                 (255, 121, 168, 163)),
 			KAGMapItem("bison",                 (255, 183, 86, 70)),
 			KAGMapItem("chicken",               (255, 141, 38, 20)),
 			KAGMapItem("ladder",                (255, 43, 21, 9)),
@@ -93,9 +96,9 @@ class KagColor:
 			KAGMapItem("stone_door",            (255, 160, 90, 79), team = 1),
 			KAGMapItem("stone_door",            (255, 160, 160, 160), team = -1, rotation = 90),
 			KAGMapItem("stone_door",            (255, 160, 160, 159), team = -1),
-			KAGMapItem("trapblock",             (255, 56, 76, 142)),
-			KAGMapItem("trapblock",             (255, 142, 56, 68), team = 1),
-			KAGMapItem("trapblock",             (255, 100, 100, 100), team = -1),
+			KAGMapItem("trap_block",             (255, 56, 76, 142)),
+			KAGMapItem("trap_block",             (255, 142, 56, 68), team = 1),
+			KAGMapItem("trap_block",             (255, 100, 100, 100), team = -1),
 			KAGMapItem("bridge",                (255, 56, 76, 222)),
 			KAGMapItem("bridge",                (255, 222, 56, 68), team = 1),
 			KAGMapItem("bridge",                (255, 222, 222, 222), team = -1),
@@ -236,7 +239,10 @@ class KagColor:
             if item.color == color:
                 return (item.name, item.rotation)
 
-        return None
+		# return sky as default
+        for item in self.vanilla_colors:
+            if item.name == "sky":
+                return (item.name, item.rotation)
 
     def is_rotatable(self, name: str) -> bool:
         """

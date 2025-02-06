@@ -58,7 +58,7 @@ class GUIModuleHandler:
         Returns:
             A list of paths to GUI modules from the modules directory.
         """
-        path = self.fh.gui_modules_path
+        path = self.fh.paths.get("gui_modules_path")
 
         if not self.fh.does_path_exist(path):
             return []

@@ -9,16 +9,23 @@ class FileHandler:
     Used to handle file paths and file loading.
     """
     def __init__(self) -> None:
-        # path to the map maker folder
-        self.default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-        self.world_path = os.path.join(self.default_path, "base", "Sprites", "Default", "world.png")
-        self.mapmaker_images = os.path.join(self.default_path, "base", "Sprites", "MapMaker")
-
-        self.config_path = os.path.join(self.default_path, "settings", "config.json")
-        self.default_config_path = os.path.join(self.default_path, "settings", "readonly_config.json")
-        self.gui_modules_path = os.path.join(self.default_path, "core", "modules")
-        self.maps_path = os.path.join(self.default_path, "Maps")
-        self.modded_items_path = os.path.join(self.default_path, "Modded")
+        # path to the main folder
+        default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        vanilla_items = os.path.join(default_path, "base", "Items")
+        self.paths = {
+            "default_path": default_path,
+            "world_path": os.path.join(default_path, "base", "Sprites", "Default", "world.png"),
+            "vanilla_items": vanilla_items,
+            "mapmaker_images": os.path.join(default_path, "base", "Sprites", "MapMaker"),
+            "config_path": os.path.join(default_path, "settings", "config.json"),
+            "default_config_path": os.path.join(default_path, "settings", "readonly_config.json"),
+            "gui_modules_path": os.path.join(default_path, "core", "modules"),
+            "maps_path": os.path.join(default_path, "Maps"),
+            "modded_items_path": os.path.join(default_path, "Modded"),
+            "tilelist_path": os.path.join(vanilla_items, "tiles.json"),
+            "bloblist_path": os.path.join(vanilla_items, "blobs.json"),
+            "otherlist_path": os.path.join(vanilla_items, "others.json") # todo
+        }
 
     def does_path_exist(self, path: str):
         """
@@ -42,10 +49,11 @@ class FileHandler:
         Returns:
             str: Returns the path to the maps directory.
         """
-        if not self.does_path_exist(self.maps_path):
-            os.mkdir(self.maps_path)
+        path = self.paths.get("maps_path")
+        if not self.does_path_exist(path):
+            os.mkdir(path)
 
-        return self.maps_path
+        return path
 
     def does_sprite_exist(self, name: str, fp: str = None) -> bool:
         """
@@ -53,6 +61,7 @@ class FileHandler:
 
         Args:
             name (str): The name of the sprite to check for.
+            fp (str): The path to search for the sprite. If None, the default path is used.
 
         Returns:
             bool: True if the sprite exists, False otherwise.
@@ -61,7 +70,7 @@ class FileHandler:
             name = str(name)
 
         if fp is None:
-            fp = os.path.join(self.default_path, "base", "Sprites")
+            fp = os.path.join(self.paths.get("default_path"), "base", "Sprites")
 
         for _, _, files in os.walk(fp):
             if name in files:
@@ -97,3 +106,17 @@ class FileHandler:
                 return os.path.join(root, name)
 
         return None
+
+    def get_vanilla_items_paths(self) -> list[str]:
+        return self._get_files_from_dir(self.paths.get("vanilla_items"), lambda x: True)
+
+    def get_modded_items_paths(self) -> list[str]:
+        return self._get_files_from_dir(self.paths.get("modded_items_path"), 
+                        lambda x: x.split("\\")[-1] != "_ExampleMod")
+
+    def _get_files_from_dir(self, fp: str, condition: callable) -> list[str]:
+        files = []
+        for r, _, fn in os.walk(fp):
+            files.extend([os.path.join(r, f.strip()) for f in fn if f.strip().endswith(".json") and condition(r)])
+
+        return files

@@ -20,14 +20,14 @@ class Communicator(metaclass = SingletonMeta):
     Used to communicate information between classes.
     """
     def __init__(self):
-        self.picked_tiles = ["tile_ground", "tile_empty"]
+        self.picked_tiles = [] # init in CItemList.py
         self.canvas = None
         self.exec_path = None
         self.settings = {}
         self.mouse_pos = () # must be empty tuple
         self.recent_mouse_pos = self.mouse_pos
 
-    def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb
+    def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb, # todo: could be boolean?
         """
         Selects an item to be used in the application.
 

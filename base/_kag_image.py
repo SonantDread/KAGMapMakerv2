@@ -1,3 +1,7 @@
+"""
+Used to handle creating, saving, loading, rendering and testing maps in KAG.
+"""
+
 import inspect
 import os
 from tkinter import filedialog
@@ -6,13 +10,23 @@ from PIL import Image
 
 from PyQt6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QPushButton, QDialog
 
+from base.citem import CItem
 from base.citemlist import CItemList
+from base.kag_color import KagColor
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
 from utils.file_handler import FileHandler
 
+# lever & blue main spawn use same color so we cant actually use the lever
+# # tent is called 'blue main spawn' in basepngloader
+# ctf_flag is called 'blue spawn' in basepngloader
+
 class KagImage:
-    def __init__(self) -> None:
+    """
+    Handles saving, loading, rendering and testing maps in KAG.
+    """
+    def __init__(self):
+        self.colors = KagColor()
         self.communicator = Communicator()
         self.last_saved_location = None
         self.item_list = CItemList()
@@ -36,66 +50,100 @@ class KagImage:
             try:
                 width = int(width.strip())
                 height = int(height.strip())
-                canvas = self.communicator.get_canvas()
-                canvas.resize(Vec2f(width, height))
+                self._create_new_map(width, height)
 
             except ValueError:
                 print("Invalid input. Width and height must be integers.")
         else:
             print("New map creation cancelled.")
 
-    def save_map(self, fp: str = None, force_ask: bool = False) -> None:
-        if fp is None or fp == "" or force_ask:
-            fp = self._ask_save_location()
-        fp = fp.strip()
+    def _create_new_map(self, width: int, height: int) -> None:
+        canvas = self._get_canvas()
+        new_tilemap = [[None for _ in range(height)] for _ in range(width)]
+        self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
+        print(f"New map created with dimensions: {width}x{height}")
 
-        canvas = self.communicator.get_canvas()
-        tilemap = self._get_translated_tilemap(canvas.tilemap)
-        sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
-        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.x),color=sky)
+    def save_map(self, filepath: str = None, force_ask: bool = False) -> None:
+        """
+        Saves a KAG map to a file.
+
+        Args:
+            filepath (str): The path where the map will be saved, asks the user if not specified.
+            force_ask (bool): If True, the function will always ask for a save location.
+
+        Returns:
+            None
+        """
+        if filepath is None or filepath == "" or force_ask:
+            filepath = self._ask_save_location()
+
+        canvas = self._get_canvas()
+        tilemap = canvas.tilemap
+        tilemap = self.__get_translated_tilemap(tilemap)
+
+        sky = self.argb_to_rgba(self.colors.get_color_by_name("sky"))
+        image = Image.new("RGBA", size = (canvas.size.x, canvas.size.y), color = sky)
 
         for x, row in enumerate(tilemap):
             for y, item in enumerate(row):
                 if item is None:
                     continue
+                # TODO: should take into account for teams when they are added
+                name = item.name
 
-                rotation = item.sprite.rotation
-                team = item.sprite.team
+                argb = item.get_color(item.sprite.team, item.sprite.team)
 
-                color = item.get_color(rotation, team)
-                if color is None:
-                    color = item.get_color(rotation, team, True)
-                    if color is None:
-                        linenum = inspect.currentframe().f_lineno
-                        path = os.path.basename(__file__)
-                        # todo: should be 'raise' but we dont have all the sprites yet
-                        print(f"Item not found: '{item.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
-                        continue
+                if argb is None:
+                    linenum = inspect.currentframe().f_lineno
+                    path = os.path.basename(__file__)
+                    print(f"Item not found: '{name}' | Unable to load in line {linenum} of {path}")
+                    continue
 
-                image.putpixel((x,y), self.argb_to_rgba(color))
+                image.putpixel((x, y), self.argb_to_rgba(argb))
 
         try:
-            image.save(fp)
-            print(f"Map saved to: {fp}")
-            self.last_saved_location = fp
+            image.save(filepath)
+            print(f"Map saved to: {filepath}")
+            self.last_saved_location = filepath
 
         except FileNotFoundError as e:
             print(f"Failed to save image: {e}")
 
+    def save_map_as(self) -> None:
+        """
+        Saves a KAG map to a file, always asking for a save location.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.save_map(force_ask = True)
+
     def load_map(self) -> None:
-        fp = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
-        if fp is None or fp == "":
+        """
+        Loads a KAG map from a file.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        filepath = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
+        if filepath is None or filepath == "":
             print("Map to load not selected. Operation cancelled.")
             return
 
-        if isinstance(fp, tuple):
-            fp = fp[0]
+        if isinstance(filepath, tuple):
+            filepath = filepath[0]
 
-        if not self.file_handler.does_path_exist(fp):
-            raise FileNotFoundError(f"File not found: {fp}")
+        if not self.file_handler.does_path_exist(filepath):
+            raise FileNotFoundError(f"File not found: {filepath}")
 
-        canvas = self.communicator.get_canvas()
-        tilemap = Image.open(fp).convert("RGBA")
+        canvas = self._get_canvas()
+        tilemap = Image.open(filepath).convert("RGBA")
 
         width, height = tilemap.size
 
@@ -103,16 +151,17 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                item = self.item_list.get_item_by_color(pixel)
-                name = item.name if item is not None else None
+                name, rotation = self.colors.get_item_by_color(pixel)
 
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
 
-                item.sprite.position = Vec2f(x, y)
+                pos = (x, y)
+
+                item = self.__make_class(name, pos, rotation)
                 new_tilemap[x][y] = item
 
-        new_tilemap = self._get_translated_tilemap(new_tilemap)
+        new_tilemap = self.__get_translated_tilemap(new_tilemap)
 
         self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
 
@@ -123,27 +172,43 @@ class KagImage:
         canvas.tilemap = new_tilemap
         canvas.force_rerender()
 
+    def __make_class(self, name: str, pos: tuple, rotation: int) -> CItem:
+        item: CItem = self.item_list.get_item_by_name(name)
+        if item is not None:
+            item.sprite.position = Vec2f(pos)
+            item.sprite.rotation = rotation
+            return item
+
+        return None # todo: probably should raise an error if this returns None?
+
     def argb_to_rgba(self, argb: tuple) -> tuple:
+        """
+        Converts an ARGB color tuple to an RGBA color tuple.
+
+        Parameters:
+            argb (tuple): The ARGB color tuple to be converted.
+
+        Returns:
+            tuple: The RGBA color tuple.
+        """
         a, r, g, b = argb
         return (r, g, b, a)
 
     def rgba_to_argb(self, rgba: tuple) -> tuple:
+        """
+        Converts an RGBA color tuple to an ARGB color tuple.
+
+        Parameters:
+            rgba (tuple): The RGBA color tuple to be converted.
+
+        Returns:
+            tuple: The ARGB color tuple.
+        """
         r, g, b, a = rgba
         return (a, r, g, b)
 
-    def _ask_save_location(self) -> str:
-        if self.last_saved_location is None:
-            filepath = self._ask_location("Save Map As", self.file_handler.get_maps_path(), True)
-            if filepath is None or filepath == "":
-                print("Save location not selected. Operation cancelled.")
-                return
-        else:
-            filepath = self.last_saved_location
-
-        if isinstance(filepath, tuple):
-            filepath = filepath[0]
-
-        return str(filepath)
+    def _get_canvas(self):
+        return self.communicator.get_canvas()
 
     def _ask_location(self, text: str, initialdir: str, saving_map: bool) -> str:
         if saving_map:
@@ -166,8 +231,63 @@ class KagImage:
 
         return file_path
 
+    def _ask_save_location(self) -> str:
+        if self.last_saved_location is None:
+            filepath = self._ask_location("Save Map As", self.file_handler.get_maps_path(), True)
+            if filepath is None or filepath == "":
+                print("Save location not selected. Operation cancelled.")
+                return
+        else:
+            filepath = self.last_saved_location
+
+        if isinstance(filepath, tuple):
+            filepath = filepath[0]
+
+        return str(filepath)
+
+# TODO
+# u8 getTeamFromChannel(u8 channel)
+# {
+# 	// only the bits we want
+# 	channel &= 0x0F;
+
+# 	return (channel > 7)? 255 : channel;
+# }
+
+# u8 getChannelFromTeam(u8 team)
+# {
+# 	return (team > 7)? 0x0F : team;
+# }
+
+# u16 getAngleFromChannel(u8 channel)
+# {
+# 	// only the bits we want
+# 	channel &= 0x30;
+
+# 	switch(channel)
+# 	{
+# 		case 16: return 90;
+# 		case 32: return 180;
+# 		case 48: return 270;
+# 	}
+
+# 	return 0;
+# }
+
+# u8 getChannelFromAngle(u16 angle)
+# {
+# 	switch(angle)
+# 	{
+# 		case  90: return 16;
+# 		case 180: return 32;
+# 		case 270: return 48;
+# 	}
+
+# 	return 0;
+# }
+
     # required because trees can be multiple blocks tall
-    def _get_translated_tilemap(self, tilemap: list) -> list:
+    def __get_translated_tilemap(self, tilemap: list) -> list:
         if tilemap is None:
             print(f"Failed to get tilemap in kag_image.py: {inspect.currentframe().f_lineno}")
             return None

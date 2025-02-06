@@ -7,14 +7,12 @@ import math
 import os
 from datetime import datetime
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap, QShortcut, QKeySequence, QKeyEvent
+from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QShortcut, QKeySequence, QKeyEvent, QCursor
 from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy)
 
-from base.cblob import CBlob
-from base.cblob_list import CBlobList
-from base.ctile import CTile
-from base.ctile_list import CTileList
+from base.citem import CItem
+from base.citemlist import CItemList
 from base.kag_image import KagImage
 from base.renderer import Renderer
 from core.communicator import Communicator
@@ -69,12 +67,11 @@ class Canvas(QGraphicsView):
         self._build_tile_grid()
         self.set_grid_visible(False) # should be a setting but disabled by default
 
-        self.tile_list = CTileList()
-        self.blob_list = CBlobList()
+        self.item_list = CItemList()
 
         self.rotation = 0
 
-        # SAVE MAP WHEN EXITING MAP MAKER
+        # save map on exiting the app
         atexit.register(self._save_map_at_exit, datetime.now())
 
         # create shortcuts for handling key events
@@ -123,14 +120,14 @@ class Canvas(QGraphicsView):
         """
         Creates global shortcuts to rotation.
         """
-        # space key
-        space_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
-        space_shortcut.activated.connect(lambda: self.rotate(False))
+        # r key
+        r_shortcut = QShortcut(QKeySequence(Qt.Key.Key_R), self)
+        r_shortcut.activated.connect(lambda: self.rotate(False))
 
-        # shift + space
+        # shift + r
         modifier = Qt.KeyboardModifier.ShiftModifier
-        shift_space_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_Space), self)
-        shift_space_shortcut.activated.connect(lambda: self.rotate(True))
+        shift_r_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_R), self)
+        shift_r_shortcut.activated.connect(lambda: self.rotate(True))
 
     def set_grid_visible(self, show: bool = None) -> None:
         """
@@ -172,10 +169,10 @@ class Canvas(QGraphicsView):
                     scene_y = y * self.grid_spacing
                     scene_pos = Vec2f(scene_x, scene_y)
                     rotation = None
-                    if isinstance(item, CBlob):
-                        rotation = item.rotation
+                    if isinstance(item, CItem):
+                        rotation = item.sprite.rotation
 
-                    self.renderer.render_item(item.name, scene_pos, Vec2f(x, y), False, rotation)
+                    self.renderer.render_item(item, scene_pos, Vec2f(x, y), False, rotation)
 
     def rotate(self, rev: bool) -> None:
         """
@@ -198,30 +195,6 @@ class Canvas(QGraphicsView):
             r -= 360
 
         self.rotation = r
-
-    def _using_eraser(self, name) -> bool:
-        """
-        Check if a name for a tile or blob exists.
-
-        Args:
-            name (str): The name of the tile or blob to check for.
-
-        Returns:
-            bool: True if the position is empty, False otherwise.
-        """
-        if isinstance(name, CTile) or isinstance(name, CBlob):
-            name = name.name
-
-        if name == "tile_empty":
-            return True
-
-        if self.tile_list.does_tile_exist(name):
-            return False
-
-        if self.blob_list.does_blob_exist(name):
-            return False
-
-        return True
 
     def _build_tile_grid(self) -> None:
         """
@@ -289,6 +262,7 @@ class Canvas(QGraphicsView):
         width, height = self.size.x * self.grid_spacing, self.size.y * self.grid_spacing
         pen = QPen(Qt.GlobalColor.transparent)
         rect = self.canvas.addRect(0, 0, width, height, pen, QBrush(background_color))
+        rect.setZValue(-1000000)
         self.canvas.addItem(rect)
 
     def add_item(self, event, click_index: int) -> None:
@@ -307,7 +281,7 @@ class Canvas(QGraphicsView):
 
         pos = self.get_grid_pos(event)
         self.place_items_inbetween(event, recent_pos, pos, click_index)
-    
+
     def place_items_inbetween(self, event, recent_pos, pos, click_index: int) -> None:
         """
         Places items inbetween two positions based on the given click index.
@@ -324,7 +298,7 @@ class Canvas(QGraphicsView):
 
         if (len(pos) == 0 or len(recent_pos) == 0):
             return
-        
+
         delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
 
@@ -352,10 +326,9 @@ class Canvas(QGraphicsView):
             None
         """
 
-        # Calculate the distance of mouse swipe and fill items inbetween
-
-        placing_tile = self.communicator.get_selected_tile(click_index)
-        eraser: bool = self._using_eraser(placing_tile)
+        # calculate the distance of mouse swipe and fill items inbetween
+        placing_tile: CItem = self.communicator.get_selected_tile(click_index)
+        eraser: bool = placing_tile.is_eraser()
 
         # do nothing if out of bounds
         if self.is_out_of_bounds(grid_pos):
@@ -381,130 +354,6 @@ class Canvas(QGraphicsView):
 
                 self.renderer.render_item(placing_tile, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
 
-    # using this function until better solution is found so mapmaker is usable
-    # TODO: each of the blobs should have a template, and include offset position
-    # TODO: these should snap to the grid
-    def get_offset(self, name: str, sprite: QPixmap) -> Vec2f:
-        w, h = sprite.width(), sprite.height()
-        zf, zs = self.zoom_factor, self.default_zoom_scale
-
-        # TODO: check if these offsets correctly load into KAG with how they currently are viewed
-        # place from bottom center + offset
-        if name == "tree" or name == "grain" or name == "tent":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "ballista":
-            return Vec2f(w + (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "catapult":
-            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "bomber":
-            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "airship":
-            return Vec2f(w + (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "bison":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "chest":
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (10 * zf * zs)))
-
-        if name == "chicken":
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "crate":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "ctf_flag":
-            return Vec2f(w + (14 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "dinghy":
-            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
-
-        if name == "dummy":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "ladder":
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (16 * zf * zs)))
-
-        if name == "keg":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "longboat":
-            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
-
-        if name == "mine":
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "mounted_bow":
-            return Vec2f(w - (6 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "necromancer" or name == "princess":
-            return Vec2f(w - (8 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "nursery":
-            return Vec2f(w + (2 * zf * zs), ((h * zf * zs) - (16 * zf * zs)))
-
-        if name == "raft":
-            return Vec2f(w + (4 * zf * zs), ((h * zf * zs) - (14 * zf * zs)))
-
-        if name == "saw":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "shark":
-            return Vec2f(w, ((h * zf * zs) - (12 * zf * zs)))
-
-        if name == "trampoline":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "workbench":
-            return Vec2f(w, ((h * zf * zs) - (8 * zf * zs)))
-
-        if name == "bush":
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (12 * zf * zs)))
-
-        if "door" in name:
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        names = [
-            "mat_gold",
-            "mat_stone",
-            "mat_wood"
-        ]
-
-        if name in names:
-            return Vec2f(w - (2 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        names = [
-            "mat_firearrows",
-            "mat_waterarrows",
-            "mat_bombarrows"
-        ]
-
-        if name in names:
-            return Vec2f(w - (3 * zf * zs), ((h * zf * zs) - (8 * zf * zs)))
-
-        names = [
-            "knight_shop",
-            "builder_shop",
-            "archer_shop",
-            "barracks",
-            "factory",
-            "tunnel",
-            "storage",
-            "quarters",
-            "kitchen",
-            "boat_shop"
-        ]
-
-        # place from center
-        if name in names:
-            return Vec2f(w * 0.5 + (9 * zf * zs), h * 0.5 + (4 * zf * zs))
-
-        return Vec2f(0, 0)
-
     def snap_to_grid(self, pos) -> tuple:
         """
         Snaps a given position to the nearest grid point.
@@ -517,7 +366,7 @@ class Canvas(QGraphicsView):
         """
         x, y = pos
         return (int(x // self.grid_spacing), int(y // self.grid_spacing))
-    
+
     def get_grid_pos(self, event) -> tuple:
         """
         Gets the grid position of the given event.
@@ -542,14 +391,10 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-
-        if (event.key() == Qt.Key.Key_Space):
+        if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             print("space pressed")
-            self.setCursor(Qt.CursorShape.ClosedHandCursor)
-            self._last_pan_point = event.pos()
+            self._last_pan_point = self.get_cursor_pos_on_canvas()
             self.holding_space = True
-            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
-            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
 
     def keyReleaseEvent(self, event: QKeyEvent):
         """
@@ -561,7 +406,7 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        if (event.key() == Qt.Key.Key_Space):
+        if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             print("space released")
             self.holding_space = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
@@ -593,15 +438,12 @@ class Canvas(QGraphicsView):
             grid_pos = self.get_grid_pos(event)
             self.place_item(grid_pos, 0)
 
-        if (not self.holding_lmb):
+        if not self.holding_lmb:
             self.communicator.recent_mouse_pos = self.communicator.mouse_pos
 
         if event.button() == Qt.MouseButton.MiddleButton:
-            self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self._last_pan_point = event.pos()
             self.holding_scw = True
-            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
-            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
 
     def mouseReleaseEvent(self, event) -> None:
         """
@@ -625,9 +467,6 @@ class Canvas(QGraphicsView):
 
         elif event.button() == Qt.MouseButton.MiddleButton:
             self.holding_scw = False
-            self.setCursor(Qt.CursorShape.ArrowCursor)
-            self.setDragMode(QGraphicsView.DragMode.NoDrag)
-            self.viewport().unsetCursor()
 
     def mouseMoveEvent(self, event) -> None:
         """
@@ -646,14 +485,21 @@ class Canvas(QGraphicsView):
             self.add_item(event, 0)
 
         if self.holding_scw or self.holding_space:
+            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
+            
             # calculate how much the mouse has moved
             delta = event.pos() - self._last_pan_point
             self._last_pan_point = event.pos()
 
-            # and scroll view accordingly
+            # scroll view accordingly
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
+        else:
+            self.setCursor(Qt.CursorShape.ArrowCursor) # todo: should be a function that is called here & in mouseReleaseEvent   
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
+            self.viewport().unsetCursor()
         # render the cursor
         scene_pos = self.mapToScene(event.pos())
         x, y = self.snap_to_grid((scene_pos.x(), scene_pos.y()))
@@ -699,6 +545,11 @@ class Canvas(QGraphicsView):
         self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
         self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 
+    def resize(self, size: Vec2f) -> None:
+        self.size = size
+        self.tilemap = [[None for _ in range(size.y)] for _ in range(size.x)]
+        self.force_rerender()
+        print(f"New map created with dimensions: {size.x}x{size.y}")
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """
@@ -712,3 +563,6 @@ class Canvas(QGraphicsView):
         """
         x, y = pos
         return x < 0 or y < 0 or x >= self.size.x or y >= self.size.y
+
+    def get_cursor_pos_on_canvas(self) -> QPoint:
+        return self.mapFromGlobal(QCursor.pos())

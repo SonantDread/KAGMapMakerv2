@@ -29,7 +29,8 @@ class ImageHandler(metaclass = SingletonMeta):
         self.file_handler = FileHandler()
         self.vanilla_images = {}
         self.modded_images = {}
-        self.tile_indexes = { # should be its own file for vanilla & modded
+        # ideally this is imported from citemlist but that would create a circular import
+        self.vanilla_tiles_indexes: dict[str, int] = {
             "tile_empty": int(0),
             "tile_ground": int(16),
             "tile_grassy_ground": int(23),
@@ -60,7 +61,8 @@ class ImageHandler(metaclass = SingletonMeta):
         Returns:
             QPixmap: The retrieved image, or None if the image does not exist.
         """
-        if isinstance(name, int): # handle input of index for a block
+        # handle input of index for a block
+        if isinstance(name, int):
             name = self._get_tile_name_by_index(name)
 
         if self.vanilla_images.get(name) is not None:
@@ -164,13 +166,13 @@ class ImageHandler(metaclass = SingletonMeta):
         return img
 
     def _get_item_png_by_name(self, name: str) -> QPixmap:
-        if name in self.tile_indexes:
-            return self._get_tile_png_by_index(self.tile_indexes[name])
+        if name in self.vanilla_tiles_indexes:
+            return self._get_tile_png_by_index(self.vanilla_tiles_indexes[name])
 
         return self._load_image(name)
 
     def _load_image(self, name: str) -> QPixmap:
-        path = os.path.join(self.basepath, name + ".png")
+        path = os.path.join(self.basepath, name)
 
         if not self.file_handler.does_path_exist(path):
             # todo: uncomment this when water_backdirt is available
@@ -185,7 +187,7 @@ class ImageHandler(metaclass = SingletonMeta):
         return img.toqpixmap()
 
     def _get_tile_png_by_index(self, index: int) -> QPixmap:
-        world = self.file_handler.world_path
+        world = self.file_handler.paths.get("world_path")
         image = Image.open(world)
         image = image.convert("RGBA") # prevent errors with alpha translation
 
@@ -202,8 +204,8 @@ class ImageHandler(metaclass = SingletonMeta):
         return img
 
     def _get_tile_name_by_index(self, index: int) -> str:
-        # modded tiles and blobs need their own file instead of just being in pickerpy
-        names: dict = {v: k for k, v in self.tile_indexes.items()}
+        # todo: modded tiles and blobs need their own file instead of just being in picker.py
+        names: dict = {v: k for k, v in self.vanilla_tiles_indexes.items()}
 
         if index in names:
             return names[index]

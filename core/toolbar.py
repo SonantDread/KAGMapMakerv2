@@ -38,13 +38,13 @@ class Toolbar(QToolBar):
         save_action = QAction("Save", self)
         save_as_action = QAction("Save As", self)
         load_action = QAction("Load", self)
-        render_action = QAction("Render", self)
+        # render_action = QAction("Render", self)
         test_in_kag = QAction("Test in KAG", self)
         file_menu.addAction(new_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         file_menu.addAction(load_action)
-        file_menu.addAction(render_action)
+        # file_menu.addAction(render_action)
         file_menu.addAction(test_in_kag)
 
         # settings menu
@@ -72,9 +72,9 @@ class Toolbar(QToolBar):
         # connect actions to functions
         new_action.triggered.connect(lambda: self.kagimage.new_map())
         save_action.triggered.connect(lambda: self.kagimage.save_map())
-        save_as_action.triggered.connect(lambda: self.kagimage.save_map_as())
+        save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
         load_action.triggered.connect(lambda: self.kagimage.load_map())
-        render_action.triggered.connect(self.render_triggered)
+        # render_action.triggered.connect(self.render_triggered)
         mirror_x.toggled.connect(lambda x: self.toggle_mirrored_x(x))
         button1_action.triggered.connect(self.button1_triggered)
         button2_action.triggered.connect(self.button2_triggered)
@@ -99,8 +99,8 @@ class Toolbar(QToolBar):
     def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
-    def render_triggered(self):
-        print("Render triggered") #todo: implement this
+    # def render_triggered(self):
+    #     print("Render triggered") #todo: implement this
 
     def toggle_mirrored_x(self, checked: bool) -> None:
         """
@@ -115,7 +115,7 @@ class Toolbar(QToolBar):
         fh = FileHandler()
         config_handler = ConfigHandler()
         config_handler.load_config_file(config_handler.config_path, "config.json")
-        kag_base_path = config_handler.get_config_item("config.json", "kag_path")
+        kag_base_path = config_handler.get_config_item("config.json", "kag_path") # todo: should have a way to get kag if it isnt at this directory
 
         if kag_base_path is None:
             config_handler.load_config_file(config_handler.readonly_config_path, "config.json")
@@ -127,7 +127,7 @@ class Toolbar(QToolBar):
 
         kag_script_path = os.path.join(kag_base_path, "Base", "Scripts", "MapMaker_Autostart.as")
         kag_map_path = os.path.join(kag_base_path, "Base", "Maps", "MapMaker_Map.png")
-        autostart_script = os.path.join(fh.default_path, "base", "MapMaker_Autostart.as")
+        autostart_script = os.path.join(fh.paths.get("default_path"), "base", "MapMaker_Autostart.as")
         command = "KAG.exe autostart Scripts/MapMaker_Autostart.as noautoupdate nolauncher"
 
         # ensure files exist to actually test maps
