@@ -411,6 +411,28 @@ class Canvas(QGraphicsView):
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
             self.viewport().unsetCursor()
 
+    def mouseDoubleClickEvent(self, event) -> None:
+        """
+        Handles mouse press events on the canvas.
+
+        Parameters:
+            event: A Qt mouse event object containing information about the mouse press.
+
+        Returns:
+            None
+        """
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.holding_lmb = True
+
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 1)
+
+        elif event.button() == Qt.MouseButton.RightButton:
+            self.holding_rmb = True
+
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 0)
+
     def mousePressEvent(self, event) -> None:
         """
         Handles mouse press events on the canvas.
