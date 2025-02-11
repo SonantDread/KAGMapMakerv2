@@ -18,8 +18,41 @@ class ConfigHandler:
         self.loaded_citem_configs: dict[str, list[CItem]] = {}
         self.loaded_configs: dict[str, dict] = {}
 
-    def load_config(self, path: str) -> None:
-        pass # todo: implement this so we can implement a way to find the path to kag
+    def load_config_file(self, config_path: str, config_name: str) -> dict:
+        """
+        Loads a configuration file and stores it in loaded_configs.
+
+        Args:
+            config_path (str): Path to the configuration file
+            config_name (str): Name of the configuration file
+
+        Returns:
+            dict: The loaded configuration data or None if loading fails
+        """
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config_data = json.load(f)
+                self.loaded_configs[config_name] = config_data
+                return config_data
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error loading configuration file {config_name}: {e}")
+            return None
+
+    def get_config_item(self, config_name: str, item_key: str) -> any:
+        """
+        Retrieves a specific item from a loaded configuration.
+
+        Args:
+            config_name (str): Name of the configuration file
+            item_key (str): Key to retrieve from the configuration
+
+        Returns:
+            any: The value associated with the key, or None if not found
+        """
+        config = self.loaded_configs.get(config_name)
+        if config is None:
+            return None
+        return config.get(item_key)
 
     def load_modded_items(self, file_path: str) -> list[CItem]:
         """

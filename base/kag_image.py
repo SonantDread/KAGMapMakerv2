@@ -46,13 +46,15 @@ class KagImage:
 
     def save_map(self, fp: str = None, force_ask: bool = False) -> None:
         if fp is None or fp == "" or force_ask:
+            self.last_saved_location = None
             fp = self._ask_save_location()
+
         fp = fp.strip()
 
         canvas = self.communicator.get_canvas()
         tilemap = self._get_translated_tilemap(canvas.tilemap)
         sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
-        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.x),color=sky)
+        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y),color=sky)
 
         for x, row in enumerate(tilemap):
             for y, item in enumerate(row):
@@ -72,7 +74,12 @@ class KagImage:
                         print(f"Item not found: '{item.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
                         continue
 
-                image.putpixel((x,y), self.argb_to_rgba(color))
+                # todo: temp fix for flags saving 1 tile too low
+                tempx, tempy = x, y
+                if item.name == "ctf_flag":
+                    tempy -= 1
+
+                image.putpixel((tempx,tempy), self.argb_to_rgba(color))
 
         try:
             image.save(fp)
