@@ -34,8 +34,8 @@ class KagImage:
         if result == QDialog.DialogCode.Accepted:
             width, height = dialog.get_inputs()
             try:
-                width = int(width.strip())
-                height = int(height.strip())
+                width = abs(int(width.strip()))
+                height = abs(int(height.strip()))
                 canvas = self.communicator.get_canvas()
                 canvas.resize(Vec2f(width, height))
 
