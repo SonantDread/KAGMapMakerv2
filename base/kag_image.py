@@ -45,12 +45,14 @@ class KagImage:
             print("New map creation cancelled.")
 
     def save_map(self, fp: str = None, force_ask: bool = False) -> None:
+        if self.last_saved_location is not None and not force_ask:
+            fp = self.last_saved_location
+
         if fp is None or fp == "" or force_ask:
             self.last_saved_location = None
             fp = self._ask_save_location()
 
         if fp is None or fp == "":
-            print("Save location not selected. Operation cancelled.")
             return
 
         fp = fp.strip()
@@ -133,8 +135,9 @@ class KagImage:
 
                 new_tilemap[final_x][final_y] = item
 
-        new_tilemap = self._get_translated_tilemap(new_tilemap)
+        self.last_saved_location = fp
 
+        new_tilemap = self._get_translated_tilemap(new_tilemap)
         self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
 
     def _resize_canvas(self, size: Vec2f, canvas, new_tilemap) -> None:
@@ -158,6 +161,10 @@ class KagImage:
             if filepath is None or filepath == "":
                 print("Save location not selected. Operation cancelled.")
                 return
+
+            else:
+                self.last_saved_location = filepath
+
         else:
             filepath = self.last_saved_location
 
