@@ -2,12 +2,12 @@
     "kag_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\King Arthur's Gold",
     "window": {
         "offset": {
-            "x": 0,
-            "y": 23
+            "x": -1920,
+            "y": 182
         },
         "size": {
-            "width": 2560,
-            "height": 1369
+            "width": 1920,
+            "height": 1009
         }
     }
 }

@@ -558,6 +558,7 @@ class Canvas(QGraphicsView):
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
         self.scale(factor, factor) # todo: fix this being weird and making lines
+        # todo: when using a trackpad, its extremely hard to zoom in and out properly because it uses it too fast
 
         new_scene_pos = self.mapToScene(view_pos.toPoint())
         delta = new_scene_pos - scene_pos

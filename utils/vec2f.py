@@ -1,11 +1,12 @@
 """
 Used to store Vector 2 positions.
 """
+from typing import Union
 class Vec2f:
     """
     Used to store Vector 2 positions.
     """
-    def __init__(self, x: int = 0, y: int = 0):
+    def __init__(self, x: Union[int, float] = 0, y: Union[int, float] = 0):
         self.x = x
         self.y = y
 
@@ -13,13 +14,28 @@ class Vec2f:
         return iter((self.x, self.y))
 
     def __add__(self, other):
-        return Vec2f(self.x + other.x, self.y + other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x + other.x, self.y + other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x + other, self.y + other)
+        else:
+            raise TypeError("Unsupported operand type for addition")
 
     def __sub__(self, other):
-        return Vec2f(self.x - other.x, self.y - other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x - other.x, self.y - other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x - other, self.y - other)
+        else:
+            raise TypeError("Unsupported operand type for subtraction")
 
     def __mul__(self, other):
-        return Vec2f(self.x * other.x, self.y * other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x * other.x, self.y * other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x * other, self.y * other)
+        else:
+            raise TypeError("Unsupported operand type for multiplication")
 
     def __truediv__(self, other):
         if isinstance(other, Vec2f):
@@ -30,13 +46,28 @@ class Vec2f:
             raise TypeError("Unsupported operand type for division")
 
     def __floordiv__(self, other):
-        return Vec2f(self.x // other.x, self.y // other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x // other.x, self.y // other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x // other, self.y // other)
+        else:
+            raise TypeError("Unsupported operand type for floor division")
 
     def __mod__(self, other):
-        return Vec2f(self.x % other.x, self.y % other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x % other.x, self.y % other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x % other, self.y % other)
+        else:
+            raise TypeError("Unsupported operand type for modulo")
 
     def __pow__(self, other):
-        return Vec2f(self.x ** other.x, self.y ** other.y)
+        if isinstance(other, Vec2f):
+            return Vec2f(self.x ** other.x, self.y ** other.y)
+        elif isinstance(other, (int, float)):
+            return Vec2f(self.x ** other, self.y ** other)
+        else:
+            raise TypeError("Unsupported operand type for power")
 
     def __neg__(self):
         return Vec2f(-self.x, -self.y)

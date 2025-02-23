@@ -21,7 +21,7 @@ class SelectionButton(QPushButton):
     def __init__(self, data: CItem, parent) -> None:
         super().__init__(parent)
         self.data: CItem = data
-        self.setToolTip(str(self.data.display_name))
+        self.setToolTip(str(self.data.name_data.display_name))
         self.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
 
         # todo: https://chatgpt.com/c/678aa424-ca4c-800f-972d-c43efdd5b203
@@ -146,7 +146,8 @@ class Module(QWidget):
         return Image.new("RGBA", (8, 8), (color[1], color[2], color[3], color[0])).toqpixmap()
 
     def _bad_item(self, item: CItem) -> bool:
-        return item.name == "" or item.name is None or item.sprite.image is None
+        name = item.name_data.name
+        return name == "" or name is None or name is None
 
     def _get_tab_size(self) -> None:
         return int(BUTTON_WIDTH * 5 + 40) # button size, button amount and scrollbar width

@@ -56,7 +56,7 @@ class Renderer:
         if placing.sprite.properties.is_rotatable:
             pixmap = self._rotate_blob(pixmap, rot)
 
-        pixmap_item = self.add_to_canvas(pixmap, (pos.x, pos.y), z, placing.name, placing.sprite.offset)
+        pixmap_item = self.add_to_canvas(pixmap, (pos.x, pos.y), z, placing.name_data.name, placing.sprite.offset)
 
         if pixmap_item is not None:
             canvas.tilemap[tm_pos.x][tm_pos.y] = placing

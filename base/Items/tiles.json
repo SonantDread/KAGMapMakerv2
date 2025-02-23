@@ -8,17 +8,19 @@
             "image": 16,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    132,
+                    71,
+                    21
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                132,
-                71,
-                21
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -29,17 +31,19 @@
             "image": 25,
             "z_index": 500
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    155,
+                    13
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                100,
-                155,
-                13
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -50,17 +54,19 @@
             "image": 32,
             "z_index": -599
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    59,
+                    20,
+                    6
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                59,
-                20,
-                6
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -71,17 +77,19 @@
             "image": 48,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    113,
+                    96
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                100,
-                113,
-                96
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -92,17 +100,19 @@
             "image": 64,
             "z_index": -599
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    49,
+                    52,
+                    18
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                49,
-                52,
-                18
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -113,17 +123,19 @@
             "image": 80,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    254,
+                    165,
+                    61
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                254,
-                165,
-                61
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -134,17 +146,19 @@
             "image": 96,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    139,
+                    104,
+                    73
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                139,
-                104,
-                73
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -155,17 +169,19 @@
             "image": 106,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    45,
+                    52,
+                    45
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                45,
-                52,
-                45
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -176,17 +192,19 @@
             "image": 173,
             "z_index": -599
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    85,
+                    42,
+                    17
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                85,
-                42,
-                17
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -197,17 +215,19 @@
             "image": 196,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    196,
+                    135,
+                    21
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                196,
-                135,
-                21
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -218,17 +238,19 @@
             "image": 208,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    66,
+                    72,
+                    75
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                66,
-                72,
-                75
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -239,17 +261,19 @@
             "image": 224,
             "z_index": 499
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    143,
+                    96
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                100,
-                143,
-                96
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -260,17 +284,19 @@
             "image": 227,
             "z_index": -599
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    49,
+                    82,
+                    18
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                49,
-                82,
-                18
-            ]
-        }
+        ]
     },
     {
         "type": "tile",
@@ -281,16 +307,18 @@
             "image": 400,
             "z_index": -5000
         },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    165,
+                    189,
+                    200
+                ]
+            }
+        },
         "search_keywords": [
             ""
-        ],
-        "pixel_colors": {
-            "rotation0_team0": [
-                255,
-                165,
-                189,
-                200
-            ]
-        }
+        ]
     }
 ]

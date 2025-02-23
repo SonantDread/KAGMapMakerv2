@@ -7,6 +7,12 @@ from base.image_handler import ImageHandler
 from utils.vec2f import Vec2f
 
 @dataclass
+class Name:
+    name: str
+    display_name: str
+    section_name: str
+
+@dataclass
 class SpriteProperties:
     is_rotatable: bool = False
     can_swap_teams: bool = False
@@ -14,7 +20,7 @@ class SpriteProperties:
 
 @dataclass
 class SpriteConfig:
-    image: QPixmap # todo: this should convert it to a qpixmap if it isnt already
+    image: QPixmap
     z: int
     properties: SpriteProperties
     offset: Vec2f = Vec2f(0, 0)
@@ -29,17 +35,20 @@ class ModInfo:
     full_path: str
 
 @dataclass
+class PixelData:
+    colors: dict[str, list[int, int, int, int]]
+    offset: Vec2f
+    angle_from_channel: bool
+    team_from_channel: bool
+
+@dataclass
 class CItem:
     type: str
-    name: str
-    display_name: str
-    section_name: str
+    name_data: Name
     sprite: SpriteConfig
-    search_keywords: list[str]
     mod_info: ModInfo
-    pixel_colors: dict[str, list[int, int, int, int]]
-    team_from_channel: bool
-    angle_from_channel: bool
+    pixel_data: PixelData
+    search_keywords: list[str]
 
     @classmethod
     def from_dict(cls, data: dict, file_path: str = "") -> 'CItem':
@@ -89,19 +98,28 @@ class CItem:
             full_path=file_path
         )
 
-        pixel_colors=data.get("pixel_colors", {})
+        pixel_data = data.get("pixel_data", {})
+        offset = pixel_data.get("offset", {"x": 0, "y": 0})
+        pixel_colors = PixelData(
+            colors=pixel_data.get("colors", {}),
+            offset=Vec2f(offset.get("x", 0), offset.get("y", 0)),
+            angle_from_channel=pixel_data.get("angle_from_channel", False),
+            team_from_channel=pixel_data.get("team_from_channel", False)
+        )
+
+        name_data = Name(
+            name=data.get("name", ""),
+            display_name=str(data.get("display_name", "")).strip(),
+            section_name=data.get("section_name", "")
+        )
 
         return cls(
             type=data.get("type", ""),
-            name=data.get("name", ""),
-            display_name=str(data.get("display_name", "")).strip(),
-            section_name=data.get("section_name", ""),
+            name_data=name_data,
             sprite=image,
-            search_keywords=data.get("search_keywords", []),
             mod_info=mod_info,
-            pixel_colors=pixel_colors,
-            team_from_channel=pixel_colors.get("team_from_channel", False),
-            angle_from_channel=pixel_colors.get("angle_from_channel", False)
+            pixel_data=pixel_colors,
+            search_keywords=data.get("search_keywords", [])
         )
 
     # todo: important notes from kag_color.py:
@@ -122,7 +140,7 @@ class CItem:
         Returns:
             The pixel color of the item.
         """
-        colors = self.pixel_colors
+        colors = self.pixel_data.colors
 
         full_match: list = colors.get(f'rotation{rotation}_team{team}')
         if full_match is not None:
@@ -143,4 +161,5 @@ class CItem:
             "tile_empty",
             ""
         ]
-        return self.name in names or self.name is None
+        n = self.name_data.name
+        return n in names or n is None

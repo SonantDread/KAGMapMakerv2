@@ -13,7 +13,6 @@ from base.kag_image import KagImage
 from core.communicator import Communicator
 from utils.config_handler import ConfigHandler
 from utils.file_handler import FileHandler
-# from base.renderer import Renderer # todo: force cursor to get rendered when mirrored over x
 
 class Toolbar(QToolBar):
     """
@@ -100,7 +99,7 @@ class Toolbar(QToolBar):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
     # def render_triggered(self):
-    #     print("Render triggered") #todo: implement this
+    #     print("Render triggered") # todo: implement this
 
     def toggle_mirrored_x(self, checked: bool) -> None:
         """

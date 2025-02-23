@@ -49,12 +49,16 @@ class KagImage:
             self.last_saved_location = None
             fp = self._ask_save_location()
 
+        if fp is None or fp == "":
+            print("Save location not selected. Operation cancelled.")
+            return
+
         fp = fp.strip()
 
         canvas = self.communicator.get_canvas()
         tilemap = self._get_translated_tilemap(canvas.tilemap)
         sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
-        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y),color=sky)
+        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y), color=sky)
 
         for x, row in enumerate(tilemap):
             for y, item in enumerate(row):
@@ -71,15 +75,17 @@ class KagImage:
                         linenum = inspect.currentframe().f_lineno
                         path = os.path.basename(__file__)
                         # todo: should be 'raise' but we dont have all the sprites yet
-                        print(f"Item not found: '{item.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
+                        print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
                         continue
 
-                # todo: temp fix for flags saving 1 tile too low
-                tempx, tempy = x, y
-                if item.name == "ctf_flag":
-                    tempy -= 1
+                offset_x, offset_y = item.pixel_data.offset
+                width, height = canvas.size
 
-                image.putpixel((tempx,tempy), self.argb_to_rgba(color))
+                # clamp coords to map size
+                final_x = min(max(x + offset_x, 0), width - 1)
+                final_y = min(max(y + offset_y, 0), height - 1)
+
+                image.putpixel((final_x, final_y), self.argb_to_rgba(color))
 
         try:
             image.save(fp)
@@ -111,13 +117,21 @@ class KagImage:
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
                 item = self.item_list.get_item_by_color(pixel)
-                name = item.name if item is not None else None
+                name = item.name_data.name if item is not None else None
 
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
 
                 item.sprite.position = Vec2f(x, y)
-                new_tilemap[x][y] = item
+
+                # account for the saving offsets
+                offset_x, offset_y = -item.pixel_data.offset
+
+                # clamp coords to map size
+                final_x = min(max(x + offset_x, 0), width - 1)
+                final_y = min(max(y + offset_y, 0), height - 1)
+
+                new_tilemap[final_x][final_y] = item
 
         new_tilemap = self._get_translated_tilemap(new_tilemap)
 
@@ -185,7 +199,7 @@ class KagImage:
             tree_group = []
 
             for pixel in column:
-                if pixel is not None and pixel.name == "tree":
+                if pixel is not None and pixel.name_data.name == "tree":
                     tree_group.append(pixel)
                 else:
                     if tree_group:

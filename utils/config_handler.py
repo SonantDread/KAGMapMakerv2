@@ -126,7 +126,7 @@ class ConfigHandler:
                 mod_folders.add(item.mod_info.folder_name)
         return sorted(list(mod_folders))
 
-    # updated old window loading code
+    # fixed old window loading code
     # todo: this should probably be updated
     def _get_config_file(self, config_type: str, config_path: str = None):
         """
@@ -258,21 +258,3 @@ class ConfigHandler:
     def __get_window_offset(self, window: QMainWindow):
         offset = window.geometry()
         return Vec2f(offset.x(), offset.y())
-
-"""
-config_handler = ConfigHandler()
-
-# load items from a mod file
-mod_items = config_handler.load_modded_items("mods/custom_mod/items.json")
-
-# get the mod folder name for a specific item
-first_item = mod_items[0]
-print(f"Item {first_item.display_name} is from mod folder: {first_item.mod_info.folder_name}")
-
-# get all items from a specific mod folder
-mod_folder_items = config_handler.get_items_from_mod("custom_mod")
-
-# get a list of all loaded mod folders
-mod_folders = config_handler.get_loaded_mod_folders()
-print("Loaded mod folders:", mod_folders)
-"""

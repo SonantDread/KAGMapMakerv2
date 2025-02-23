@@ -204,9 +204,9 @@ class ImageHandler(metaclass = SingletonMeta):
         return img
 
     def _get_tile_name_by_index(self, index: int) -> str:
-        # todo: modded tiles and blobs need their own file instead of just being in picker.py
         names: dict = {v: k for k, v in self.vanilla_tiles_indexes.items()}
 
         if index in names:
             return names[index]
+
         raise ValueError(f"Index {index} not found in tile_indexes.")

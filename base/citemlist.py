@@ -71,19 +71,31 @@ class CItemList:
 
     def does_tile_exist(self, name: Union[str, 'CItem']) -> bool:
         if isinstance(name, CItem):
-            name = name.name
+            name = name.name_data.name
 
-        return name in any(item.name for item in self.vanilla_tiles) or name in self.modded_tiles
+        if any(item.name_data.name == name for item in self.vanilla_tiles):
+            return True
+
+        if any(item.name_data.name == name for item in self.modded_tiles):
+            return True
+
+        return False
 
     def does_blob_exist(self, name: Union[str, 'CItem']) -> bool:
-        if not isinstance(name, CItem):
-            name = name.name
+        if isinstance(name, CItem):
+            name = name.name_data.name
 
-        return name in any(item.name for item in self.vanilla_blobs) or name in self.modded_blobs
+        if any(item.name_data.name == name for item in self.vanilla_blobs):
+            return True
+
+        if any(item.name_data.name == name for item in self.modded_blobs):
+            return True
+
+        return False
 
     def get_item_by_name(self, name: str) -> 'CItem':
         for item in self.all_items:
-            if item.name == name:
+            if item.name_data.name == name:
                 return item
 
     def get_item_by_color(self, color: tuple[int, int, int, int]) -> 'CItem':
@@ -109,11 +121,11 @@ class CItemList:
     def __create_pixel_color_map(self) -> dict[tuple[int, int, int, int], 'CItem']:
         color_map = {}
         for item in self.all_items:
-            if item is None or not hasattr(item, 'pixel_colors'):
+            if item is None or not hasattr(item.pixel_data, 'colors'):
                 continue
 
-            for _, color in item.pixel_colors.items():
-                # skip non-color entries like "team_from_channel"
+            for _, color in item.pixel_data.colors.items():
+                # skip non-color entries
                 if isinstance(color, list) and len(color) == 4:
                     color_tuple = tuple(color) # (a, r, g, b)
                     color_map[color_tuple] = item
@@ -139,7 +151,7 @@ class CItemList:
         t = self.vanilla_tiles
         tiles = []
         for item in t:
-            if item.name == "tile_ground" or item.name == "sky":
+            if item.name_data.name in ("tile_ground", "sky"):
                 tiles.append(item)
 
         return tiles
