@@ -9,7 +9,7 @@ from datetime import datetime
 
 from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QShortcut, QKeySequence, QKeyEvent, QCursor
-from PyQt6.QtWidgets import (QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy)
+from PyQt6.QtWidgets import QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy
 
 from base.citem import CItem
 from base.citemlist import CItemList
@@ -77,12 +77,12 @@ class Canvas(QGraphicsView):
         # create shortcuts for handling key events
         self.create_shortcuts()
 
-        self._adjust_scene_for_map()
+        self.add_panning_space()
 
     def recenter_canvas(self) -> None:
         self.centerOn(self.size.x * self.grid_spacing / 2, self.size.y * self.grid_spacing / 2)
 
-    def _adjust_scene_for_map(self):
+    def add_panning_space(self):
         # internal map size
         internal_map_width = self.size.x * self.grid_spacing
         internal_map_height = self.size.y * self.grid_spacing
@@ -117,7 +117,6 @@ class Canvas(QGraphicsView):
             None
         """
         super().resizeEvent(event)
-        self._adjust_scene_for_map()
 
     def create_shortcuts(self):
         """
@@ -569,10 +568,13 @@ class Canvas(QGraphicsView):
         self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
         self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 
-    def resize(self, size: Vec2f) -> None:
+    def resize(self, size: Vec2f, tilemap: list[list[CItem]] = None) -> None:
         self.size = size
-        self.tilemap = [[None for _ in range(size.y)] for _ in range(size.x)]
+        if tilemap is None:
+            tilemap = [[None for _ in range(size.y)] for _ in range(size.x)]
+        self.tilemap = tilemap
         self.force_rerender()
+        self.add_panning_space()
         print(f"New map created with dimensions: {size.x}x{size.y}")
 
     def is_out_of_bounds(self, pos: tuple) -> bool:

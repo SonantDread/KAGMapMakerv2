@@ -1,6 +1,7 @@
 import inspect
 import os
 from tkinter import filedialog
+import re
 
 from PIL import Image
 
@@ -34,8 +35,11 @@ class KagImage:
         if result == QDialog.DialogCode.Accepted:
             width, height = dialog.get_inputs()
             try:
-                width = abs(int(width.strip()))
-                height = abs(int(height.strip()))
+                width = re.sub(r"[^0-9]+", "", width)
+                height = re.sub(r"[^0-9]+", "", height)
+
+                width = abs(int(width))
+                height = abs(int(height))
                 canvas = self.communicator.get_canvas()
                 canvas.resize(Vec2f(width, height))
                 canvas.recenter_canvas()
@@ -139,14 +143,7 @@ class KagImage:
         self.last_saved_location = fp
 
         new_tilemap = self._get_translated_tilemap(new_tilemap)
-        self._resize_canvas(Vec2f(width, height), canvas, new_tilemap)
-
-    def _resize_canvas(self, size: Vec2f, canvas, new_tilemap) -> None:
-        width, height = size.x, size.y
-
-        canvas.size = Vec2f(width, height)
-        canvas.tilemap = new_tilemap
-        canvas.force_rerender()
+        canvas.resize(Vec2f(width, height), new_tilemap)
         canvas.recenter_canvas()
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
