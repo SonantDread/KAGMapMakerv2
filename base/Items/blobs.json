@@ -1848,7 +1848,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 0
+                "y": -1
             },
             "angle_from_channel": false,
             "team_from_channel": false
