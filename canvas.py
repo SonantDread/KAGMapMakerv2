@@ -79,6 +79,9 @@ class Canvas(QGraphicsView):
 
         self._adjust_scene_for_map()
 
+    def recenter_canvas(self) -> None:
+        self.centerOn(self.size.x * self.grid_spacing / 2, self.size.y * self.grid_spacing / 2)
+
     def _adjust_scene_for_map(self):
         # internal map size
         internal_map_width = self.size.x * self.grid_spacing

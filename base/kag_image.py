@@ -38,6 +38,7 @@ class KagImage:
                 height = abs(int(height.strip()))
                 canvas = self.communicator.get_canvas()
                 canvas.resize(Vec2f(width, height))
+                canvas.recenter_canvas()
 
             except ValueError:
                 print("Invalid input. Width and height must be integers.")
@@ -146,6 +147,7 @@ class KagImage:
         canvas.size = Vec2f(width, height)
         canvas.tilemap = new_tilemap
         canvas.force_rerender()
+        canvas.recenter_canvas()
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
         a, r, g, b = argb
