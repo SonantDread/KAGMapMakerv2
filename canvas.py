@@ -282,22 +282,7 @@ class Canvas(QGraphicsView):
         self.communicator.recent_mouse_pos = recent_pos
 
         pos = self.get_grid_pos(event)
-        self.place_items_inbetween(event, recent_pos, pos, click_index)
-
-    def place_items_inbetween(self, event, recent_pos, pos, click_index: int) -> None:
-        """
-        Places items inbetween two positions based on the given click index.
-
-        Args:
-            event: The event that triggered the item placement.
-            recent_pos: The old position to start placing items from.
-            pos: The new position to place items up to.
-            click_index: The index of the click that triggered the item placement.
-
-        Returns:
-            None
-        """
-
+        # place items between frames
         if (len(pos) == 0 or len(recent_pos) == 0):
             return
 
@@ -329,8 +314,8 @@ class Canvas(QGraphicsView):
         """
 
         # calculate the distance of mouse swipe and fill items inbetween
-        placing_tile: CItem = self.communicator.get_selected_tile(click_index)
-        eraser: bool = placing_tile.is_eraser()
+        placing_item: CItem = self.communicator.get_selected_tile(click_index).copy()
+        eraser: bool = placing_item.is_eraser()
 
         # do nothing if out of bounds
         if self.is_out_of_bounds(grid_pos):
@@ -342,7 +327,8 @@ class Canvas(QGraphicsView):
 
         scene_pos = Vec2f(scene_x, scene_y)
         snapped_pos = Vec2f(tilemap_x, tilemap_y)
-        self.renderer.render_item(placing_tile, scene_pos, snapped_pos, eraser, self.rotation)
+
+        self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
 
         if self.communicator.settings.get("mirrored over x", False):
             # calculate mirrored position
@@ -354,7 +340,7 @@ class Canvas(QGraphicsView):
                 mirrored_scene_pos = Vec2f(mirrored_scene_x, scene_y)
                 mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
 
-                self.renderer.render_item(placing_tile, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
+                self.renderer.render_item(placing_item, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
 
     def snap_to_grid(self, pos) -> tuple:
         """

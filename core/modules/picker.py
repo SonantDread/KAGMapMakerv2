@@ -6,8 +6,7 @@ from PIL import Image
 from PyQt6 import QtCore
 from PyQt6.QtCore import QPoint, Qt, QSize
 from PyQt6.QtGui import QPixmap, QIcon
-from PyQt6.QtWidgets import (QGridLayout, QPushButton, QScrollArea,
-                            QSizePolicy, QSpacerItem, QTabWidget, QWidget)
+from PyQt6.QtWidgets import QGridLayout, QPushButton, QScrollArea, QTabWidget, QWidget
 
 from base.citem import CItem
 from base.citemlist import CItemList
@@ -32,7 +31,7 @@ class SelectionButton(QPushButton):
         elif event.button() == Qt.MouseButton.RightButton:
             communicator.select_item(self.data, 0)
 
-class Module(QWidget):
+class Picker(QWidget):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setParent(parent)
@@ -40,26 +39,22 @@ class Module(QWidget):
         self.offset = QPoint()
 
         self.tab_holder = self.vanilla_tab = self.modded_tab = None
+        self.setup_ui()
 
     def setup_ui(self) -> None:
         size = self._get_tab_size()
-        """
-        TODO: should look like
-        Vanilla -> Tiles, Blobs, Colors, Other
-        Modded -> Tiles, Blobs, Colors, Other
-        https://chatgpt.com/c/678ae16c-1bf4-800f-9bfc-53302564e25b
-        """
+        # TODO: https://chatgpt.com/c/678ae16c-1bf4-800f-9bfc-53302564e25b
         # holds "Vanilla" and "Modded" tabs
         self.tab_holder = QTabWidget(parent=self.parent_widget)
-        self.tab_holder.setGeometry(QtCore.QRect(0,25,size,size))
+        self.tab_holder.setFixedSize(QtCore.QSize(size,size))
 
         # the actual vanilla and modded tabs
         self.vanilla_tab = QTabWidget(parent=self.tab_holder)
-        self.vanilla_tab.setGeometry(QtCore.QRect(0,25,size,size))
+        self.vanilla_tab.setFixedSize(QtCore.QSize(size,size))
         self.tab_holder.addTab(self.vanilla_tab, "Vanilla")
 
         self.modded_tab = QTabWidget(parent=self.tab_holder)
-        self.modded_tab.setGeometry(QtCore.QRect(0,25,size,size))
+        self.modded_tab.setFixedSize(QtCore.QSize(size,size))
         self.tab_holder.addTab(self.modded_tab, "Modded")
 
         self.setup_tabs(self.vanilla_tab, True)

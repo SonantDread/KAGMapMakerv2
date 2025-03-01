@@ -123,7 +123,7 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                item = self.item_list.get_item_by_color(pixel)
+                item = self.item_list.get_item_by_color(pixel).copy()
                 name = item.name_data.name if item is not None else None
 
                 if name == "sky" or name is None:

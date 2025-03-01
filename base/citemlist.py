@@ -124,9 +124,18 @@ class CItemList:
             if item is None or not hasattr(item.pixel_data, 'colors'):
                 continue
 
-            for _, color in item.pixel_data.colors.items():
+            for key, color in item.pixel_data.colors.items():
                 # skip non-color entries
                 if isinstance(color, list) and len(color) == 4:
+                    split = key.split("_")
+                    rotation, team = split[0][len("rotation"):], split[1][len("team"):]
+
+                    item = item.copy()
+                    item.sprite.rotation = int(rotation)
+                    # don't call swap_team since it also changes sprite (laggy)
+                    # instead just directly change it
+                    item.sprite.team = int(team)
+
                     color_tuple = tuple(color) # (a, r, g, b)
                     color_map[color_tuple] = item
 

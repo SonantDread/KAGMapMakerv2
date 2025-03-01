@@ -1,10 +1,27 @@
 import os
 from dataclasses import dataclass
 
-from PyQt6.QtGui import QPixmap
+from copy import deepcopy
+from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtCore import QBuffer, QByteArray
+from PIL import Image
+import io
+import colorsys
 
 from base.image_handler import ImageHandler
 from utils.vec2f import Vec2f
+
+# acceptable range of colors
+BLUE_HUE_RANGE = (150 / 360.0, 250 / 360.0)
+TEAM_HUE_SHIFT = {
+    0: 0,    # No shift
+    1: 157,  # Blue -> Red
+    2: 244,  # Blue -> Green
+    3: 73,   # Blue -> Purple
+    4: 177,  # Blue -> Gold
+    5: 322,  # Blue -> Teal
+    6: 24,   # Blue -> Indigo
+}
 
 @dataclass
 class Name:
@@ -148,7 +165,7 @@ class CItem:
 
         if rotational_symmetry:
             rotation = rotation % 180
-
+        # todo: use angle and team from channel
         match = colors.get(f'rotation{rotation}_team{team}')
         if match is not None:
             return tuple(match)
@@ -163,3 +180,93 @@ class CItem:
         ]
         n = self.name_data.name
         return n in names or n is None
+
+    def copy(self) -> 'CItem':
+        """
+        Creates a deep copy of the CItem instance.
+        """
+        image = self.sprite.image
+        self.sprite.image = None
+        sprite = deepcopy(self.sprite)
+        self.sprite.image = image
+        sprite.image = image
+
+        return CItem(
+            type=deepcopy(self.type),
+            name_data=deepcopy(self.name_data),
+            sprite=sprite,
+            mod_info=deepcopy(self.mod_info),
+            pixel_data=deepcopy(self.pixel_data),
+            search_keywords=deepcopy(self.search_keywords)
+        )
+
+    def swap_team(self, team: int) -> None:
+        """
+        Swaps the team of the sprite.
+        """
+        if self.sprite.team == team:
+            return
+
+        self._swap_sprite_color(team)
+        # update sprite's team
+        self.sprite.team = team
+
+    def _swap_sprite_color(self, to_team: int) -> None:
+        """
+        Swaps the color of the sprite using PIL instead of Qt.
+        """
+        # unfortunately required to be like this because
+        # getpixelcolor() was returning [0,0,0,0] instead of the actual color
+        current_team = self.sprite.team
+        if current_team == to_team:
+            return
+
+        # convert QPixmap to PIL Image
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        self.sprite.image.save(buffer, "PNG")
+        pil_image = Image.open(io.BytesIO(buffer.data().data())).convert("RGBA")
+
+        width, height = pil_image.size
+
+        # create the new image with the same mode
+        new_image = pil_image.copy()
+
+        # prevent key errors
+        if to_team < 0 or to_team > 6:
+            to_team = 7
+            hue_shift = 0
+
+        else:
+            # convert to fraction
+            hue_shift = TEAM_HUE_SHIFT[to_team] / 360.0
+
+        for y in range(width):
+            for x in range(height):
+                r, g, b, a = pil_image.getpixel((y, x))
+
+                # optimization: skip transparent pixels
+                if a == 0:
+                    continue
+
+                # convert to HSV
+                hue, sat, val = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+
+                # only shift if within the blue hue range
+                if BLUE_HUE_RANGE[0] <= hue <= BLUE_HUE_RANGE[1]:
+                    # assume team is -1 / 255 / 7
+                    if TEAM_HUE_SHIFT.get(to_team, None) is None:
+                        sat = 0
+                        h = hue
+                    else:
+                        # shift and wrap around the wheel
+                        h = (hue + hue_shift) % 1.0
+                    # back to RGB
+                    r, g, b = colorsys.hsv_to_rgb(h, sat, val)
+                    new_image.putpixel((y, x), (int(r * 255), int(g * 255), int(b * 255), a))
+
+        # convert back to QPixmap
+        buffer = io.BytesIO()
+        new_image.save(buffer, format="PNG")
+        qimg = QImage.fromData(QByteArray(buffer.getvalue()))
+        self.sprite.image = QPixmap.fromImage(qimg)

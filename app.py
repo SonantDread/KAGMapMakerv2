@@ -44,9 +44,9 @@ class App(QMainWindow):
         self.layout = QHBoxLayout(self.main_widget)
         self.main_widget.setLayout(self.layout)
 
-        # picker menu
-        self.ui_layout = GUIModuleHandler(self)
-        self.ui_layout.setup_modules()
+        # todo: this should all just be a large widget for the menus, and canvas should be a seperate thing
+        # picker menus
+        self.ui_layout = GUIModuleHandler(self.main_widget)
 
         self.toolbar = Toolbar(self)
         self.toolbar.setMovable(False)
@@ -54,7 +54,7 @@ class App(QMainWindow):
 
         # load canvas
         print("Loading Canvas")
-        self.canvas = Canvas(Vec2f(200, 130))
+        self.canvas = Canvas(Vec2f(200, 80))
 
         # add canvas to layout
         self.layout.addWidget(self.canvas)

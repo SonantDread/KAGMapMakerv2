@@ -46,6 +46,11 @@ class Renderer:
         if eraser:
             return
 
+        current_team = self.communicator.team
+        can_change_teams = placing.sprite.properties.can_swap_teams
+        if can_change_teams and placing.sprite.team != current_team:
+            placing.swap_team(current_team)
+
         pixmap: QPixmap = placing.sprite.image
         if pixmap is None:
             line = inspect.currentframe().f_lineno
