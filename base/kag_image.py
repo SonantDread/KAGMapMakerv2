@@ -41,7 +41,7 @@ class KagImage:
                 width = abs(int(width))
                 height = abs(int(height))
                 canvas = self.communicator.get_canvas()
-                canvas.resize(Vec2f(width, height))
+                canvas.resize_canvas(Vec2f(width, height))
                 canvas.recenter_canvas()
 
             except ValueError:
@@ -143,7 +143,7 @@ class KagImage:
         self.last_saved_location = fp
 
         new_tilemap = self._get_translated_tilemap(new_tilemap)
-        canvas.resize(Vec2f(width, height), new_tilemap)
+        canvas.resize_canvas(Vec2f(width, height), new_tilemap)
         canvas.recenter_canvas()
 
     def argb_to_rgba(self, argb: tuple) -> tuple:

@@ -554,7 +554,7 @@ class Canvas(QGraphicsView):
         self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
         self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 
-    def resize(self, size: Vec2f, tilemap: list[list[CItem]] = None) -> None:
+    def resize_canvas(self, size: Vec2f, tilemap: list[list[CItem]] = None) -> None:
         self.size = size
         if tilemap is None:
             tilemap = [[None for _ in range(size.y)] for _ in range(size.x)]
