@@ -61,7 +61,7 @@ class Renderer:
         if placing.sprite.properties.is_rotatable:
             pixmap = self._rotate_blob(pixmap, rot)
 
-        pixmap_item = self.add_to_canvas(pixmap, (pos.x, pos.y), z, placing.name_data.name, placing.sprite.offset)
+        pixmap_item = self.add_to_canvas(pixmap, (pos.x, pos.y), z, placing.name_data.name, placing.sprite.offset, rot)
 
         if pixmap_item is not None:
             canvas.tilemap[tm_pos.x][tm_pos.y] = placing
@@ -84,7 +84,7 @@ class Renderer:
                 del canvas.graphics_items[(x, y)]
             canvas.tilemap[x][y] = None
 
-    def add_to_canvas(self, img: QPixmap, pos: tuple, z: int, name: str, offset: Vec2f) -> QGraphicsPixmapItem:
+    def add_to_canvas(self, img: QPixmap, pos: tuple, z: int, name: str, offset: Vec2f, rot: int) -> QGraphicsPixmapItem:
         """
         Adds an item to the canvas at the specified position.
 
@@ -111,9 +111,17 @@ class Renderer:
 
         # create new item
         pixmap_item = QGraphicsPixmapItem(img)
-        pixmap_item.setScale(canvas.zoom_factor * canvas.default_zoom_scale)
+        scale = canvas.zoom_factor * canvas.default_zoom_scale
+        pixmap_item.setScale(scale)
 
-        pixmap_item.setPos(int(pos[0] - offset.x), int(pos[1] - offset.y))
+        adjusted_x, adjusted_y = pos
+
+        w, h = img.width() * scale, img.height() * scale
+        if rot in (90, 270):
+            adjusted_x += (h - w) / 2
+            adjusted_y += (w - h) / 2
+
+        pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
         pixmap_item.setZValue(z)
 
         canvas.canvas.addItem(pixmap_item)
@@ -175,6 +183,4 @@ class Renderer:
         self.cursor_graphics_item = [main_cursor, mirror_cursor]
 
     def _rotate_blob(self, pixmap: QPixmap, degrees: int) -> None:
-        rotated_pixmap = QTransform().rotate(degrees)
-        pixmap = pixmap.transformed(rotated_pixmap)
-        return pixmap
+        return pixmap.transformed(QTransform().rotate(degrees))
