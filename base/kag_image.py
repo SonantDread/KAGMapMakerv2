@@ -127,12 +127,14 @@ class KagImage:
 
                 except:
                     continue
+
                 name = item.name_data.name if item is not None else None
 
                 if name == "sky" or name is None:
                     continue # cant do anything so ignore
 
                 item.sprite.position = Vec2f(x, y)
+                item.swap_team(item.sprite.team)
 
                 # account for the saving offsets
                 offset_x, offset_y = -item.pixel_data.offset

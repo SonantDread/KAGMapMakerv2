@@ -204,7 +204,8 @@ class CItem:
         """
         Swaps the team of the sprite.
         """
-        if self.sprite.team == team:
+        # already is blue team
+        if team == 0:
             return
 
         self._swap_sprite_color(team)
@@ -218,8 +219,6 @@ class CItem:
         # unfortunately required to be like this because
         # getpixelcolor() was returning [0,0,0,0] instead of the actual color
         current_team = self.sprite.team
-        if current_team == to_team:
-            return
 
         # convert QPixmap to PIL Image
         buffer = QBuffer()

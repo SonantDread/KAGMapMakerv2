@@ -326,6 +326,9 @@ class Canvas(QGraphicsView):
 
         scene_pos = Vec2f(scene_x, scene_y)
         snapped_pos = Vec2f(tilemap_x, tilemap_y)
+        
+        if placing_item.sprite.properties.is_rotatable:
+            placing_item.sprite.rotation = self.rotation
 
         self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
 
