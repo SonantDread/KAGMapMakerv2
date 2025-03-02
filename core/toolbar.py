@@ -48,10 +48,8 @@ class Toolbar(QToolBar):
 
         # settings menu
         settings_menu = QMenu("Settings", self)
-        mirror_x = QCheckBox("Mirror Over X-Axis", self)
-        settings_widget_action = QWidgetAction(self)
-        settings_widget_action.setDefaultWidget(mirror_x)
-        settings_menu.addAction(settings_widget_action)
+        self.mirror_x = self._add_checkbox(settings_menu, "Mirror Over X-Axis", lambda x: self.toggle_mirrored_x(x))
+        self.mirror_colors_x = self._add_checkbox(settings_menu, "Mirror Colors Over X-Axis", lambda x: self.toggle_mirrored_colors_x(x))
 
         # view menu
         view_menu = QMenu("View", self)
@@ -74,7 +72,6 @@ class Toolbar(QToolBar):
         save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
         load_action.triggered.connect(lambda: self.kagimage.load_map())
         # render_action.triggered.connect(self.render_triggered)
-        mirror_x.toggled.connect(lambda x: self.toggle_mirrored_x(x))
         button1_action.triggered.connect(self.button1_triggered)
         button2_action.triggered.connect(self.button2_triggered)
         button3_action.triggered.connect(self.button3_triggered)
@@ -98,6 +95,15 @@ class Toolbar(QToolBar):
     def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
+    def _add_checkbox(self, menu: QMenu, text: str, action) -> None:
+        box = QCheckBox(text, self)
+        action_widget = QWidgetAction(self)
+        action_widget.setDefaultWidget(box)
+        menu.addAction(action_widget)
+        box.toggled.connect(action)
+
+        return box
+
     # def render_triggered(self):
     #     print("Render triggered") # todo: implement this
 
@@ -109,6 +115,10 @@ class Toolbar(QToolBar):
             checked (bool): The new state of the checkbox
         """
         self.communicator.settings['mirrored over x'] = checked
+
+    def toggle_mirrored_colors_x(self, checked: bool) -> None:
+        self.mirror_x.setChecked(True)
+        self.communicator.settings['mirrored colors x'] = checked
 
     def test_in_kag_triggered(self):
         fh = FileHandler()
