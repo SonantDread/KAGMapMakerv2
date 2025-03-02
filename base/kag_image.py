@@ -67,32 +67,31 @@ class KagImage:
         sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
         image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y), color=sky)
 
-        for x, row in enumerate(tilemap):
-            for y, item in enumerate(row):
-                if item is None:
+        for pos, item in tilemap.items():
+            if item is None or pos is None:
+                continue
+
+            rotation = item.sprite.rotation
+            team = item.sprite.team
+            color = item.get_color(rotation, team)
+
+            if color is None:
+                color = item.get_color(rotation, team, True)
+                if color is None:
+                    linenum = inspect.currentframe().f_lineno
+                    path = os.path.basename(__file__)
+                    # todo: should be 'raise' but we dont have all the sprites yet
+                    print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
                     continue
 
-                rotation = item.sprite.rotation
-                team = item.sprite.team
+            offset_x, offset_y = item.pixel_data.offset
+            width, height = canvas.size
 
-                color = item.get_color(rotation, team)
-                if color is None:
-                    color = item.get_color(rotation, team, True)
-                    if color is None:
-                        linenum = inspect.currentframe().f_lineno
-                        path = os.path.basename(__file__)
-                        # todo: should be 'raise' but we dont have all the sprites yet
-                        print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
-                        continue
+            # clamp coords to map size
+            final_x = min(max(pos.x + offset_x, 0), width - 1)
+            final_y = min(max(pos.y + offset_y, 0), height - 1)
 
-                offset_x, offset_y = item.pixel_data.offset
-                width, height = canvas.size
-
-                # clamp coords to map size
-                final_x = min(max(x + offset_x, 0), width - 1)
-                final_y = min(max(y + offset_y, 0), height - 1)
-
-                image.putpixel((final_x, final_y), self.argb_to_rgba(color))
+            image.putpixel((final_x, final_y), self.argb_to_rgba(color))
 
         try:
             image.save(fp)
@@ -119,11 +118,15 @@ class KagImage:
 
         width, height = tilemap.size
 
-        new_tilemap = [[None for _ in range(height)] for _ in range(width)]
+        new_tilemap = {}
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                item = self.item_list.get_item_by_color(pixel).copy()
+                try:
+                    item = self.item_list.get_item_by_color(pixel).copy()
+
+                except:
+                    continue
                 name = item.name_data.name if item is not None else None
 
                 if name == "sky" or name is None:
@@ -138,7 +141,7 @@ class KagImage:
                 final_x = min(max(x + offset_x, 0), width - 1)
                 final_y = min(max(y + offset_y, 0), height - 1)
 
-                new_tilemap[final_x][final_y] = item
+                new_tilemap[Vec2f(final_x, final_y)] = item
 
         self.last_saved_location = fp
 
@@ -194,33 +197,30 @@ class KagImage:
         return file_path
 
     # required because trees can be multiple blocks tall
-    def _get_translated_tilemap(self, tilemap: list) -> list:
+    def _get_translated_tilemap(self, tilemap: dict) -> dict:
         if tilemap is None:
             print(f"Failed to get tilemap in kag_image.py: {inspect.currentframe().f_lineno}")
             return None
 
-        newmap = []
-        for column in tilemap:
-            new_column = []
-            tree_group = []
+        new_tilemap = {}
 
-            for pixel in column:
-                if pixel is not None and pixel.name_data.name == "tree":
-                    tree_group.append(pixel)
+        for pos, item in tilemap.items():
+            if item is not None and pos is not None:
+                # add non-tree items directly to the new tilemap
+                if item.name_data.name != "tree":
+                    new_tilemap[pos] = item
                 else:
-                    if tree_group:
-                        new_column.extend([None] * (len(tree_group) - 1))
-                        new_column.append(tree_group[-1])
-                        tree_group = []
-                    new_column.append(pixel)
+                    # handle trees specially
+                    x, y = pos
 
-            if tree_group:
-                new_column.extend([None] * (len(tree_group) - 1))
-                new_column.append(tree_group[-1])
+                    # find the lowest pixel of the tree (to place it properly)
+                    while tilemap.get(Vec2f(x, y + 1)) is not None and tilemap.get(Vec2f(x, y + 1)).name_data.name == "tree":
+                        y += 1
 
-            newmap.append(new_column)
+                    # add the bottom-most tree pixel
+                    new_tilemap[Vec2f(x, y)] = tilemap[Vec2f(x, y)]
 
-        return newmap
+        return new_tilemap
 
 class TwoInputDialog(QDialog):
     """

@@ -6,7 +6,7 @@ class Vec2f:
     """
     Used to store Vector 2 positions.
     """
-    def __init__(self, x: Union[int, float] = 0, y: Union[int, float] = 0):
+    def __init__(self, x: Union[float, int] = 0, y: Union[float, int] = 0):
         self.x = x
         self.y = y
 
@@ -83,3 +83,12 @@ class Vec2f:
 
     def __float__(self):
         return Vec2f(float(self.x), float(self.y))
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __eq__(self, other):
+        if isinstance(other, Vec2f):
+            return self.x == other.x and self.y == other.y
+
+        return False

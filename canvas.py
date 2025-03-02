@@ -61,11 +61,13 @@ class Canvas(QGraphicsView):
 
         self._last_pan_point = None
 
-        self.tilemap = [[None for _ in range(self.size.y)] for _ in range(self.size.x)]
+        # list of CItems
+        self.tilemap = {}
+        # list of sprites on the canvas
         self.graphics_items = {}
 
         self._build_tile_grid()
-        self.set_grid_visible(False) # should be a setting but disabled by default
+        self.set_grid_visible(False) # todo: should be a setting but disabled by default
 
         self.item_list = CItemList()
 
@@ -163,18 +165,15 @@ class Canvas(QGraphicsView):
             self.graphics_items.clear()
 
         # redraw all items
-        for x in range(self.size.x):
-            for y in range(self.size.y):
-                item = self.tilemap[x][y]
-                if item is not None:
-                    scene_x = x * self.grid_spacing
-                    scene_y = y * self.grid_spacing
-                    scene_pos = Vec2f(scene_x, scene_y)
-                    rotation = None
-                    if isinstance(item, CItem):
-                        rotation = item.sprite.rotation
+        # needs to be a copy because they can change here
+        for pos, item in list(self.tilemap.items()):
+            if pos is None or item is None:
+                continue
 
-                    self.renderer.render_item(item, scene_pos, Vec2f(x, y), False, rotation)
+            x, y = pos
+            scene_pos = Vec2f(x, y) * self.grid_spacing
+
+            self.renderer.render_item(item, scene_pos, Vec2f(x, y), False, item.sprite.rotation)
 
     def rotate(self, rev: bool) -> None:
         """
@@ -235,7 +234,7 @@ class Canvas(QGraphicsView):
             None
         """
         # check if map is blank
-        if all(all(tile is None for tile in row) for row in self.tilemap):
+        if not self.tilemap:
             print("Map is blank. Not saving.")
             return
 
@@ -554,10 +553,11 @@ class Canvas(QGraphicsView):
         self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
         self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
 
-    def resize_canvas(self, size: Vec2f, tilemap: list[list[CItem]] = None) -> None:
+    def resize_canvas(self, size: Vec2f, tilemap: dict[Vec2f, CItem] = None) -> None:
         self.size = size
         if tilemap is None:
-            tilemap = [[None for _ in range(size.y)] for _ in range(size.x)]
+            tilemap = {}
+
         self.tilemap = tilemap
         self.force_rerender()
         self.add_panning_space()

@@ -40,8 +40,8 @@ class Renderer:
         canvas = self.communicator.get_canvas()
 
         # remove rendered item if it exists
-        if canvas.tilemap[tm_pos.x][tm_pos.y] is not None:
-            self.remove_existing_item_from_scene((tm_pos.x, tm_pos.y))
+        if canvas.tilemap.get(tm_pos) is not None:
+            self.remove_existing_item_from_scene(tm_pos)
 
         if eraser:
             return
@@ -61,12 +61,12 @@ class Renderer:
         if placing.sprite.properties.is_rotatable:
             pixmap = self._rotate_blob(pixmap, rot)
 
-        pixmap_item = self.add_to_canvas(pixmap, (pos.x, pos.y), z, placing.name_data.name, placing.sprite.offset, rot)
+        pixmap_item = self.add_to_canvas(pixmap, pos, z, placing.name_data.name, placing.sprite.offset, rot)
 
         if pixmap_item is not None:
-            canvas.tilemap[tm_pos.x][tm_pos.y] = placing
+            canvas.tilemap[tm_pos] = placing
 
-    def remove_existing_item_from_scene(self, pos: tuple) -> None:
+    def remove_existing_item_from_scene(self, pos: Vec2f) -> None:
         """
         Removes an existing item from the scene at the specified position (in tilemap coordinates).
 
@@ -77,14 +77,15 @@ class Renderer:
             None
         """
         canvas = self.communicator.get_canvas()
-        x, y = pos
-        if canvas.tilemap[x][y] is not None:
-            if (x, y) in canvas.graphics_items:
-                canvas.canvas.removeItem(canvas.graphics_items[(x, y)])
-                del canvas.graphics_items[(x, y)]
-            canvas.tilemap[x][y] = None
 
-    def add_to_canvas(self, img: QPixmap, pos: tuple, z: int, name: str, offset: Vec2f, rot: int) -> QGraphicsPixmapItem:
+        if pos in canvas.tilemap:
+            if pos in canvas.graphics_items:
+                canvas.canvas.removeItem(canvas.graphics_items[pos])
+                del canvas.graphics_items[pos]
+
+            del canvas.tilemap[pos]
+
+    def add_to_canvas(self, img: QPixmap, pos: Vec2f, z: int, name: str, offset: Vec2f, rot: int) -> QGraphicsPixmapItem:
         """
         Adds an item to the canvas at the specified position.
 
@@ -100,10 +101,11 @@ class Renderer:
         """
         canvas = self.communicator.get_canvas()
         x, y = canvas.snap_to_grid(pos)
+        tm_pos = Vec2f(x, y) 
 
         # remove existing item if present
-        if canvas.tilemap[x][y] is not None:
-            self.remove_existing_item_from_scene((x, y))
+        if canvas.tilemap.get(pos) is not None:
+            self.remove_existing_item_from_scene(pos)
 
         if img is None:
             print(f"Warning: img is None for item {name} at position {pos}")
@@ -125,7 +127,7 @@ class Renderer:
         pixmap_item.setZValue(z)
 
         canvas.canvas.addItem(pixmap_item)
-        canvas.graphics_items[(x, y)] = pixmap_item
+        canvas.graphics_items[tm_pos] = pixmap_item
 
         return pixmap_item
 
