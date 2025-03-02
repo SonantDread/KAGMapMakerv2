@@ -69,7 +69,7 @@ class Picker(QWidget):
         tab.addTab(tiles_tab,  "Tiles")
         tab.addTab(blobs_tab,  "Blobs")
         tab.addTab(colors_tab, "Colors")
-        tab.addTab(others_tab,  "Other")
+        tab.addTab(others_tab, "Other")
 
         # tiles and blobs
         itemlist = CItemList()

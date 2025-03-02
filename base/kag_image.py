@@ -50,7 +50,7 @@ class KagImage:
             print("New map creation cancelled.")
 
     def save_map(self, fp: str = None, force_ask: bool = False) -> None:
-        if self.last_saved_location is not None and not force_ask:
+        if self.last_saved_location is not None and not force_ask and fp is None:
             fp = self.last_saved_location
 
         if fp is None or fp == "" or force_ask:
