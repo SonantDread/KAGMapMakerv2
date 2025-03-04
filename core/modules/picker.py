@@ -75,22 +75,40 @@ class Picker(QWidget):
         itemlist = CItemList()
         if is_vanilla:
             tiles, blobs = itemlist.vanilla_tiles, itemlist.vanilla_blobs
-            # others = itemlist.vanilla_others # todo
+            others = itemlist.vanilla_others
+
         else:
             tiles, blobs = itemlist.modded_tiles, itemlist.modded_blobs
-            # others = itemlist.modded_others # todo
+            others = itemlist.modded_others
+
+        tiles = [item for item in tiles if item.is_in_picker_menu()]
+        blobs = [blob for blob in blobs if blob.is_in_picker_menu()]
+        others = [other for other in others if other.is_in_picker_menu()]
 
         self._setup_items(tiles_tab, tiles)
         self._setup_items(blobs_tab, blobs)
+
         # need a new item list to prevent overwriting the other one
         itemlist = CItemList()
-        colors = itemlist.vanilla_tiles + itemlist.vanilla_blobs #+ others # todo
-        for item in colors:
+        if is_vanilla:
+            all_colors = itemlist.vanilla_tiles + itemlist.vanilla_blobs + itemlist.vanilla_others
+
+        else:
+            all_colors = itemlist.modded_tiles + itemlist.modded_blobs + itemlist.modded_others
+
+        colors = []
+        for item in all_colors:
+            if not item.is_in_picker_menu():
+                continue
+
+            item = item.copy()
             item.sprite.offset = Vec2f(0, 0)
             item.sprite.image = self.__get_color_image(item.get_color())
 
+            colors.append(item)
+
         self._setup_items(colors_tab, colors)
-        # self._setup_items(others_tab, others)
+        self._setup_items(others_tab, others)
 
     def _setup_items(self, tab: QScrollArea, items: list[CItem]) -> None:
         x, y = 0, 0
@@ -98,8 +116,10 @@ class Picker(QWidget):
         content_widget = QWidget()
         grid = QGridLayout(content_widget)
 
-        grid.setSpacing(0)
+        grid.setSpacing(5)
         grid.setContentsMargins(0, 0, 0, 0)
+
+        grid.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         for item in items:
             if self._bad_item(item):
@@ -142,7 +162,7 @@ class Picker(QWidget):
 
     def _bad_item(self, item: CItem) -> bool:
         name = item.name_data.name
-        return name == "" or name is None or name is None
+        return name == "" or name is None
 
-    def _get_tab_size(self) -> None:
+    def _get_tab_size(self) -> int:
         return int(BUTTON_WIDTH * 5 + 40) # button size, button amount and scrollbar width

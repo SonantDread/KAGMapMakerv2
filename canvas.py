@@ -70,7 +70,6 @@ class Canvas(QGraphicsView):
         self.set_grid_visible(False) # todo: should be a setting but disabled by default
 
         self.item_list = CItemList()
-
         self.rotation = 0
 
         # save map on exiting the app
@@ -268,7 +267,7 @@ class Canvas(QGraphicsView):
 
     def add_item(self, event, click_index: int) -> None:
         """
-        Requests to add an item at position
+        Requests to add an item at position (place item between frames)
 
         Args:
             event: The event that triggered the item placement.
@@ -278,7 +277,6 @@ class Canvas(QGraphicsView):
             None
         """
         recent_pos = self.communicator.mouse_pos
-        self.communicator.recent_mouse_pos = recent_pos
 
         pos = self.get_grid_pos(event)
         # place items between frames
@@ -288,15 +286,15 @@ class Canvas(QGraphicsView):
         delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
 
-        if steps == 0:
+        if steps in (0, 1):
             self.place_item(pos, click_index)
-            return
 
-        for i in range(steps + 1):
-            x = recent_pos[0] + i * delta[0] / steps
-            y = recent_pos[1] + i * delta[1] / steps
+        else:
+            for i in range(steps + 1):
+                x = recent_pos[0] + i * delta[0] / steps
+                y = recent_pos[1] + i * delta[1] / steps
 
-            self.place_item((int(x), int(y)), click_index)
+                self.place_item((int(x), int(y)), click_index)
 
         self.update_mouse_pos(event)
 
@@ -352,7 +350,6 @@ class Canvas(QGraphicsView):
                     placing_item_copy.swap_team(0 if not halfway else 1)
 
                 self.renderer.render_item(placing_item_copy, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
-
 
     def snap_to_grid(self, pos) -> tuple:
         """
@@ -446,7 +443,8 @@ class Canvas(QGraphicsView):
 
         self.update_mouse_pos(event)
 
-        if event.button() == Qt.MouseButton.LeftButton: # place blocks
+        # place blocks
+        if event.button() == Qt.MouseButton.LeftButton:
             self.holding_lmb = True
 
             grid_pos = self.get_grid_pos(event)
@@ -457,9 +455,6 @@ class Canvas(QGraphicsView):
 
             grid_pos = self.get_grid_pos(event)
             self.place_item(grid_pos, 0)
-
-        if not self.holding_lmb:
-            self.communicator.recent_mouse_pos = self.communicator.mouse_pos
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self._last_pan_point = event.pos()
@@ -498,10 +493,16 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        if self.holding_lmb:
+
+        pos = Vec2f(*self.get_grid_pos(event))
+        old_pos = self.communicator.old_mouse_pos
+
+        same_tile = (pos == old_pos)
+
+        if self.holding_lmb and not same_tile:
             self.add_item(event, 1)
 
-        elif self.holding_rmb:
+        elif self.holding_rmb and not same_tile:
             self.add_item(event, 0)
 
         if self.holding_scw or self.holding_space:
@@ -536,8 +537,8 @@ class Canvas(QGraphicsView):
             None
         """
 
+        self.communicator.old_mouse_pos = self.communicator.mouse_pos
         self.communicator.mouse_pos = self.get_grid_pos(event)
-        self.communicator.recent_mouse_pos = self.communicator.mouse_pos
 
     def wheelEvent(self, event) -> None:
         """

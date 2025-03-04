@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from copy import deepcopy
 from PyQt6.QtGui import QPixmap, QImage
@@ -34,6 +34,8 @@ class SpriteProperties:
     is_rotatable: bool = False
     can_swap_teams: bool = False
     team: int = 0
+    merges_with: dict = field(default_factory=dict)
+    in_picker_menu: bool = True
 
 @dataclass
 class SpriteConfig:
@@ -81,7 +83,9 @@ class CItem:
         sprite_props = SpriteProperties(
             is_rotatable=properties.get("is_rotatable", False),
             can_swap_teams=properties.get("can_swap_teams", False),
-            team=properties.get("team", 0)
+            team=properties.get("team", 0),
+            merges_with=properties.get("merges_with", {}),
+            in_picker_menu=properties.get("in_picker_menu", True)
         )
 
         # handle image loading for tiles
@@ -218,7 +222,6 @@ class CItem:
         """
         # unfortunately required to be like this because
         # getpixelcolor() was returning [0,0,0,0] instead of the actual color
-        current_team = self.sprite.team
 
         # convert QPixmap to PIL Image
         buffer = QBuffer()
@@ -269,3 +272,19 @@ class CItem:
         new_image.save(buffer, format="PNG")
         qimg = QImage.fromData(QByteArray(buffer.getvalue()))
         self.sprite.image = QPixmap.fromImage(qimg)
+
+    def is_mergeable(self) -> bool:
+        """
+        Determines if the item is mergeable.
+        """
+        # returns true if it can merge
+        return bool(self.sprite.properties.merges_with)
+
+    def merge_with(self, other: str) -> str:
+        """
+        Merges the item with another item.
+        """
+        return self.sprite.properties.merges_with.get(other, None)
+
+    def is_in_picker_menu(self) -> bool:
+        return self.sprite.properties.in_picker_menu

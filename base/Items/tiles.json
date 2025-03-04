@@ -52,7 +52,12 @@
         "section_name": "tile",
         "sprite": {
             "image": 32,
-            "z_index": -599
+            "z_index": -599,
+            "properties": {
+                "merges_with": {
+                    "water_air": "water_backdirt"
+                }
+            }
         },
         "pixel_data": {
             "colors": {

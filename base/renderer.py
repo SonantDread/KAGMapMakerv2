@@ -39,6 +39,25 @@ class Renderer:
 
         canvas = self.communicator.get_canvas()
 
+        # merge two items if applicable
+        did_merge, old_name = False, placing.name_data.name
+        tile = canvas.tilemap.get(tm_pos)
+        if placing.is_mergeable() and (tile is not None and tile.is_mergeable()):
+            name = placing.merge_with(tile.name_data.name)
+            new_item: CItem = self.item_list.get_item_by_name(name)
+
+            if new_item is None:
+                name = tile.merge_with(placing.name_data.name)
+                new_item: CItem = self.item_list.get_item_by_name(name)
+
+            if new_item is not None:
+                placing: CItem = new_item.copy()
+                did_merge = True
+
+        # items merging into itself dont place
+        if did_merge and old_name == placing.name_data.name:
+            return
+
         # remove rendered item if it exists
         if canvas.tilemap.get(tm_pos) is not None:
             self.remove_existing_item_from_scene(tm_pos)

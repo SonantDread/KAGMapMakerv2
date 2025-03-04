@@ -38,7 +38,7 @@ class CItemList:
         self.vanilla_tiles: list['CItem'] = self.__setup_tiles()
         Communicator().picked_tiles = self.__get_selected_tiles()
         self.vanilla_blobs: list['CItem'] = self.__setup_blobs()
-        # self.vanilla_others: list['CItem'] = self.__setup_others() # todo
+        self.vanilla_others: list['CItem'] = self.__setup_others()
         tiles, blobs, other = self.__setup_modded_items()
         self.modded_tiles: list['CItem'] = tiles
         self.modded_blobs: list['CItem'] = blobs
@@ -46,7 +46,7 @@ class CItemList:
         all_items = [
             self.vanilla_tiles,
             self.vanilla_blobs,
-            # self.vanilla_others,
+            self.vanilla_others,
             self.modded_tiles,
             self.modded_blobs,
             self.modded_others
@@ -59,15 +59,11 @@ class CItemList:
         # -----
         # "Other" tab:
         # necromancer_teleport
-        # redbarrier
         # mook_knight
         # mook_archer
         # mook_spawner
         # mook_spawner_10
         # -----
-
-        # "water_backdirt",
-        # TODO: add in the vanilla items for the 'Other' tab
 
     def does_tile_exist(self, name: Union[str, 'CItem']) -> bool:
         if isinstance(name, CItem):
@@ -93,7 +89,20 @@ class CItemList:
 
         return False
 
+    def does_blob_exist(self, name: Union[str, 'CItem']) -> bool:
+        if isinstance(name, CItem):
+            name = name.name_data.name
+
+        if any(item.name_data.name == name for item in self.vanilla_others):
+            return True
+
+        if any(item.name_data.name == name for item in self.modded_others):
+            return True
+
+        return False
+
     def get_item_by_name(self, name: str) -> 'CItem':
+        name = str(name)
         for item in self.all_items:
             if item.name_data.name == name:
                 return item
@@ -126,18 +135,20 @@ class CItemList:
 
             for key, color in item.pixel_data.colors.items():
                 # skip non-color entries
-                if isinstance(color, list) and len(color) == 4:
-                    split = key.split("_")
-                    rotation, team = split[0][len("rotation"):], split[1][len("team"):]
+                if not isinstance(color, list) or len(color) != 4:
+                    continue
 
-                    item = item.copy()
-                    item.sprite.rotation = int(rotation)
-                    # don't call swap_team since it also changes sprite (laggy)
-                    # instead just directly change it
-                    item.sprite.team = int(team)
+                split = key.split("_")
+                rotation, team = split[0][len("rotation"):], split[1][len("team"):]
 
-                    color_tuple = tuple(color) # (a, r, g, b)
-                    color_map[color_tuple] = item
+                item = item.copy()
+                item.sprite.rotation = int(rotation)
+                # don't call swap_team since it also changes sprite (laggy)
+                # instead just directly change it
+                item.sprite.team = int(team)
+
+                color_tuple = tuple(color) # (a, r, g, b)
+                color_map[color_tuple] = item
 
         return color_map
 
