@@ -89,12 +89,7 @@ class Picker(QWidget):
         self._setup_items(blobs_tab, blobs)
 
         # need a new item list to prevent overwriting the other one
-        itemlist = CItemList()
-        if is_vanilla:
-            all_colors = itemlist.vanilla_tiles + itemlist.vanilla_blobs + itemlist.vanilla_others
-
-        else:
-            all_colors = itemlist.modded_tiles + itemlist.modded_blobs + itemlist.modded_others
+        all_colors = tiles + blobs + others
 
         colors = []
         for item in all_colors:
