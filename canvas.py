@@ -53,11 +53,13 @@ class Canvas(QGraphicsView):
 
         self._build_background_rect()
 
-        self.holding_lmb = False
-        self.holding_rmb = False
-        self.holding_scw = False
-        self.holding_space = False
-        self.holding_shift = False
+        self._canvas_history = []
+        self._canvas_history_index = 0
+
+        self._holding_lmb = False
+        self._holding_rmb = False
+        self._holding_scw = False
+        self._holding_space = False
 
         self._last_pan_point = None
 
@@ -131,6 +133,86 @@ class Canvas(QGraphicsView):
         modifier = Qt.KeyboardModifier.ShiftModifier
         shift_r_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_R), self)
         shift_r_shortcut.activated.connect(lambda: self.rotate(True))
+
+        # ctrl + z
+        modifier = Qt.KeyboardModifier.ControlModifier
+        ctrl_z_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_Z), self)
+        ctrl_z_shortcut.activated.connect(self._undo)
+
+        # ctrl + y
+        ctrl_y_shortcut = QShortcut(QKeySequence(modifier | Qt.Key.Key_Y), self)
+        ctrl_y_shortcut.activated.connect(self._redo)
+
+    def _undo(self) -> None:
+        """
+        Undoes the last action performed on the canvas.
+        Moves back one step in the canvas history if available.
+
+        Returns:
+            None
+        """
+        print("undo")
+        if self._canvas_history_index > 0:
+            self._canvas_history_index -= 1
+            placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
+
+            # remove the item at the position
+            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
+                self.renderer.render_item(placing, pos, tm_pos, True, 0)
+
+            # if mirrored, also remove the mirrored item
+            if mirrored:
+                mirrored_x = self.size.x - 1 - tm_pos.x
+                mirrored_scene_x = mirrored_x * self.grid_spacing
+                mirrored_scene_pos = Vec2f(mirrored_scene_x, pos.y)
+                mirrored_tm_pos = Vec2f(mirrored_x, tm_pos.y)
+
+                if 0 <= mirrored_x < self.size.x:
+                    self.renderer.render_item(placing, mirrored_scene_pos, mirrored_tm_pos, True, 0)
+
+    def _redo(self) -> None:
+        """
+        Redoes the previously undone action on the canvas.
+        Moves forward one step in the canvas history if available.
+
+        Returns:
+            None
+        """
+        if self._canvas_history_index < len(self._canvas_history):
+            placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
+
+            # place the item again
+            self.renderer.render_item(placing, pos, tm_pos, False, placing.sprite.rotation)
+
+            # if mirrored, also place the mirrored item
+            if mirrored:
+                mirrored_x = self.size.x - 1 - tm_pos.x
+                mirrored_scene_x = mirrored_x * self.grid_spacing
+                mirrored_scene_pos = Vec2f(mirrored_scene_x, pos.y)
+                mirrored_tm_pos = Vec2f(mirrored_x, tm_pos.y)
+
+                mirror_color_x = self.communicator.settings.get("mirrored colors x", False)
+                placing_copy = placing.copy()
+
+                if placing.sprite.properties.can_swap_teams and mirror_color_x:
+                    halfway = tm_pos.x / 2 <= self.size.x
+                    placing_copy.swap_team(0 if not halfway else 1)
+
+                if 0 <= mirrored_x < self.size.x:
+                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, False, placing.sprite.rotation)
+
+            self._canvas_history_index += 1
+
+    def _wipe_history(self) -> None:
+        """
+        Wipes future history entries when a new action is performed after undoing.
+
+        Returns:
+            None
+        """
+        if self._canvas_history_index < len(self._canvas_history):
+            # remove all entries after the current index
+            self._canvas_history = self._canvas_history[:self._canvas_history_index]
 
     def set_grid_visible(self, show: bool = None) -> None:
         """
@@ -283,6 +365,10 @@ class Canvas(QGraphicsView):
         if (len(pos) == 0 or len(recent_pos) == 0):
             return
 
+        # prevent placing if not in a new grid position
+        if pos == recent_pos:
+            return
+
         delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
 
@@ -334,9 +420,20 @@ class Canvas(QGraphicsView):
             halfway = tilemap_x / 2 <= self.size.x
             placing_item.swap_team(1 if not halfway else 0)
 
+        mirror = self.communicator.settings.get("mirrored over x", False)
+
+        # undo / redo history
+        if self._canvas_history_index >= 1000:
+            self._canvas_history.pop(0)
+            self._canvas_history_index -= 1
+
+        self._canvas_history.append((placing_item.copy(), scene_pos, snapped_pos, mirror))
+        self._canvas_history_index += 1
+        self._wipe_history()
+
         self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
 
-        if self.communicator.settings.get("mirrored over x", False):
+        if mirror:
             # calculate mirrored position
             mirrored_x = self.size.x - 1 - tilemap_x
             mirrored_scene_x = mirrored_x * self.grid_spacing
@@ -390,7 +487,7 @@ class Canvas(QGraphicsView):
         """
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self._last_pan_point = self.get_cursor_pos_on_canvas()
-            self.holding_space = True
+            self._holding_space = True
 
     def keyReleaseEvent(self, event: QKeyEvent):
         """
@@ -403,7 +500,7 @@ class Canvas(QGraphicsView):
             None
         """
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
-            self.holding_space = False
+            self._holding_space = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
             self.viewport().unsetCursor()
@@ -419,16 +516,14 @@ class Canvas(QGraphicsView):
             None
         """
         if event.button() == Qt.MouseButton.LeftButton:
-            self.holding_lmb = True
+            self._holding_lmb = True
 
-            grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 1)
+            self.add_item(event, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
-            self.holding_rmb = True
+            self._holding_rmb = True
 
-            grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 0)
+            self.add_item(event, 0)
 
     def mousePressEvent(self, event) -> None:
         """
@@ -445,20 +540,18 @@ class Canvas(QGraphicsView):
 
         # place blocks
         if event.button() == Qt.MouseButton.LeftButton:
-            self.holding_lmb = True
+            self._holding_lmb = True
 
-            grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 1)
+            self.add_item(event, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
-            self.holding_rmb = True
+            self._holding_rmb = True
 
-            grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 0)
+            self.add_item(event, 0)
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self._last_pan_point = event.pos()
-            self.holding_scw = True
+            self._holding_scw = True
 
     def mouseReleaseEvent(self, event) -> None:
         """
@@ -474,14 +567,14 @@ class Canvas(QGraphicsView):
         self.update_mouse_pos(event)
 
         if event.button() == Qt.MouseButton.LeftButton:
-            self.holding_lmb = False
+            self._holding_lmb = False
 
         # elif to prevent placing two tiles at once
         elif event.button() == Qt.MouseButton.RightButton:
-            self.holding_rmb = False
+            self._holding_rmb = False
 
         elif event.button() == Qt.MouseButton.MiddleButton:
-            self.holding_scw = False
+            self._holding_scw = False
 
     def mouseMoveEvent(self, event) -> None:
         """
@@ -497,15 +590,15 @@ class Canvas(QGraphicsView):
         pos = Vec2f(*self.get_grid_pos(event))
         old_pos = self.communicator.old_mouse_pos
 
-        same_tile = (pos == old_pos)
+        same_tile = pos == old_pos
 
-        if self.holding_lmb and not same_tile:
+        if self._holding_lmb and not same_tile:
             self.add_item(event, 1)
 
-        elif self.holding_rmb and not same_tile:
+        elif self._holding_rmb and not same_tile:
             self.add_item(event, 0)
 
-        if self.holding_scw or self.holding_space:
+        if self._holding_scw or self._holding_space:
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
             self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
 
