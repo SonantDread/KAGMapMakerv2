@@ -365,9 +365,13 @@ class Canvas(QGraphicsView):
         if (len(pos) == 0 or len(recent_pos) == 0):
             return
 
-        # prevent placing if not in a new grid position
-        if pos == recent_pos:
-            return
+        # prevent placing if not in a new grid position and new block
+        if self._canvas_history and len(self._canvas_history) > 0:
+            old_item = self._canvas_history[-1][0]
+            placing_item: CItem = self.communicator.get_selected_tile(click_index).copy()
+            # if same position and same item type, don't place again
+            if pos == recent_pos and old_item.name_data.name == placing_item.name_data.name:
+                return
 
         delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
@@ -405,11 +409,16 @@ class Canvas(QGraphicsView):
             return
 
         tilemap_x, tilemap_y = grid_pos
+        snapped_pos = Vec2f(tilemap_x, tilemap_y)
+
+        # ignore if we are trying to erase an already empty tile
+        if eraser and self.tilemap.get(snapped_pos) is None:
+            return
+
         scene_x = tilemap_x * self.grid_spacing # for the location on the canvas
         scene_y = tilemap_y * self.grid_spacing
 
         scene_pos = Vec2f(scene_x, scene_y)
-        snapped_pos = Vec2f(tilemap_x, tilemap_y)
 
         if placing_item.sprite.properties.is_rotatable:
             placing_item.sprite.rotation = self.rotation
@@ -518,12 +527,15 @@ class Canvas(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self._holding_lmb = True
 
-            self.add_item(event, 1)
+            # direct call to bypass add_item restrictions
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self._holding_rmb = True
 
-            self.add_item(event, 0)
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 0)
 
     def mousePressEvent(self, event) -> None:
         """
@@ -542,12 +554,14 @@ class Canvas(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self._holding_lmb = True
 
-            self.add_item(event, 1)
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 1)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self._holding_rmb = True
 
-            self.add_item(event, 0)
+            grid_pos = self.get_grid_pos(event)
+            self.place_item(grid_pos, 0)
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self._last_pan_point = event.pos()
