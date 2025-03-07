@@ -156,11 +156,12 @@ class Canvas(QGraphicsView):
             self._canvas_history_index -= 1
             placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
 
-            # remove the item at the position
-            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
-                self.renderer.render_item(placing, pos, tm_pos, True, 0)
+            was_eraser = placing.is_eraser()
 
-            # if mirrored, also remove the mirrored item
+            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
+                self.renderer.render_item(placing, pos, tm_pos, not was_eraser, placing.sprite.rotation)
+
+            # if mirrored, also handle the mirrored item
             if mirrored:
                 mirrored_x = self.size.x - 1 - tm_pos.x
                 mirrored_scene_x = mirrored_x * self.grid_spacing
@@ -168,7 +169,14 @@ class Canvas(QGraphicsView):
                 mirrored_tm_pos = Vec2f(mirrored_x, tm_pos.y)
 
                 if 0 <= mirrored_x < self.size.x:
-                    self.renderer.render_item(placing, mirrored_scene_pos, mirrored_tm_pos, True, 0)
+                    mirror_color_x = self.communicator.settings.get("mirrored colors x", False)
+                    placing_copy = placing.copy()
+
+                    if placing.sprite.properties.can_swap_teams and mirror_color_x:
+                        halfway = tm_pos.x / 2 <= self.size.x
+                        placing_copy.swap_team(0 if not halfway else 1)
+
+                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, not was_eraser, placing.sprite.rotation)
 
     def _redo(self) -> None:
         """
@@ -180,11 +188,12 @@ class Canvas(QGraphicsView):
         """
         if self._canvas_history_index < len(self._canvas_history):
             placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
+            was_eraser = placing.is_eraser()
 
-            # place the item again
-            self.renderer.render_item(placing, pos, tm_pos, False, placing.sprite.rotation)
+            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
+                self.renderer.render_item(placing, pos, tm_pos, was_eraser, placing.sprite.rotation)
 
-            # if mirrored, also place the mirrored item
+            # if mirrored, also handle the mirrored item
             if mirrored:
                 mirrored_x = self.size.x - 1 - tm_pos.x
                 mirrored_scene_x = mirrored_x * self.grid_spacing
@@ -199,7 +208,7 @@ class Canvas(QGraphicsView):
                     placing_copy.swap_team(0 if not halfway else 1)
 
                 if 0 <= mirrored_x < self.size.x:
-                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, False, placing.sprite.rotation)
+                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, was_eraser, placing.sprite.rotation)
 
             self._canvas_history_index += 1
 
