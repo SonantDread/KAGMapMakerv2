@@ -95,3 +95,6 @@ class Vec2f:
 
     def __str__(self):
         return f"({self.x}, {self.y})"
+
+    def __repr__(self):
+        return f"Vec2f({self.x}, {self.y})"

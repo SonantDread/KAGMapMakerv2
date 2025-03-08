@@ -151,32 +151,25 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        print("undo")
-        if self._canvas_history_index > 0:
-            self._canvas_history_index -= 1
-            placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
+        if self._canvas_history_index == 0:
+            return
 
-            was_eraser = placing.is_eraser()
+        self._canvas_history_index -= 1
+        placing, pos, previous_item = self._canvas_history[self._canvas_history_index]
 
-            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
-                self.renderer.render_item(placing, pos, tm_pos, not was_eraser, placing.sprite.rotation)
+        grid_pos = self.snap_to_grid(pos)
 
-            # if mirrored, also handle the mirrored item
-            if mirrored:
-                mirrored_x = self.size.x - 1 - tm_pos.x
-                mirrored_scene_x = mirrored_x * self.grid_spacing
-                mirrored_scene_pos = Vec2f(mirrored_scene_x, pos.y)
-                mirrored_tm_pos = Vec2f(mirrored_x, tm_pos.y)
+        eraser: bool = placing.is_eraser()
+        if eraser:
+            if previous_item is not None:
+                placing = previous_item
 
-                if 0 <= mirrored_x < self.size.x:
-                    mirror_color_x = self.communicator.settings.get("mirrored colors x", False)
-                    placing_copy = placing.copy()
+            else:
+                placing = self.item_list.get_item_by_name('sky').copy()
+        else:
+            placing = self.item_list.get_item_by_name('sky').copy()
 
-                    if placing.sprite.properties.can_swap_teams and mirror_color_x:
-                        halfway = tm_pos.x / 2 <= self.size.x
-                        placing_copy.swap_team(0 if not halfway else 1)
-
-                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, not was_eraser, placing.sprite.rotation)
+        self.place_item(grid_pos, 1, placing)
 
     def _redo(self) -> None:
         """
@@ -186,31 +179,15 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        if self._canvas_history_index < len(self._canvas_history):
-            placing, pos, tm_pos, mirrored = self._canvas_history[self._canvas_history_index]
-            was_eraser = placing.is_eraser()
+        if self._canvas_history_index >= len(self._canvas_history):
+            return
 
-            if tm_pos.x < self.size.x and tm_pos.y < self.size.y:
-                self.renderer.render_item(placing, pos, tm_pos, was_eraser, placing.sprite.rotation)
+        placing, pos, _ = self._canvas_history[self._canvas_history_index]
 
-            # if mirrored, also handle the mirrored item
-            if mirrored:
-                mirrored_x = self.size.x - 1 - tm_pos.x
-                mirrored_scene_x = mirrored_x * self.grid_spacing
-                mirrored_scene_pos = Vec2f(mirrored_scene_x, pos.y)
-                mirrored_tm_pos = Vec2f(mirrored_x, tm_pos.y)
+        grid_pos = self.snap_to_grid(pos)
+        self.place_item(grid_pos, 1, placing.copy())
 
-                mirror_color_x = self.communicator.settings.get("mirrored colors x", False)
-                placing_copy = placing.copy()
-
-                if placing.sprite.properties.can_swap_teams and mirror_color_x:
-                    halfway = tm_pos.x / 2 <= self.size.x
-                    placing_copy.swap_team(0 if not halfway else 1)
-
-                if 0 <= mirrored_x < self.size.x:
-                    self.renderer.render_item(placing_copy, mirrored_scene_pos, mirrored_tm_pos, was_eraser, placing.sprite.rotation)
-
-            self._canvas_history_index += 1
+        self._canvas_history_index += 1
 
     def _wipe_history(self) -> None:
         """
@@ -359,17 +336,10 @@ class Canvas(QGraphicsView):
     def add_item(self, event, click_index: int) -> None:
         """
         Requests to add an item at position (place item between frames)
-
-        Args:
-            event: The event that triggered the item placement.
-            click_index: The index of the click that triggered the item placement.
-
-        Returns:
-            None
         """
         recent_pos = self.communicator.mouse_pos
-
         pos = self.get_grid_pos(event)
+
         # place items between frames
         if (len(pos) == 0 or len(recent_pos) == 0):
             return
@@ -382,22 +352,29 @@ class Canvas(QGraphicsView):
             if pos == recent_pos and old_item.name_data.name == placing_item.name_data.name:
                 return
 
+        # calculate points between current and previous position
         delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
 
+        processed_positions = set()
         if steps in (0, 1):
-            self.place_item(pos, click_index)
-
+            if Vec2f(pos) not in processed_positions:
+                self.place_item(pos, click_index)
+                processed_positions.add(Vec2f(pos))
         else:
             for i in range(steps + 1):
                 x = recent_pos[0] + i * delta[0] / steps
                 y = recent_pos[1] + i * delta[1] / steps
+                grid_pos = (int(x), int(y))
 
-                self.place_item((int(x), int(y)), click_index)
+                # only process each position once during a drag
+                if grid_pos not in processed_positions:
+                    self.place_item(grid_pos, click_index)
+                    processed_positions.add(grid_pos)
 
         self.update_mouse_pos(event)
 
-    def place_item(self, grid_pos, click_index: int) -> None:
+    def place_item(self, grid_pos, click_index: int, item: CItem = None) -> None:
         """
         Places an item on the canvas based on the given event and click index.
 
@@ -409,8 +386,13 @@ class Canvas(QGraphicsView):
             None
         """
 
-        # calculate the distance of mouse swipe and fill items inbetween
-        placing_item: CItem = self.communicator.get_selected_tile(click_index).copy()
+        # undo / redo support
+        if item is None:
+            placing_item: CItem = self.communicator.get_selected_tile(click_index).copy()
+
+        else:
+            placing_item = item.copy()
+
         eraser: bool = placing_item.is_eraser()
 
         # do nothing if out of bounds
@@ -441,13 +423,18 @@ class Canvas(QGraphicsView):
         mirror = self.communicator.settings.get("mirrored over x", False)
 
         # undo / redo history
-        if self._canvas_history_index >= 1000:
-            self._canvas_history.pop(0)
-            self._canvas_history_index -= 1
+        previous_item = self.tilemap.get(snapped_pos)
+        if previous_item is not None:
+            previous_item = previous_item.copy()
 
-        self._canvas_history.append((placing_item.copy(), scene_pos, snapped_pos, mirror))
-        self._canvas_history_index += 1
-        self._wipe_history()
+        if item is None:
+            if self._canvas_history_index >= 1000:
+                self._canvas_history.pop(0)
+                self._canvas_history_index -= 1
+
+            self._canvas_history.append((placing_item.copy(), scene_pos, previous_item))
+            self._canvas_history_index += 1
+            self._wipe_history()
 
         self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
 

@@ -148,8 +148,8 @@ class Toolbar(QToolBar):
         try:
             if os.name == "nt":
                 kag_executable = os.path.join(kag_base_path, "KAG.exe")
-            # linux / mac (posix)
 
+            # linux / mac (posix)
             else:
                 kag_executable = os.path.join(kag_base_path, "KAG")
 
