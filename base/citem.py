@@ -57,8 +57,6 @@ class ModInfo:
 class PixelData:
     colors: dict[str, list[int, int, int, int]]
     offset: Vec2f
-    angle_from_channel: bool
-    team_from_channel: bool
 
 @dataclass
 class CItem:
@@ -123,9 +121,7 @@ class CItem:
         offset = pixel_data.get("offset", {"x": 0, "y": 0})
         pixel_colors = PixelData(
             colors=pixel_data.get("colors", {}),
-            offset=Vec2f(offset.get("x", 0), offset.get("y", 0)),
-            angle_from_channel=pixel_data.get("angle_from_channel", False),
-            team_from_channel=pixel_data.get("team_from_channel", False)
+            offset=Vec2f(offset.get("x", 0), offset.get("y", 0))
         )
 
         name_data = Name(
@@ -142,11 +138,6 @@ class CItem:
             pixel_data=pixel_colors,
             search_keywords=data.get("search_keywords", [])
         )
-
-    # todo: important notes from kag_color.py:
-    # water_backdirt needs implementation
-    # necromancer_teleport needs implementation
-    # do we need spike variations?
 
     def get_color(self, rotation: int = 0, team: int = 0, rotational_symmetry: bool = False) -> tuple[int, int, int, int]:
         """
@@ -169,7 +160,7 @@ class CItem:
 
         if rotational_symmetry:
             rotation = rotation % 180
-        # todo: use angle and team from channel
+
         match = colors.get(f'rotation{rotation}_team{team}')
         if match is not None:
             return tuple(match)
