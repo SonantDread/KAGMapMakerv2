@@ -159,17 +159,13 @@ class Canvas(QGraphicsView):
 
         grid_pos = self.snap_to_grid(pos)
 
-        eraser: bool = placing.is_eraser()
-        if eraser:
-            if previous_item is not None:
-                placing = previous_item
+        if previous_item is not None:
+            placing = previous_item
 
-            else:
-                placing = self.item_list.get_item_by_name('sky').copy()
         else:
             placing = self.item_list.get_item_by_name('sky').copy()
 
-        self.place_item(grid_pos, 1, placing)
+        self.place_item(grid_pos, 1, placing, False)
 
     def _redo(self) -> None:
         """
@@ -185,11 +181,11 @@ class Canvas(QGraphicsView):
         placing, pos, _ = self._canvas_history[self._canvas_history_index]
 
         grid_pos = self.snap_to_grid(pos)
-        self.place_item(grid_pos, 1, placing.copy())
+        self.place_item(grid_pos, 1, placing.copy(), False)
 
         self._canvas_history_index += 1
 
-    def _wipe_history(self) -> None:
+    def wipe_history(self) -> None:
         """
         Wipes future history entries when a new action is performed after undoing.
 
@@ -374,7 +370,7 @@ class Canvas(QGraphicsView):
 
         self.update_mouse_pos(event)
 
-    def place_item(self, grid_pos, click_index: int, item: CItem = None) -> None:
+    def place_item(self, grid_pos, click_index: int, item: CItem = None, add_to_history: bool = True) -> None:
         """
         Places an item on the canvas based on the given event and click index.
 
@@ -423,18 +419,21 @@ class Canvas(QGraphicsView):
         mirror = self.communicator.settings.get("mirrored over x", False)
 
         # undo / redo history
-        previous_item = self.tilemap.get(snapped_pos)
-        if previous_item is not None:
-            previous_item = previous_item.copy()
+        if add_to_history:
+            previous_item = self.tilemap.get(snapped_pos)
+            if previous_item is not None:
+                previous_item = previous_item.copy()
 
-        if item is None:
-            if self._canvas_history_index >= 1000:
-                self._canvas_history.pop(0)
-                self._canvas_history_index -= 1
+            if item is None:
+                if self._canvas_history_index >= 1000:
+                    self._canvas_history.pop(0)
+                    self._canvas_history_index -= 1
 
-            self._canvas_history.append((placing_item.copy(), scene_pos, previous_item))
-            self._canvas_history_index += 1
-            self._wipe_history()
+                if self._canvas_history_index < len(self._canvas_history):
+                    self.wipe_history()
+
+                self._canvas_history.append((placing_item.copy(), scene_pos, previous_item))
+                self._canvas_history_index += 1
 
         self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
 
@@ -679,6 +678,7 @@ class Canvas(QGraphicsView):
         self.force_rerender()
         self.add_panning_space()
         print(f"New map created with dimensions: {size.x}x{size.y}")
+        self.wipe_history()
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """
