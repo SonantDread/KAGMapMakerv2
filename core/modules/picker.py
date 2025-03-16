@@ -113,7 +113,6 @@ class Picker(QWidget):
 
         grid.setSpacing(5)
         grid.setContentsMargins(0, 0, 0, 0)
-
         grid.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         for item in items:
@@ -129,6 +128,13 @@ class Picker(QWidget):
             if x >= 5: # max buttons
                 x = 0
                 y += 1
+
+        # height needed for all items
+        rows_needed = (y + (1 if x > 0 else 0))
+        # add extra space at the bottom (half a button height)
+        # columns * (button height + spacing) + half button height
+        min_height = (rows_needed * (BUTTON_HEIGHT + 5)) + (BUTTON_HEIGHT // 2)
+        content_widget.setMinimumHeight(min_height)
 
         content_widget.setLayout(grid)
 
