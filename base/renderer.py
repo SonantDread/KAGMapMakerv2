@@ -120,7 +120,7 @@ class Renderer:
         """
         canvas = self.communicator.get_canvas()
         x, y = canvas.snap_to_grid(pos)
-        tm_pos = Vec2f(x, y) 
+        tm_pos = Vec2f(x, y)
 
         # remove existing item if present
         if canvas.tilemap.get(pos) is not None:
@@ -132,7 +132,7 @@ class Renderer:
 
         # create new item
         pixmap_item = QGraphicsPixmapItem(img)
-        scale = canvas.zoom_factor * canvas.default_zoom_scale
+        scale = canvas.default_zoom_scale
         pixmap_item.setScale(scale)
 
         adjusted_x, adjusted_y = pos
@@ -189,7 +189,7 @@ class Renderer:
         # create main cursor
         main_cursor = QGraphicsPixmapItem(cursor_image)
         main_cursor.setZValue(1000000)
-        base_scale = canvas.zoom_factor * canvas.default_zoom_scale
+        base_scale = canvas.default_zoom_scale
         main_cursor.setScale(base_scale * (8 / 10))
 
         # create mirrored cursor

@@ -37,11 +37,10 @@ class Canvas(QGraphicsView):
         self.zoom_change_factor = 1.1
 
         self.default_zoom_scale = 3 # scales zoom level up from small to comfortable
-        self.zoom_factor = 1        # current zoom
 
         self.setMouseTracking(True) # allow for constant update of cursor position (mouseMoveEvent)
-        self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        self.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
         self.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) # no scroll bars
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -49,7 +48,7 @@ class Canvas(QGraphicsView):
         self.setMinimumSize(200, 200)
         self.setMaximumSize(1000, 1000)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.grid_spacing = math.floor(self.zoom_factor * self.default_zoom_scale * 8)
+        self.grid_spacing = math.floor(self.default_zoom_scale * 8)
 
         self._build_background_rect()
 
@@ -660,7 +659,7 @@ class Canvas(QGraphicsView):
 
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
-        self.scale(factor, factor) # todo: fix this being weird and making lines
+        self.scale(factor, factor)
         # todo: when using a trackpad, its extremely hard to zoom in and out properly because it uses it too fast
 
         new_scene_pos = self.mapToScene(view_pos.toPoint())
