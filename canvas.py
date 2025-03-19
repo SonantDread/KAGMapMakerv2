@@ -68,7 +68,7 @@ class Canvas(QGraphicsView):
         self.graphics_items = {}
 
         self._build_tile_grid()
-        self.set_grid_visible(False) # todo: should be a setting but disabled by default
+        self.communicator.settings["tile grid visible"] = False
 
         self.item_list = CItemList()
         self.rotation = 0
@@ -207,7 +207,9 @@ class Canvas(QGraphicsView):
         """
         is_visible: bool = self.grid_group.isVisible()
         if self.grid_group:
-            self.grid_group.setVisible(show if show is not None else not is_visible)
+            show = show if show is not None else not is_visible
+            self.grid_group.setVisible(show)
+            self.communicator.settings['tile grid visible'] = show
 
     def force_rerender(self) -> None:
         """
@@ -271,19 +273,25 @@ class Canvas(QGraphicsView):
         """
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
+        # prevent grid lines being different sizes
+        pen.setCosmetic(True)
+
+        width = self.size.x * self.grid_spacing
+        height = self.size.y * self.grid_spacing
 
         self.grid_group = QGraphicsItemGroup()
-
-        for x in range(0, self.size.x * self.grid_spacing + 1, self.grid_spacing):
-            line = self.canvas.addLine(x, 0, x, self.size.x * self.grid_spacing, pen)
+        # vertical lines
+        for x in range(0, width + 1, self.grid_spacing):
+            line = self.canvas.addLine(x, 0, x, height, pen)
             self.grid_group.addToGroup(line)
 
-        # Create horizontal grid lines
-        for y in range(0, self.size.y * self.grid_spacing + 1, self.grid_spacing):
-            line = self.canvas.addLine(0, y, self.size.y * self.grid_spacing, y, pen)
+        # create horizontal grid lines
+        for y in range(0, height + 1, self.grid_spacing):
+            line = self.canvas.addLine(0, y, width, y, pen)
             self.grid_group.addToGroup(line)
 
         self.canvas.addItem(self.grid_group)
+        self.set_grid_visible(self.communicator.settings.get("tile grid visible", False))
 
     def _save_map_at_exit(self, timestamp: datetime) -> None:
         """
@@ -677,6 +685,7 @@ class Canvas(QGraphicsView):
         self.add_panning_space()
         print(f"New map created with dimensions: {size.x}x{size.y}")
         self.wipe_history()
+        self._build_tile_grid()
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """

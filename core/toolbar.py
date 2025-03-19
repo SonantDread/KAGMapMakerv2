@@ -49,6 +49,7 @@ class Toolbar(QToolBar):
         # settings menu
         settings_menu = QMenu("Settings", self)
         self.mirror_x = self._add_checkbox(settings_menu, "Mirror Over X-Axis", lambda x: self.toggle_mirrored_x(x))
+        self.tilegrid_visible = self._add_checkbox(settings_menu, "Show Grid", lambda x: self.toggle_grid(x))
 
         # view menu
         view_menu = QMenu("View", self)
@@ -114,7 +115,9 @@ class Toolbar(QToolBar):
             checked (bool): The new state of the checkbox
         """
         self.communicator.settings['mirrored over x'] = checked
-        print(f'mirrored over x {checked}')
+
+    def toggle_grid(self, checked: bool) -> None:
+        self.communicator.get_canvas().set_grid_visible(checked)
 
     def test_in_kag_triggered(self):
         fh = FileHandler()
