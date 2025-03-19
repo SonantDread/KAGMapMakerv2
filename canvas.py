@@ -651,15 +651,15 @@ class Canvas(QGraphicsView):
         Returns:
             None
         """
-        if event.angleDelta().y() > 0:
-            factor = self.zoom_change_factor
-        else:
-            factor = 1 / self.zoom_change_factor
+        delta_y = event.angleDelta().y()
+
+        factor = pow(self.zoom_change_factor, abs(delta_y) / 120)
+        if delta_y < 0:
+            factor = 1 / factor
 
         view_pos = event.position()
         scene_pos = self.mapToScene(view_pos.toPoint())
         self.scale(factor, factor)
-        # todo: when using a trackpad, its extremely hard to zoom in and out properly because it uses it too fast
 
         new_scene_pos = self.mapToScene(view_pos.toPoint())
         delta = new_scene_pos - scene_pos
