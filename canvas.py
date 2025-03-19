@@ -409,9 +409,8 @@ class Canvas(QGraphicsView):
         if placing_item.sprite.properties.is_rotatable:
             placing_item.sprite.rotation = self.rotation
 
-        mirror_color_x = self.communicator.settings.get("mirrored colors x", False)
         placing_item_copy = placing_item.copy()
-        if placing_item.sprite.properties.can_swap_teams and mirror_color_x:
+        if placing_item.sprite.properties.can_swap_teams:
             halfway = tilemap_x / 2 <= self.size.x
             placing_item.swap_team(1 if not halfway else 0)
 
@@ -446,7 +445,7 @@ class Canvas(QGraphicsView):
                 mirrored_scene_pos = Vec2f(mirrored_scene_x, scene_y)
                 mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
 
-                if placing_item.sprite.properties.can_swap_teams and mirror_color_x:
+                if placing_item.sprite.properties.can_swap_teams:
                     placing_item_copy.swap_team(0 if not halfway else 1)
 
                 self.renderer.render_item(placing_item_copy, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
