@@ -4,4 +4,5 @@ Maps
 settings/config.json
 .venv
 .git
-.scripts
+.scripts/*
+!.scripts/pyinstaller.py
