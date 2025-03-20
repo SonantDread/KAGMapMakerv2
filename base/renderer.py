@@ -143,6 +143,10 @@ class Renderer:
             adjusted_y += (w - h) / 2
 
         pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
+
+        pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
+        pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
+
         pixmap_item.setZValue(z)
 
         canvas.canvas.addItem(pixmap_item)

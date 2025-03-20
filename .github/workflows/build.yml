@@ -1,0 +1,154 @@
+name: Build Executables
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    outputs:
+      windows_scan_url: ${{ steps.virustotal-windows.outputs.scan_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10.6'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build executable (Windows)
+        run: python .scripts/pyinstaller.py
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-executable
+          path: .scripts/KAGMapMaker.exe
+
+      - name: Get upload URL for Windows executable
+        id: upload_url_windows
+        run: |
+          response=$(curl --request GET \
+                           --url https://www.virustotal.com/api/v3/files/upload_url \
+                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
+          upload_url=$(echo $response | jq -r '.data')
+          echo "::set-output name=upload_url::$upload_url"
+        shell: bash
+
+      - name: Upload Windows executable to VirusTotal
+        id: virustotal-windows
+        run: |
+          response=$(curl --request POST \
+                           --url ${{ steps.upload_url_windows.outputs.upload_url }} \
+                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" \
+                           --form file=@.scripts/KAGMapMaker.exe)
+          scan_url=$(echo $response | jq -r '.data.id')
+          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_url"
+          echo "::set-output name=scan_url::$full_scan_url"
+        shell: bash
+
+  build-linux:
+    runs-on: ubuntu-latest
+    outputs:
+      linux_scan_url: ${{ steps.virustotal-linux.outputs.scan_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10.6'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build executable (Linux)
+        run: python .scripts/pyinstaller.py
+
+      - name: Upload Linux executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-executable
+          path: .scripts/KAGMapMaker
+
+      - name: Get upload URL for Linux executable
+        id: upload_url_linux
+        run: |
+          response=$(curl --request GET \
+                           --url https://www.virustotal.com/api/v3/files/upload_url \
+                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
+          upload_url=$(echo $response | jq -r '.data')
+          echo "::set-output name=upload_url::$upload_url"
+        shell: bash
+
+      - name: Upload Linux executable to VirusTotal
+        id: virustotal-linux
+        run: |
+          response=$(curl --request POST \
+                           --url ${{ steps.upload_url_linux.outputs.upload_url }} \
+                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" \
+                           --form file=@.scripts/KAGMapMaker)
+          scan_url=$(echo $response | jq -r '.data.id')
+          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_url"
+          echo "::set-output name=scan_url::$full_scan_url"
+        shell: bash
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux]
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows executable
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-executable
+          path: dist/windows
+
+      - name: Download Linux executable
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-executable
+          path: dist/linux
+
+      - name: Display downloaded files
+        run: ls -R dist/
+
+      - name: Get latest commit message
+        id: commit
+        run: echo "MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/windows/*
+            dist/linux/*
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            ${{ env.MESSAGE }}
+
+            ## VirusTotal Scans
+            Windows: ${{ needs.build-windows.outputs.windows_scan_url }}
+            Linux: ${{ needs.build-linux.outputs.linux_scan_url }}
+          draft: false
+          prerelease: false
