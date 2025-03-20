@@ -1,0 +1,329 @@
+[
+    {
+        "type": "tile",
+        "name": "tile_ground",
+        "display_name": "Dirt",
+        "section_name": "tile",
+        "sprite": {
+            "image": 16,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    132,
+                    71,
+                    21
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_grass",
+        "display_name": "Grass",
+        "section_name": "tile",
+        "sprite": {
+            "image": 25,
+            "z_index": 500
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    155,
+                    13
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_ground_back",
+        "display_name": "Dirt Backwall",
+        "section_name": "tile",
+        "sprite": {
+            "image": 32,
+            "z_index": -599,
+            "properties": {
+                "merges_with": {
+                    "water_air": "water_backdirt"
+                }
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    59,
+                    20,
+                    6
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_castle",
+        "display_name": "Stone Block",
+        "section_name": "tile",
+        "sprite": {
+            "image": 48,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    113,
+                    96
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_castle_back",
+        "display_name": "Stone Backwall",
+        "section_name": "tile",
+        "sprite": {
+            "image": 64,
+            "z_index": -599
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    49,
+                    52,
+                    18
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_gold",
+        "display_name": "Gold",
+        "section_name": "ore",
+        "sprite": {
+            "image": 80,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    254,
+                    165,
+                    61
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_stone",
+        "display_name": "Stone",
+        "section_name": "ore",
+        "sprite": {
+            "image": 96,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    139,
+                    104,
+                    73
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_bedrock",
+        "display_name": "Bedrock",
+        "section_name": "tile",
+        "sprite": {
+            "image": 106,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    45,
+                    52,
+                    45
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_wood_back",
+        "display_name": "Wood Backwall",
+        "section_name": "tile",
+        "sprite": {
+            "image": 173,
+            "z_index": -599
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    85,
+                    42,
+                    17
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_wood",
+        "display_name": "Wood Block",
+        "section_name": "tile",
+        "sprite": {
+            "image": 196,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    196,
+                    135,
+                    21
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_thickstone",
+        "display_name": "Thick Stone",
+        "section_name": "ore",
+        "sprite": {
+            "image": 208,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    66,
+                    72,
+                    75
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_castle_moss",
+        "display_name": "Mossy Stone Block",
+        "section_name": "tile",
+        "sprite": {
+            "image": 224,
+            "z_index": 499
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    143,
+                    96
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "tile_castle_back_moss",
+        "display_name": "Mossy Stone Backwall",
+        "section_name": "tile",
+        "sprite": {
+            "image": 227,
+            "z_index": -599
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    49,
+                    82,
+                    18
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "tile",
+        "name": "sky",
+        "display_name": "Eraser",
+        "section_name": "tile",
+        "sprite": {
+            "image": 400,
+            "z_index": -5000
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    165,
+                    189,
+                    200
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    }
+]

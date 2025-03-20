@@ -1,0 +1,3592 @@
+[
+    {
+        "type": "blob",
+        "name": "stone_door",
+        "display_name": "Stone Door",
+        "section_name": "blob",
+        "sprite": {
+            "image": "stone_door.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 12,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation90_team0": [
+                    255,
+                    80,
+                    90,
+                    160
+                ],
+                "rotation0_team0": [
+                    255,
+                    80,
+                    90,
+                    159
+                ],
+                "rotation90_team1": [
+                    255,
+                    160,
+                    90,
+                    80
+                ],
+                "rotation0_team1": [
+                    255,
+                    160,
+                    90,
+                    79
+                ],
+                "rotation90_team-1": [
+                    255,
+                    160,
+                    160,
+                    160
+                ],
+                "rotation0_team-1": [
+                    255,
+                    160,
+                    160,
+                    159
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "trap_block",
+        "display_name": "Trap Block",
+        "section_name": "blob",
+        "sprite": {
+            "image": "trap_block.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    56,
+                    76,
+                    142
+                ],
+                "rotation0_team1": [
+                    255,
+                    142,
+                    56,
+                    68
+                ],
+                "rotation0_team-1": [
+                    255,
+                    100,
+                    100,
+                    100
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bridge",
+        "display_name": "Team Platform",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bridge.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    56,
+                    76,
+                    222
+                ],
+                "rotation0_team1": [
+                    255,
+                    222,
+                    56,
+                    68
+                ],
+                "rotation0_team-1": [
+                    255,
+                    222,
+                    222,
+                    222
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "wooden_door",
+        "display_name": "Wooden Door",
+        "section_name": "blob",
+        "sprite": {
+            "image": "wooden_door.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 12,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation90_team0": [
+                    255,
+                    26,
+                    78,
+                    131
+                ],
+                "rotation0_team0": [
+                    255,
+                    26,
+                    78,
+                    130
+                ],
+                "rotation90_team1": [
+                    255,
+                    148,
+                    27,
+                    27
+                ],
+                "rotation0_team1": [
+                    255,
+                    148,
+                    27,
+                    26
+                ],
+                "rotation90_team-1": [
+                    255,
+                    148,
+                    148,
+                    148
+                ],
+                "rotation0_team-1": [
+                    255,
+                    148,
+                    148,
+                    147
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "platform",
+        "display_name": "Wooden Platform",
+        "section_name": "blob",
+        "sprite": {
+            "image": "platform.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    146,
+                    57
+                ],
+                "rotation90_team0": [
+                    255,
+                    255,
+                    146,
+                    56
+                ],
+                "rotation180_team0": [
+                    255,
+                    255,
+                    146,
+                    55
+                ],
+                "rotation270_team0": [
+                    255,
+                    255,
+                    146,
+                    54
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "pressure_plate",
+        "display_name": "Pressure Plate",
+        "section_name": "blob",
+        "sprite": {
+            "image": "pressure_plate.png",
+            "z": 100,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    16,
+                    255,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "lever",
+        "display_name": "Lever",
+        "section_name": "blob",
+        "sprite": {
+            "image": "lever.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    127,
+                    255,
+                    255
+                ],
+                "rotation0_team1": [
+                    255,
+                    126,
+                    255,
+                    255
+                ],
+                "rotation0_team2": [
+                    255,
+                    125,
+                    255,
+                    255
+                ],
+                "rotation0_team3": [
+                    255,
+                    124,
+                    255,
+                    255
+                ],
+                "rotation0_team4": [
+                    255,
+                    123,
+                    255,
+                    255
+                ],
+                "rotation0_team5": [
+                    255,
+                    122,
+                    255,
+                    255
+                ],
+                "rotation0_team6": [
+                    255,
+                    121,
+                    255,
+                    255
+                ],
+                "rotation0_team7": [
+                    255,
+                    120,
+                    255,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "push_button",
+        "display_name": "Button",
+        "section_name": "blob",
+        "sprite": {
+            "image": "push_button.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    32,
+                    255,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "coin_slot",
+        "display_name": "Coin Slot",
+        "section_name": "blob",
+        "sprite": {
+            "image": "coin_slot.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    48,
+                    255,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "sensor",
+        "display_name": "Sensor",
+        "section_name": "blob",
+        "sprite": {
+            "image": "sensor.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    64,
+                    255,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "diode",
+        "display_name": "Diode",
+        "section_name": "blob",
+        "sprite": {
+            "image": "diode.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    0,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "inverter",
+        "display_name": "Inverter",
+        "section_name": "blob",
+        "sprite": {
+            "image": "inverter.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    16,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "junction",
+        "display_name": "Junction",
+        "section_name": "blob",
+        "sprite": {
+            "image": "junction.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    32,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine",
+        "display_name": "Magazine",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    48,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "oscillator",
+        "display_name": "Oscillator",
+        "section_name": "blob",
+        "sprite": {
+            "image": "oscillator.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    64,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "randomizer",
+        "display_name": "Randomizer",
+        "section_name": "blob",
+        "sprite": {
+            "image": "randomizer.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    80,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "resistor",
+        "display_name": "Resistor",
+        "section_name": "blob",
+        "sprite": {
+            "image": "resistor.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    96,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "toggle",
+        "display_name": "Toggle",
+        "section_name": "blob",
+        "sprite": {
+            "image": "toggle.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    112,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "transistor",
+        "display_name": "Transistor",
+        "section_name": "blob",
+        "sprite": {
+            "image": "transistor.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    128,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "wire",
+        "display_name": "Wire",
+        "section_name": "blob",
+        "sprite": {
+            "image": "wire.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    144,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "emitter",
+        "display_name": "Emitter",
+        "section_name": "blob",
+        "sprite": {
+            "image": "emitter.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    160,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "receiver",
+        "display_name": "Receiver",
+        "section_name": "blob",
+        "sprite": {
+            "image": "receiver.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    176,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "elbow",
+        "display_name": "Elbow",
+        "section_name": "blob",
+        "sprite": {
+            "image": "elbow.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    192,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "tee",
+        "display_name": "Tee",
+        "section_name": "blob",
+        "sprite": {
+            "image": "elbow.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    208,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bolter",
+        "display_name": "Bolter",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bolter.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "dispenser",
+        "display_name": "Dispenser",
+        "section_name": "blob",
+        "sprite": {
+            "image": "dispenser.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    16
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "lamp",
+        "display_name": "Lamp",
+        "section_name": "blob",
+        "sprite": {
+            "image": "lamp.png",
+            "z": -55,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    32
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "obstructor",
+        "display_name": "Obstructor",
+        "section_name": "blob",
+        "sprite": {
+            "image": "obstructor.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    48
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "spiker",
+        "display_name": "Spiker",
+        "section_name": "blob",
+        "sprite": {
+            "image": "spiker.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    64
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "ladder",
+        "display_name": "Ladder",
+        "section_name": "blob",
+        "sprite": {
+            "image": "ladder.png",
+            "z": -40,
+            "properties": {
+                "is_rotatable": true,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 3,
+                "y": 24
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    43,
+                    21,
+                    9
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "spikes",
+        "display_name": "Spikes",
+        "section_name": "blob",
+        "sprite": {
+            "image": "spikes.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    180,
+                    42,
+                    17
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "knight_shop",
+        "display_name": "Knight Shop",
+        "section_name": "blob",
+        "sprite": {
+            "image": "knight_shop.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    190,
+                    190
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "builder_shop",
+        "display_name": "Builder Shop",
+        "section_name": "blob",
+        "sprite": {
+            "image": "builder_shop.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    190,
+                    255,
+                    190
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "archer_shop",
+        "display_name": "Archer Shop",
+        "section_name": "blob",
+        "sprite": {
+            "image": "archer_shop.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    255,
+                    190
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "boat_shop",
+        "display_name": "Boat Shop",
+        "section_name": "blob",
+        "sprite": {
+            "image": "boat_shop.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    190,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "vehicle_shop",
+        "display_name": "Vehicle Shop",
+        "section_name": "blob",
+        "sprite": {
+            "image": "vehicle_shop.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    230,
+                    230,
+                    230
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "quarters",
+        "display_name": "Quarters",
+        "section_name": "blob",
+        "sprite": {
+            "image": "quarters.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    240,
+                    190,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "storage",
+        "display_name": "Storage",
+        "section_name": "blob",
+        "sprite": {
+            "image": "storage.png",
+            "z": -60,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    217,
+                    255,
+                    239
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "barracks",
+        "display_name": "Barracks",
+        "section_name": "blob",
+        "sprite": {
+            "image": "barracks.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    217,
+                    218,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "factory",
+        "display_name": "Factory",
+        "section_name": "blob",
+        "sprite": {
+            "image": "factory.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    217,
+                    237
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "tunnel",
+        "display_name": "Tunnel",
+        "section_name": "blob",
+        "sprite": {
+            "image": "tunnel.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    220,
+                    217,
+                    254
+                ],
+                "rotation0_team1": [
+                    255,
+                    243,
+                    217,
+                    220
+                ],
+                "rotation0_team-1": [
+                    255,
+                    243,
+                    217,
+                    254
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "kitchen",
+        "display_name": "Kitchen",
+        "section_name": "blob",
+        "sprite": {
+            "image": "kitchen.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    217,
+                    217
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "nursery",
+        "display_name": "Nursery",
+        "section_name": "blob",
+        "sprite": {
+            "image": "nursery.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 72
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    217,
+                    255,
+                    223
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "tent",
+        "display_name": "Tent",
+        "section_name": "blob",
+        "sprite": {
+            "image": "tent.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 48,
+                "y": 84
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    0,
+                    255,
+                    255
+                ],
+                "rotation0_team1": [
+                    255,
+                    255,
+                    0,
+                    0
+                ],
+                "rotation0_team2": [
+                    255,
+                    157,
+                    202,
+                    34
+                ],
+                "rotation0_team3": [
+                    255,
+                    211,
+                    121,
+                    224
+                ],
+                "rotation0_team4": [
+                    255,
+                    205,
+                    97,
+                    32
+                ],
+                "rotation0_team5": [
+                    255,
+                    46,
+                    229,
+                    162
+                ],
+                "rotation0_team6": [
+                    255,
+                    95,
+                    132,
+                    236
+                ],
+                "rotation0_team7": [
+                    255,
+                    196,
+                    207,
+                    161
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "ctf_flag",
+        "display_name": "CTF Flag",
+        "section_name": "blob",
+        "sprite": {
+            "image": "ctf_flag.png",
+            "z": 20,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 74,
+                "y": 69
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    0,
+                    200,
+                    200
+                ],
+                "rotation0_team1": [
+                    255,
+                    200,
+                    0,
+                    0
+                ],
+                "rotation0_team3": [
+                    255,
+                    158,
+                    58,
+                    204
+                ],
+                "rotation0_team5": [
+                    255,
+                    79,
+                    155,
+                    127
+                ],
+                "rotation0_team6": [
+                    255,
+                    65,
+                    73,
+                    240
+                ],
+                "rotation0_team7": [
+                    255,
+                    151,
+                    167,
+                    146
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": -1
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "workbench",
+        "display_name": "Workbench",
+        "section_name": "blob",
+        "sprite": {
+            "image": "workbench.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 24,
+                "y": 12
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    0,
+                    255,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "fireplace",
+        "display_name": "Campfire",
+        "section_name": "blob",
+        "sprite": {
+            "image": "fireplace.png",
+            "z": -20,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 8
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    251,
+                    226,
+                    139
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "saw",
+        "display_name": "Saw",
+        "section_name": "blob",
+        "sprite": {
+            "image": "saw.png",
+            "z": -10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 24,
+                "y": 24
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    202,
+                    164,
+                    130
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "tree",
+        "display_name": "Tree",
+        "section_name": "blob",
+        "sprite": {
+            "image": "tree.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 34,
+                "y": 196
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    13,
+                    103,
+                    34
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bush",
+        "display_name": "Bush",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bush.png",
+            "z": 10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 16
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    91,
+                    126,
+                    24
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "grain",
+        "display_name": "Grain",
+        "section_name": "blob",
+        "sprite": {
+            "image": "grain.png",
+            "z": 10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 14,
+                "y": 48
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    162,
+                    183,
+                    22
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "flowers",
+        "display_name": "Flowers",
+        "section_name": "blob",
+        "sprite": {
+            "image": "flowers.png",
+            "z": 10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 4,
+                "y": 6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    102,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "log",
+        "display_name": "Log",
+        "section_name": "blob",
+        "sprite": {
+            "image": "log.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 2,
+                "y": 21
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    160,
+                    140,
+                    40
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "shark",
+        "display_name": "Shark",
+        "section_name": "blob",
+        "sprite": {
+            "image": "shark.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 50,
+                "y": 18
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    44,
+                    175,
+                    222
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "fishy",
+        "display_name": "Fish",
+        "section_name": "blob",
+        "sprite": {
+            "image": "fishy.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 2
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    121,
+                    168,
+                    163
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bison",
+        "display_name": "Bison",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bison.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 32,
+                "y": 42
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    183,
+                    86,
+                    70
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "chicken",
+        "display_name": "Chicken",
+        "section_name": "blob",
+        "sprite": {
+            "image": "chicken.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 12
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    141,
+                    38,
+                    20
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "chest",
+        "display_name": "Chest",
+        "section_name": "blob",
+        "sprite": {
+            "image": "chest.png",
+            "z": -10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 12,
+                "y": 18
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    240,
+                    193,
+                    80
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "drill",
+        "display_name": "Drill",
+        "section_name": "blob",
+        "sprite": {
+            "image": "drill.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 16,
+                "y": 8
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    210,
+                    120,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "trampoline",
+        "display_name": "Trampoline",
+        "section_name": "blob",
+        "sprite": {
+            "image": "trampoline.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 24,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    187,
+                    59,
+                    253
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "lantern",
+        "display_name": "Lantern",
+        "section_name": "blob",
+        "sprite": {
+            "image": "lantern.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": -5,
+                "y": -3
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    241,
+                    231,
+                    177
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "crate",
+        "display_name": "Crate",
+        "section_name": "blob",
+        "sprite": {
+            "image": "crate.png",
+            "z": -10,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 21,
+                "y": 21
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    102,
+                    0,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bucket",
+        "display_name": "Bucket",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bucket.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 8
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    220,
+                    120
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "sponge",
+        "display_name": "Sponge",
+        "section_name": "blob",
+        "sprite": {
+            "image": "sponge.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 1,
+                "y": -6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    220,
+                    0,
+                    180
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "steak",
+        "display_name": "Steak",
+        "section_name": "blob",
+        "sprite": {
+            "image": "steak.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 6,
+                "y": -6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    219,
+                    136,
+                    103
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "burger",
+        "display_name": "Burger",
+        "section_name": "blob",
+        "sprite": {
+            "image": "burger.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 4,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    205,
+                    142,
+                    75
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "heart",
+        "display_name": "Heart",
+        "section_name": "blob",
+        "sprite": {
+            "image": "heart.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 1,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    40,
+                    80
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_bombs",
+        "display_name": "Bomb",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_bombs.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": -2,
+                "y": 6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    251,
+                    241,
+                    87
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_waterbombs",
+        "display_name": "Water Bomb",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_waterbombs.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    210,
+                    200,
+                    120
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_arrows",
+        "display_name": "Arrows",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_arrows.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 1,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    210,
+                    70
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_waterarrows",
+        "display_name": "Water Arrows",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_waterarrows.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": -1,
+                "y": 12
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    160,
+                    10
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_firearrows",
+        "display_name": "Fire Arrows",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_firearrows.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": -4,
+                "y": 9
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    230,
+                    210,
+                    70
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_bombarrows",
+        "display_name": "Bomb Arrows",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_bombarrows.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": -1,
+                "y": 15
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    180,
+                    10
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_bolts",
+        "display_name": "Ballista Bolts",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_bolts.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 4,
+                "y": 18
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    230,
+                    230,
+                    170
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mine",
+        "display_name": "Mine",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mine.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 6,
+                "y": 10
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    90,
+                    100,
+                    255
+                ],
+                "rotation0_team1": [
+                    255,
+                    255,
+                    160,
+                    90
+                ],
+                "rotation0_team-1": [
+                    255,
+                    215,
+                    75,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "boulder",
+        "display_name": "Boulder",
+        "section_name": "blob",
+        "sprite": {
+            "image": "boulder.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 11,
+                "y": 16
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    161,
+                    149,
+                    133
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "satchel",
+        "display_name": "Satchel",
+        "section_name": "blob",
+        "sprite": {
+            "image": "satchel.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 10
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    170,
+                    100,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "keg",
+        "display_name": "Keg",
+        "section_name": "blob",
+        "sprite": {
+            "image": "keg.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 20,
+                "y": 33
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    220,
+                    60,
+                    60
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mounted_bow",
+        "display_name": "Mounted Bow",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mounted_bow.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 0,
+                "y": 24
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    56,
+                    232,
+                    184
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "catapult",
+        "display_name": "Catapult",
+        "section_name": "blob",
+        "sprite": {
+            "image": "catapult.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 48,
+                "y": 63
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    103,
+                    229,
+                    165
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "ballista",
+        "display_name": "Ballista",
+        "section_name": "blob",
+        "sprite": {
+            "image": "ballista.png",
+            "z": -25,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 84,
+                "y": 90
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    100,
+                    210,
+                    160
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "raft",
+        "display_name": "Raft",
+        "section_name": "blob",
+        "sprite": {
+            "image": "raft.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 48,
+                "y": 12
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    70,
+                    110,
+                    155
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "dinghy",
+        "display_name": "Dinghy",
+        "section_name": "blob",
+        "sprite": {
+            "image": "dinghy.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 60,
+                "y": 27
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    201,
+                    158,
+                    246
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "longboat",
+        "display_name": "Longboat",
+        "section_name": "blob",
+        "sprite": {
+            "image": "longboat.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 100,
+                "y": 126
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    0,
+                    51,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "warboat",
+        "display_name": "Warboat",
+        "section_name": "blob",
+        "sprite": {
+            "image": "warboat.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 120,
+                "y": 120
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    50,
+                    140,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "airship",
+        "display_name": "Airship",
+        "section_name": "blob",
+        "sprite": {
+            "image": "airship.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 120,
+                "y": 120
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    175,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "bomber",
+        "display_name": "Bomber",
+        "section_name": "blob",
+        "sprite": {
+            "image": "bomber.png",
+            "z": -50,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 56,
+                "y": 195
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    190,
+                    0
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_gold",
+        "display_name": "Gold",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_gold.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 12,
+                "y": 9
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    255,
+                    240,
+                    160
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_stone",
+        "display_name": "Stone",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_stone.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 6
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    190,
+                    190,
+                    175
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "mat_wood",
+        "display_name": "Wood",
+        "section_name": "blob",
+        "sprite": {
+            "image": "mat_wood.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 8,
+                "y": 3
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    190,
+                    140
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "princess",
+        "display_name": "Princess",
+        "section_name": "blob",
+        "sprite": {
+            "image": "princess.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0
+            },
+            "offset": {
+                "x": 10,
+                "y": 33
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    251,
+                    135,
+                    255
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "necromancer",
+        "display_name": "Necromancer",
+        "section_name": "blob",
+        "sprite": {
+            "image": "necromancer.png",
+            "z": 0,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 12,
+                "y": 33
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    158,
+                    58,
+                    187
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+            
+            
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "dummy",
+        "display_name": "Dummy",
+        "section_name": "blob",
+        "sprite": {
+            "image": "dummy.png",
+            "z": -20,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": true,
+                "team": 0
+            },
+            "offset": {
+                "x": 14,
+                "y": 36
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    231,
+                    140,
+                    67
+                ]
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    }
+]

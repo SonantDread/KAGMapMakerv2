@@ -1,3 +1,7 @@
 __pycache__
 .vscode
 Maps
+settings/config.json
+.venv
+.git
+.scripts

@@ -1,0 +1,83 @@
+[
+    {
+        "type": "other",
+        "name": "water_air",
+        "display_name": "Water",
+        "section_name": "other",
+        "sprite": {
+            "image": "water_air.png",
+            "z_index": 499,
+            "properties": {
+                "merges_with": {
+                    "tile_ground_back": "water_backdirt"
+                }
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    46,
+                    129,
+                    166
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "other",
+        "name": "water_backdirt",
+        "display_name": "Water With Dirt Backwall",
+        "section_name": "other",
+        "sprite": {
+            "image": "water_backdirt.png",
+            "z_index": 499,
+            "properties": {
+                "in_picker_menu": false,
+                "merges_with": {
+                    "tile_ground_back": "water_backdirt",
+                    "water_air": "water_backdirt"
+                }
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    51,
+                    85,
+                    102
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "other",
+        "name": "redbarrier",
+        "display_name": "Red Barrier",
+        "section_name": "other",
+        "sprite": {
+            "image": "redbarrier.png",
+            "z_index": 5000 
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    228,
+                    55,
+                    113
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    }
+]
