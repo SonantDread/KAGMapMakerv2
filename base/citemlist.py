@@ -17,24 +17,7 @@ class CItemList:
     def __init__(self) -> None:
         self.file_handler = FileHandler()
         self.config_handler = ConfigHandler()
-        self.vanilla_tiles_indexes: dict[str, int] = {
-            "tile_empty": int(0),
-            "tile_ground": int(16),
-            "tile_grassy_ground": int(23),
-            "tile_grass": int(25),
-            "tile_ground_back": int(32),
-            "tile_castle": int(48),
-            "tile_castle_back": int(64),
-            "tile_gold": int(80),
-            "tile_stone": int(96),
-            "tile_bedrock": int(106),
-            "tile_wood_back": int(173),
-            "tile_wood": int(196),
-            "tile_thickstone": int(208),
-            "tile_castle_moss": int(224),
-            "tile_castle_back_moss": int(227),
-            "sky": int(400),
-        }
+
         self.vanilla_tiles: list['CItem'] = self.__setup_tiles()
         Communicator().picked_tiles = self.__get_selected_tiles()
         self.vanilla_blobs: list['CItem'] = self.__setup_blobs()

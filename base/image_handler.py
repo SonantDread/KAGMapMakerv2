@@ -29,7 +29,7 @@ class ImageHandler(metaclass = SingletonMeta):
         self.file_handler = FileHandler()
         self.vanilla_images = {}
         self.modded_images = {}
-        # ideally this is imported from citemlist but that would create a circular import
+
         self.vanilla_tiles_indexes: dict[str, int] = {
             "tile_empty": int(0),
             "tile_ground": int(16),
@@ -48,6 +48,7 @@ class ImageHandler(metaclass = SingletonMeta):
             "tile_castle_back_moss": int(227),
             "sky": int(400),
         }
+
         exec_path = os.path.dirname(os.path.realpath(__file__))
         self.basepath = os.path.join(exec_path, "Sprites", "MapMaker")
 
@@ -124,7 +125,7 @@ class ImageHandler(metaclass = SingletonMeta):
     def _get_modded_item_png_by_name(self, name: str, fp: str, index: int = None) -> QPixmap:
         if index is not None:
             return self._get_modded_tile_png_by_index(index, fp)
-        
+
         img = self._load_modded_image(name, fp)
         return img
 
