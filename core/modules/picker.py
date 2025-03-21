@@ -166,4 +166,4 @@ class Picker(QWidget):
         return name == "" or name is None
 
     def _get_tab_size(self) -> int:
-        return int(BUTTON_WIDTH * 5 + 40) # button size, button amount and scrollbar width
+        return int(BUTTON_WIDTH * 5 + 48) # button size, button amount and scrollbar width
