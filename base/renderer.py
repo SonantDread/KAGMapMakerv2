@@ -145,7 +145,7 @@ class Renderer:
         pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
 
         pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
-        pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
+        pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.ItemCoordinateCache)
 
         pixmap_item.setZValue(z)
 
