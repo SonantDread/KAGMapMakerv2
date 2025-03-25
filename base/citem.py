@@ -78,10 +78,11 @@ class CItem:
         offset_data = sprite_data.get("offset", {"x": 0, "y": 0})
         offset = Vec2f(offset_data.get("x", 0), offset_data.get("y", 0))
 
+        team = properties.get("team", 0)
         sprite_props = SpriteProperties(
             is_rotatable=properties.get("is_rotatable", False),
             can_swap_teams=properties.get("can_swap_teams", False),
-            team=properties.get("team", 0),
+            team=team,
             merges_with=properties.get("merges_with", {}),
             in_picker_menu=properties.get("in_picker_menu", True)
         )
@@ -130,7 +131,7 @@ class CItem:
             section_name=data.get("section_name", "")
         )
 
-        return cls(
+        item = cls(
             type=data.get("type", ""),
             name_data=name_data,
             sprite=image,
@@ -139,14 +140,20 @@ class CItem:
             search_keywords=data.get("search_keywords", [])
         )
 
-    def get_color(self, rotation: int = 0, team: int = 0, rotational_symmetry: bool = False) -> tuple[int, int, int, int]:
+        # default sprites are team 0 (in vanilla), if they arent 0 the sprite needs to be swapped
+        # may need to be adjusted for modded items that dont do this but for now this is fine
+        if team != 0:
+            item.swap_team(team)
+
+        return item
+
+    def get_color(self, rotation: int = 0, team: int = 0) -> tuple[int, int, int, int]:
         """
         Returns an ARGB tuple representing the color for the item.
 
         Parameters:
             rotation (int): The rotation for the item.
             team (int): the team for the item.
-            rotational_symmetry (bool): Rotations are normalized to 0 or 90,
             allowing for easier matching to objects such as doors.
 
         Returns:
@@ -157,13 +164,6 @@ class CItem:
         full_match: list = colors.get(f'rotation{rotation}_team{team}')
         if full_match is not None:
             return tuple(full_match)
-
-        if rotational_symmetry:
-            rotation = rotation % 180
-
-        match = colors.get(f'rotation{rotation}_team{team}')
-        if match is not None:
-            return tuple(match)
 
         return None
 
@@ -273,7 +273,7 @@ class CItem:
 
     def merge_with(self, other: str) -> str:
         """
-        Merges the item with another item.
+        Merges the item with another item based on it's name.
         """
         return self.sprite.properties.merges_with.get(other, None)
 

@@ -1930,7 +1930,7 @@
             "properties": {
                 "is_rotatable": false,
                 "can_swap_teams": true,
-                "team": 0
+                "team": -1
             },
             "offset": {
                 "x": 24,
