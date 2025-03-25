@@ -13,43 +13,43 @@
                 "team": 0
             },
             "offset": {
-                "x": 12,
+                "x": 3,
                 "y": 0
             }
         },
         "pixel_data": {
             "colors": {
-                "rotation90_team0": [
+                "rotation0_team0": [
                     255,
                     80,
                     90,
                     160
                 ],
-                "rotation0_team0": [
+                "rotation90_team0": [
                     255,
                     80,
                     90,
                     159
                 ],
-                "rotation90_team1": [
+                "rotation0_team1": [
                     255,
                     160,
                     90,
                     80
                 ],
-                "rotation0_team1": [
+                "rotation90_team1": [
                     255,
                     160,
                     90,
                     79
                 ],
-                "rotation90_team-1": [
+                "rotation0_team-1": [
                     255,
                     160,
                     160,
                     160
                 ],
-                "rotation0_team-1": [
+                "rotation90_team-1": [
                     255,
                     160,
                     160,
@@ -175,7 +175,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 12,
+                "x": 0,
                 "y": 0
             }
         },

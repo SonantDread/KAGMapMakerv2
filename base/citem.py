@@ -147,7 +147,7 @@ class CItem:
 
         return item
 
-    def get_color(self, rotation: int = 0, team: int = 0) -> tuple[int, int, int, int]:
+    def get_color(self, rotation: int = 0, team: int = 0, rotational_symmetry: bool = False) -> tuple[int, int, int, int]:
         """
         Returns an ARGB tuple representing the color for the item.
 
@@ -164,6 +164,13 @@ class CItem:
         full_match: list = colors.get(f'rotation{rotation}_team{team}')
         if full_match is not None:
             return tuple(full_match)
+
+        if rotational_symmetry:
+            rotation = rotation % 180
+
+        match = colors.get(f'rotation{rotation}_team{team}')
+        if match is not None:
+            return tuple(match)
 
         return None
 
