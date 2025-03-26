@@ -142,14 +142,17 @@ class Renderer:
             adjusted_x += (h - w) / 2
             adjusted_y += (w - h) / 2
 
-        # prevent gaps in blocks
-        adjusted_x = round(adjusted_x - offset.x)
-        adjusted_y = round(adjusted_y - offset.y)
+        pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
 
-        pixmap_item.setPos(int(adjusted_x), int(adjusted_y))
-
+        # fix rendering issue
         pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
-        pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.ItemCoordinateCache)
+        # windows
+        if os.name == "nt":
+            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.ItemCoordinateCache)
+
+        # linux / mac (posix)
+        else:
+            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
 
         pixmap_item.setZValue(z)
 
