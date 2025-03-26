@@ -10,21 +10,22 @@ class FileHandler:
     """
     def __init__(self) -> None:
         # path to the main folder
-        default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-        vanilla_items = os.path.join(default_path, "base", "Items")
+        default_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        vanilla_items = os.path.abspath(os.path.join(default_path, "base", "Items"))
         self.paths = {
             "default_path": default_path,
-            "world_path": os.path.join(default_path, "base", "Sprites", "Default", "world.png"),
+            "world_path": os.path.abspath(os.path.join(default_path, "base", "Sprites", "Default", "world.png")),
             "vanilla_items": vanilla_items,
-            "mapmaker_images": os.path.join(default_path, "base", "Sprites", "MapMaker"),
-            "config_path": os.path.join(default_path, "settings", "config.json"),
-            "default_config_path": os.path.join(default_path, "settings", "readonly_config.json"),
-            "gui_modules_path": os.path.join(default_path, "core", "modules"),
-            "maps_path": os.path.join(default_path, "Maps"),
-            "modded_items_path": os.path.join(default_path, "Modded"),
-            "tilelist_path": os.path.join(vanilla_items, "tiles.json"),
-            "bloblist_path": os.path.join(vanilla_items, "blobs.json"),
-            "otherlist_path": os.path.join(vanilla_items, "others.json") # todo
+            "mapmaker_images": os.path.abspath(os.path.join(default_path, "base", "Sprites", "MapMaker")),
+            "config_path": os.path.abspath(os.path.join(default_path, "settings", "config.json")),
+            "default_config_path": os.path.abspath(os.path.join(default_path, "settings", "readonly_config.json")),
+            "gui_modules_path": os.path.abspath(os.path.join(default_path, "core", "modules")),
+            "maps_path": os.path.abspath(os.path.join(default_path, "Maps")),
+            "modded_items_path": os.path.abspath(os.path.join(default_path, "Modded")),
+            "tilelist_path": os.path.abspath(os.path.join(vanilla_items, "tiles.json")),
+            "bloblist_path": os.path.abspath(os.path.join(vanilla_items, "blobs.json")),
+            "otherlist_path": os.path.abspath(os.path.join(vanilla_items, "others.json")),
+            "team_palette_path": os.path.abspath(os.path.join(default_path, "base", "Sprites", "Default", "TeamPalette.png")),
         }
 
     def does_path_exist(self, path: str):

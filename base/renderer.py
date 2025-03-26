@@ -144,8 +144,15 @@ class Renderer:
 
         pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
 
+        # fix rendering issue
         pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
-        pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
+        # windows
+        if os.name == "nt":
+            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.ItemCoordinateCache)
+
+        # linux / mac (posix)
+        else:
+            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
 
         pixmap_item.setZValue(z)
 
