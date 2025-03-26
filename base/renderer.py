@@ -142,6 +142,10 @@ class Renderer:
             adjusted_x += (h - w) / 2
             adjusted_y += (w - h) / 2
 
+        # prevent gaps in blocks
+        adjusted_x = round(adjusted_x)
+        adjusted_y = round(adjusted_y)
+
         pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
 
         pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
