@@ -209,7 +209,7 @@ class CItem:
         Swaps the team of the sprite.
         """
         # already is blue team
-        if team == 0: # todo: should be self.sprite.team?
+        if team == 0:
             return
 
         self._swap_sprite_color(team)
@@ -227,10 +227,10 @@ class CItem:
         pil_image = Image.open(io.BytesIO(buffer.data().data())).convert("RGBA")
 
         width, height = pil_image.size
-        new_image = pil_image.copy()
+        new_image: Image = pil_image.copy()
 
         # prevent invalid team indices
-        if to_team < 0 or to_team > 6:
+        if to_team < 0 or to_team > 7:
             to_team = 7
 
         palette = self._get_team_palette()
@@ -238,7 +238,6 @@ class CItem:
 
         # ensure valid palettes exist
         if old_team not in palette or to_team not in palette:
-            print(f"Palette for team {old_team} or {to_team} not found.")
             return
 
         # [R, G, B] colors
