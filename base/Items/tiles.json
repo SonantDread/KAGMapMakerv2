@@ -6,7 +6,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 16,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -29,7 +29,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 25,
-            "z_index": 500
+            "z": 500
         },
         "pixel_data": {
             "colors": {
@@ -52,7 +52,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 32,
-            "z_index": -599,
+            "z": -599,
             "properties": {
                 "merges_with": {
                     "water_air": "water_backdirt"
@@ -80,7 +80,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 48,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -103,7 +103,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 64,
-            "z_index": -599
+            "z": -599
         },
         "pixel_data": {
             "colors": {
@@ -126,7 +126,7 @@
         "section_name": "ore",
         "sprite": {
             "image": 80,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -149,7 +149,7 @@
         "section_name": "ore",
         "sprite": {
             "image": 96,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -172,7 +172,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 106,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -195,7 +195,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 173,
-            "z_index": -599
+            "z": -599
         },
         "pixel_data": {
             "colors": {
@@ -218,7 +218,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 196,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -241,7 +241,7 @@
         "section_name": "ore",
         "sprite": {
             "image": 208,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -264,7 +264,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 224,
-            "z_index": 499
+            "z": 499
         },
         "pixel_data": {
             "colors": {
@@ -287,7 +287,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 227,
-            "z_index": -599
+            "z": -599
         },
         "pixel_data": {
             "colors": {
@@ -310,7 +310,7 @@
         "section_name": "tile",
         "sprite": {
             "image": 400,
-            "z_index": -5000
+            "z": -5000
         },
         "pixel_data": {
             "colors": {

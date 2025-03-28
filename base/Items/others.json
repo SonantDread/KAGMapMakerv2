@@ -6,7 +6,7 @@
         "section_name": "other",
         "sprite": {
             "image": "water_air.png",
-            "z_index": 499,
+            "z": 499,
             "properties": {
                 "merges_with": {
                     "tile_ground_back": "water_backdirt"
@@ -34,7 +34,7 @@
         "section_name": "other",
         "sprite": {
             "image": "water_backdirt.png",
-            "z_index": 499,
+            "z": 499,
             "properties": {
                 "in_picker_menu": false,
                 "merges_with": {
@@ -64,7 +64,7 @@
         "section_name": "other",
         "sprite": {
             "image": "redbarrier.png",
-            "z_index": 5000 
+            "z": 5000 
         },
         "pixel_data": {
             "colors": {
