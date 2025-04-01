@@ -977,7 +977,7 @@
         "display_name": "Tee",
         "section_name": "blob",
         "sprite": {
-            "image": "elbow.png",
+            "image": "tee.png",
             "z": -60,
             "properties": {
                 "is_rotatable": true,
