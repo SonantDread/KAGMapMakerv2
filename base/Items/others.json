@@ -36,11 +36,7 @@
             "image": "water_backdirt.png",
             "z": 499,
             "properties": {
-                "in_picker_menu": false,
-                "merges_with": {
-                    "tile_ground_back": "water_backdirt",
-                    "water_air": "water_backdirt"
-                }
+                "in_picker_menu": false
             }
         },
         "pixel_data": {
