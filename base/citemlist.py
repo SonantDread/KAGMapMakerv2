@@ -126,9 +126,7 @@ class CItemList:
 
                 item = item.copy()
                 item.sprite.rotation = int(rotation)
-                # don't call swap_team since it also changes sprite (laggy)
-                # instead just directly change it
-                item.sprite.team = int(team)
+                item.swap_team(int(team))
 
                 color_tuple = tuple(color) # (a, r, g, b)
                 color_map[color_tuple] = item

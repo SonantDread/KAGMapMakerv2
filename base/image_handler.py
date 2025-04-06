@@ -6,8 +6,24 @@ import os
 from typing import Union
 
 from PIL import Image
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtCore import QBuffer, QByteArray
 from utils.file_handler import FileHandler
+import colorsys
+import io
+
+# acceptable range of colors
+# may need to be changed (or have a different system) in the future but this works for now
+BLUE_HUE_RANGE = (150 / 360.0, 235 / 360.0)
+TEAM_HUE_SHIFT = {
+    0: 0,    # No shift
+    1: 157,  # Blue -> Red
+    2: 244,  # Blue -> Green
+    3: 73,   # Blue -> Purple
+    4: 177,  # Blue -> Gold
+    5: 322,  # Blue -> Teal
+    6: 24,   # Blue -> Indigo
+}
 
 class SingletonMeta(type):
     """
@@ -21,14 +37,14 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
-class ImageHandler(metaclass = SingletonMeta):
+class ImageHandler(metaclass=SingletonMeta):
     """
     Used to handle all image loading.
     """
     def __init__(self) -> None:
-        self.file_handler = FileHandler()
-        self.vanilla_images = {}
-        self.modded_images = {}
+        self._file_handler = FileHandler()
+        self._vanilla_images = {}
+        self._modded_images = {}
 
         self.vanilla_tiles_indexes: dict[str, int] = {
             "tile_empty": int(0),
@@ -49,165 +65,267 @@ class ImageHandler(metaclass = SingletonMeta):
             "sky": int(400),
         }
 
-        exec_path = os.path.dirname(os.path.realpath(__file__))
-        self.basepath = os.path.join(exec_path, "Sprites", "MapMaker")
+    def get_image(self, name: Union[str, int], team: int = 0, path: str = None) -> QPixmap:
+        if team not in self._vanilla_images:
+            self._vanilla_images[team] = {}
 
-    def get_image(self, name: Union[str, int]) -> QPixmap:
-        """
-        Retrieves a non-modded image based on the provided name or index.
+        if team not in self._modded_images:
+            self._modded_images[team] = {}
 
-        Args:
-            name (Union[str, int]): The name or index of the image to retrieve.
-
-        Returns:
-            QPixmap: The retrieved image, or None if the image does not exist.
-        """
-        # handle input of index for a block
+        # world.png image
         if isinstance(name, int):
-            name = self._get_tile_name_by_index(name)
+            return self._get_image_by_index(name, path)
 
-        if self.vanilla_images.get(name) is not None:
-            return self.vanilla_images.get(name)
+        # make the name more friendly
+        name = os.path.splitext(str(name).strip().lower())[0]
 
-        # image doesnt exist
-        img = self._get_item_png_by_name(name)
+        # modded item (these get priority)
+        image = self._get_modded_image(name, team, path)
 
-        if img is not None:
-            return img
+        if image:
+            return image
 
-        line = inspect.currentframe().f_lineno
+        # vanilla item
+        image = self._get_vanilla_image(name, team)
+
+        if image:
+            return image
+
+        # image not found
         fn = os.path.basename(__file__)
-        print(f"Image not found: {name}. Unable to load in line {line} of {fn}")
+        ln = inspect.currentframe().f_lineno
+        print(f"Image not found: {name}. Unable to load in line {ln} of {fn}")
         return None
 
-    def get_modded_image(self, name: str, fp: str, index: int = None) -> QPixmap:
-        """
-        Retrieves a modded image based on the provided name or index and mod folder path.
+    def _get_vanilla_image(self, name: str, team: int = 0) -> QPixmap:
+        # image is loaded
+        image = self._vanilla_images.get(team, {}).get(name)
+        if image:
+            return image
 
-        Args:
-            name (str): The name of the image to retrieve.
-            fp (str): The path to the mod folder or a file within it.
-            index (int): The index of the image in world.png.
+        # image is not loaded
+        return self._load_vanilla_image(name, team)
 
-        Returns:
-            QPixmap: The retrieved image, or None if the image does not exist.
-        """
-        # If fp points to a file, get its containing directory
-        if os.path.isfile(fp):
-            fp = os.path.dirname(fp)
+    def _get_modded_image(self, name: str, team: int = 0, path: str = None) -> QPixmap:
+        # image is loaded
+        image = self._modded_images.get(team, {}).get(name)
+        if image:
+            return image
 
-        if self.modded_images.get(fp) is not None:
-            return self.modded_images.get(fp)
+        # image is not loaded
+        return self._load_modded_image(name, team, path)
 
-        img = self._get_modded_item_png_by_name(name, fp, index)
+    def _get_image_by_index(self, index: int, world_path: str) -> QPixmap:
+        # first check if the image is already cached
+        if world_path is None and index in self._vanilla_images[0]:
+            return self._vanilla_images[0][index]
 
-        if img is not None:
-            self.modded_images[fp] = img
-            return img
+        if world_path is not None and (world_path, index) in self._modded_images[0]:
+            return self._modded_images[0][(world_path, index)]
 
-        line = inspect.currentframe().f_lineno
+        # vanilla image
+        is_vanilla_image = world_path is None
+        if is_vanilla_image:
+            path = self._file_handler.paths.get("world_path")
+        # modded image
+        else:
+            path = self._get_world_path(world_path)
+
+        if not path or not self._file_handler.does_path_exist(path):
+            return None
+
+        image = Image.open(path).convert("RGBA")
+
+        width = image.size[0]
+        tile_size = width // 8
+
+        x = (index % tile_size) * 8
+        y = (index // tile_size) * 8
+
+        image = image.crop((x, y, x + 8, y + 8)).toqpixmap()
+
+        self._cache_image_by_index(image, world_path, index)
+        return image
+
+    def _cache_image_by_index(self, image: QPixmap, path: str, index: int) -> None:
+        is_vanilla = path is None
+        if is_vanilla:
+            self._vanilla_images[0][index] = image
+        else:
+            # store with path and index as a tuple key
+            self._modded_images[0][(path, index)] = image
+
+    def _load_modded_image(self, name: str, team: int, mod_path: str = None) -> QPixmap:
+        # loading a modded image
+        if mod_path is not None:
+            paths = [
+                os.path.join(mod_path, f"{name}.png"),
+                os.path.join(mod_path, "Sprites", f"{name}.png")
+            ]
+
+            for path in paths:
+                if os.path.exists(path):
+                    image = Image.open(path).convert("RGBA").toqpixmap()
+                    image = self._swap_sprite_color(image, team)
+                    self._modded_images[team][name] = image
+                    return image
+
+            # fallback
+            fallback_path = self._file_handler.get_modded_item_path(f"{name}", mod_path)
+            if fallback_path and os.path.exists(fallback_path):
+                image = Image.open(fallback_path).convert("RGBA").toqpixmap()
+                image = self._swap_sprite_color(image, team)
+                self._modded_images[team][name] = image
+                return image
+
+    def _load_vanilla_image(self, name: str, team: int) -> QPixmap:
+        base_path = self._file_handler.paths.get("mapmaker_images")
+
+        img_path = os.path.join(base_path, f"{name}.png")
+        if os.path.exists(img_path):
+            image = Image.open(img_path).convert("RGBA").toqpixmap()
+            image = self._swap_sprite_color(image, team)
+            self._vanilla_images[team][name] = image
+            return image
+
         fn = os.path.basename(__file__)
-        print(f"Modded image not found: {name}. Unable to load in line {line} of {fn}")
+        ln = inspect.currentframe().f_lineno
+        print(f"Image not found: '{name}'. Unable to load in line {ln} of {fn}")
+
         return None
 
-    def is_image_loaded(self, name: str) -> bool:
-        """
-        Checks if an image with the given name has been loaded.
-
-        Args:
-            name (str): The name of the image to check.
-
-        Returns:
-            bool: True if the image has been loaded, False otherwise.
-        """
-        return name in self.vanilla_images or name in self.modded_images
-
-    def _get_modded_item_png_by_name(self, name: str, fp: str, index: int = None) -> QPixmap:
-        if index is not None:
-            return self._get_modded_tile_png_by_index(index, fp)
-
-        img = self._load_modded_image(name, fp)
-        return img
-
-    def _load_modded_image(self, name: str, fp: str) -> QPixmap:
-        path = self.file_handler.get_modded_item_path(name + ".png", fp)
-
-        if not self.file_handler.does_path_exist(path):
+    def _get_world_path(self, world_path: str) -> str:
+        if not world_path:
             return None
 
-        img = Image.open(path)
-        img.convert("RGBA")
-        img.load()
+        # path is to a file
+        if os.path.isfile(world_path):
+            return world_path
 
-        return img.toqpixmap()
+        paths = [
+            os.path.join(world_path, "world.png"),
+            os.path.join(world_path, "Sprites", "world.png")
+        ]
 
-    def _get_modded_tile_png_by_index(self, index: int, fp: str) -> QPixmap:
+        for path in paths:
+            if os.path.isfile(path):
+                return path
+
+        # fallback
+        print(f"Could not find world.png at '{world_path}'. Attempting to use fallback...")
+        for root, _, files in os.walk(world_path):
+            for file in files:
+                if file == "world.png":
+                    return os.path.join(root, file)
+
+        # image wasn't found
+        fn = os.path.basename(__file__)
+        ln = inspect.currentframe().f_lineno
+        print(f"Image not found: world.png. Unable to load in line {ln} of {fn}")
+        return None
+
+    #* team swapping code below here
+    def _swap_sprite_color(self, original_image: QPixmap, to_team: int) -> QPixmap:
         """
-        Args:
-            index (int): The tile index to extract from world.png
-            fp (str): Path to the mod directory containing world.png
+        Swaps the team of a sprite.
         """
-        world = os.path.join(fp, "world.png")
+        # no change needed
+        if to_team == 0:
+            return original_image
 
-        if not os.path.exists(world):
-            return None
+        # convert QPixmap to PIL Image
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        original_image.save(buffer, "PNG")
+        pil_image = Image.open(io.BytesIO(buffer.data().data())).convert("RGBA")
 
-        image = Image.open(world)
-        image = image.convert("RGBA")
+        width, height = pil_image.size
+        new_image: Image = pil_image.copy()
 
-        width = image.size[0]
-        sections_w = width // 8
+        # prevent invalid team indices
+        if to_team < 0 or to_team > 7:
+            to_team = 7
 
-        # calculate coordinates for the specified index
-        x = (index % sections_w) * 8
-        y = (index // sections_w) * 8
+        palette = self._get_team_palette()
 
-        # crop the png to get the correct image
-        img: QPixmap = image.crop((x, y, x + 8, y + 8)).toqpixmap()
-        return img
+        # ensure valid palettes exist
+        if to_team not in palette:
+            return
 
-    def _get_item_png_by_name(self, name: str) -> QPixmap:
-        if name in self.vanilla_tiles_indexes:
-            return self._get_tile_png_by_index(self.vanilla_tiles_indexes[name])
+        # [R, G, B] colors
+        old_team_colors = palette[0]
+        new_team_colors = palette[to_team]
 
-        return self._load_image(name)
+        for y in range(height):
+            for x in range(width):
+                r, g, b, a = pil_image.getpixel((x, y))
 
-    def _load_image(self, name: str) -> QPixmap:
-        path = os.path.join(self.basepath, name)
+                # skip transparent pixels
+                if a == 0:
+                    continue
 
-        if not self.file_handler.does_path_exist(path):
-            # todo: uncomment this when water_backdirt is available
-            # raise FileNotFoundError(f"File not found: {path}")
-            return None
+                # only swap team colored pixels
+                if not self._is_team_color(r, g, b):
+                    continue
 
-        img = Image.open(path)
-        img.convert("RGBA")
-        img.load()
+                try:
+                    # try to get a direct match of colors
+                    color_index = old_team_colors.index([r, g, b])
+                    new_color = new_team_colors[color_index]
 
-        self.vanilla_images.update({name: img.toqpixmap()})
-        return img.toqpixmap()
+                except ValueError:
+                    # if the color isn't found, find the closest match
+                    old_color = (r, g, b)
+                    best_match = self._closest_color(old_color, old_team_colors)
+                    color_index = old_team_colors.index(best_match)
+                    new_color = new_team_colors[color_index]
 
-    def _get_tile_png_by_index(self, index: int) -> QPixmap:
-        world = self.file_handler.paths.get("world_path")
-        image = Image.open(world)
-        image = image.convert("RGBA") # prevent errors with alpha translation
+                new_image.putpixel((x, y), (new_color[0], new_color[1], new_color[2], a))
 
-        width = image.size[0]
-        sections_w = width // 8
+        # convert back to QPixmap
+        buffer = io.BytesIO()
+        new_image.save(buffer, format="PNG")
+        qimg = QImage.fromData(QByteArray(buffer.getvalue()))
+        return QPixmap.fromImage(qimg)
 
-        # calculate coordinates for the specified index
-        x = (index % sections_w) * 8
-        y = (index // sections_w) * 8
+    def _is_team_color(self, r: int, g: int, b: int) -> bool:
+        """
+        Checks if a color is within the defined blue hue range.
+        """
+        h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+        return BLUE_HUE_RANGE[0] <= h <= BLUE_HUE_RANGE[1] and s > 0.2
 
-        # crop the png to get the correct image
-        img: QPixmap = image.crop((x, y, x + 8, y + 8)).toqpixmap()
-        self.vanilla_images.update({self._get_tile_name_by_index(index): img})
-        return img
+    def _closest_color(self, target: tuple[int, int, int], color_list: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+        """
+        Finds the closest color in the color list using Euclidean distance.
+        """
+        min_dist = float("inf")
+        # defaults to first color if no match is found
+        closest_match = color_list[0]
 
-    def _get_tile_name_by_index(self, index: int) -> str:
-        names: dict = {v: k for k, v in self.vanilla_tiles_indexes.items()}
+        for color in color_list:
+            r, g, b = color
+            dist = ((target[0] - r) ** 2 + (target[1] - g) ** 2 + (target[2] - b) ** 2) ** 0.5
+            if dist < min_dist:
+                min_dist = dist
+                closest_match = color
 
-        if index in names:
-            return names[index]
+        return closest_match
 
-        raise ValueError(f"Index {index} not found in tile_indexes.")
+    def _get_team_palette(self) -> dict[int, list[list[int, int, int]]]:
+        path = FileHandler().paths.get("team_palette_path")
+        image = Image.open(path).convert("RGB")
+
+        teams = {}
+
+        w, h = image.size
+        for x in range(w):
+            for y in range(h):
+                r, g, b = image.getpixel((x, y))
+
+                if x not in teams:
+                    teams[x] = []
+
+                teams[x].append([r, g, b])
+
+        return teams

@@ -35,7 +35,6 @@ class Renderer:
             tm_pos (Vec2f): The snapped position of the object on the canvas.
             eraser (bool): Whether or not to erase the object.
         """
-        z = placing.sprite.z
 
         canvas = self.communicator.get_canvas()
 
@@ -80,7 +79,7 @@ class Renderer:
         if placing.sprite.properties.is_rotatable:
             pixmap = self._rotate_blob(pixmap, rot)
 
-        pixmap_item = self.add_to_canvas(pixmap, pos, z, placing.name_data.name, placing.sprite.offset, rot)
+        pixmap_item = self.add_to_canvas(placing, pixmap, pos, rot)
 
         if pixmap_item is not None:
             canvas.tilemap[tm_pos] = placing
@@ -104,7 +103,7 @@ class Renderer:
 
             del canvas.tilemap[pos]
 
-    def add_to_canvas(self, img: QPixmap, pos: Vec2f, z: int, name: str, offset: Vec2f, rot: int) -> QGraphicsPixmapItem:
+    def add_to_canvas(self, placing: CItem, img: QPixmap, pos: Vec2f, rot: int) -> QGraphicsPixmapItem:
         """
         Adds an item to the canvas at the specified position.
 
@@ -127,7 +126,7 @@ class Renderer:
             self.remove_existing_item_from_scene(pos)
 
         if img is None:
-            print(f"Warning: img is None for item {name} at position {pos}")
+            print(f"Warning: img is None for item {placing.name_data.name} at position {pos}")
             return None
 
         # create new item
@@ -142,19 +141,10 @@ class Renderer:
             adjusted_x += (h - w) / 2
             adjusted_y += (w - h) / 2
 
-        pixmap_item.setPos(int(adjusted_x - offset.x), int(adjusted_y - offset.y))
+        offset_x, offset_y = placing.sprite.offset
+        pixmap_item.setPos(int(adjusted_x - offset_x), int(adjusted_y - offset_y))
 
-        # fix rendering issue
-        pixmap_item.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
-        # windows
-        if os.name == "nt":
-            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.ItemCoordinateCache)
-
-        # linux / mac (posix)
-        else:
-            pixmap_item.setCacheMode(QGraphicsPixmapItem.CacheMode.DeviceCoordinateCache)
-
-        pixmap_item.setZValue(z)
+        pixmap_item.setZValue(placing.sprite.z)
 
         canvas.canvas.addItem(pixmap_item)
         canvas.graphics_items[tm_pos] = pixmap_item
@@ -193,7 +183,7 @@ class Renderer:
 
     def setup_cursor(self) -> None:
         canvas = self.communicator.get_canvas()
-        cursor_image = self.images.get_image("cursor.png")
+        cursor_image = self.images.get_image("cursor")
         if cursor_image is None:
             raise ValueError("Cursor image not found. Ensure 'cursor.png' asset is available.")
 

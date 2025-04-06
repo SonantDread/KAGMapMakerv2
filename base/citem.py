@@ -2,28 +2,13 @@ import os
 from dataclasses import dataclass, field
 
 from copy import deepcopy
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtCore import QBuffer, QByteArray
-from PIL import Image
-import io
-import colorsys
+from PyQt6.QtGui import QPixmap
 
 from base.image_handler import ImageHandler
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
 
-# acceptable range of colors
-# may need to be changed (or have a different system) in the future but this works for now
-BLUE_HUE_RANGE = (150 / 360.0, 235 / 360.0)
-TEAM_HUE_SHIFT = {
-    0: 0,    # No shift
-    1: 157,  # Blue -> Red
-    2: 244,  # Blue -> Green
-    3: 73,   # Blue -> Purple
-    4: 177,  # Blue -> Gold
-    5: 322,  # Blue -> Teal
-    6: 24,   # Blue -> Indigo
-}
+image_handler = ImageHandler()
 
 @dataclass
 class Name:
@@ -100,12 +85,12 @@ class CItem:
             if file_path:
                 mod_dir = os.path.dirname(file_path)
                 # modded item
-                # todo: ideally this would use filehandler for this path
+                # t*odo: ideally this would use filehandler for this path
                 # but was getting circular import error
-                if os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Modded") in file_path:
-                    image = ImageHandler().get_modded_image(data.get("name"), mod_dir, image)
+                if FileHandler().paths.get("modded_items_path") in file_path:
+                    image = image_handler.get_image(data.get("name"), mod_dir=mod_dir)
                 else:
-                    image = ImageHandler().get_image(image)
+                    image = image_handler.get_image(image)
 
         image = SpriteConfig(
             image=image,
@@ -198,7 +183,7 @@ class CItem:
         return CItem(
             type=deepcopy(self.type),
             name_data=deepcopy(self.name_data),
-            sprite=sprite,
+            sprite=sprite, # todo: this should use the new imagehandler system to look up the image
             mod_info=deepcopy(self.mod_info),
             pixel_data=deepcopy(self.pixel_data),
             search_keywords=deepcopy(self.search_keywords)
@@ -209,113 +194,12 @@ class CItem:
         Swaps the team of the sprite.
         """
         # already is blue team
-        if team == 0: # todo: should be self.sprite.team?
+        if team == 0:
             return
 
-        self._swap_sprite_color(team)
+        self.sprite.image = image_handler.get_image(self.name_data.name, team)
         # update sprite's team
         self.sprite.team = team
-
-    def _swap_sprite_color(self, to_team: int) -> None:
-        """
-        Swaps the team of a sprite.
-        """
-        # convert QPixmap to PIL Image
-        buffer = QBuffer()
-        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
-        self.sprite.image.save(buffer, "PNG")
-        pil_image = Image.open(io.BytesIO(buffer.data().data())).convert("RGBA")
-
-        width, height = pil_image.size
-        new_image = pil_image.copy()
-
-        # prevent invalid team indices
-        if to_team < 0 or to_team > 6:
-            to_team = 7
-
-        palette = self._get_team_palette()
-        old_team = self.sprite.team
-
-        # ensure valid palettes exist
-        if old_team not in palette or to_team not in palette:
-            print(f"Palette for team {old_team} or {to_team} not found.")
-            return
-
-        # [R, G, B] colors
-        old_team_colors = palette[old_team]
-        new_team_colors = palette[to_team]
-
-        for y in range(height):
-            for x in range(width):
-                r, g, b, a = pil_image.getpixel((x, y))
-
-                # skip transparent pixels
-                if a == 0:
-                    continue
-
-                # only swap team colored pixels
-                if self._is_team_color(r, g, b):
-                    try:
-                        # try to get a direct match of colors
-                        color_index = old_team_colors.index([r, g, b])
-                        new_color = new_team_colors[color_index]
-
-                    except ValueError:
-                        # if the color isn't found, find the closest match
-                        old_color = (r, g, b)
-                        best_match = self._closest_color(old_color, old_team_colors)
-                        color_index = old_team_colors.index(best_match)
-                        new_color = new_team_colors[color_index]
-
-                    new_image.putpixel((x, y), (new_color[0], new_color[1], new_color[2], a))
-
-        # convert back to QPixmap
-        buffer = io.BytesIO()
-        new_image.save(buffer, format="PNG")
-        qimg = QImage.fromData(QByteArray(buffer.getvalue()))
-        self.sprite.image = QPixmap.fromImage(qimg)
-
-    def _is_team_color(self, r: int, g: int, b: int) -> bool:
-        """
-        Checks if a color is within the defined blue hue range.
-        """
-        h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
-        return BLUE_HUE_RANGE[0] <= h <= BLUE_HUE_RANGE[1] and s > 0.2
-
-    def _closest_color(self, target: tuple[int, int, int], color_list: list[tuple[int, int, int]]) -> tuple[int, int, int]:
-        """
-        Finds the closest color in the color list using Euclidean distance.
-        """
-        min_dist = float("inf")
-        # defaults to first color if no match is found
-        closest_match = color_list[0]
-
-        for color in color_list:
-            r, g, b = color
-            dist = ((target[0] - r) ** 2 + (target[1] - g) ** 2 + (target[2] - b) ** 2) ** 0.5
-            if dist < min_dist:
-                min_dist = dist
-                closest_match = color
-
-        return closest_match
-
-    def _get_team_palette(self) -> dict[int, list[list[int, int, int]]]:
-        path = FileHandler().paths.get("team_palette_path")
-        image = Image.open(path).convert("RGB")
-
-        teams = {}
-
-        w, h = image.size
-        for x in range(w):
-            for y in range(h):
-                r, g, b = image.getpixel((x, y))
-
-                if x not in teams:
-                    teams[x] = []
-
-                teams[x].append([r, g, b])
-
-        return teams
 
     def is_mergeable(self) -> bool:
         """

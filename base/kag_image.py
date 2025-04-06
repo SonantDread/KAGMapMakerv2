@@ -107,6 +107,10 @@ class KagImage:
             print("Map to load not selected. Operation cancelled.")
             return
 
+        # prevent crash
+        if isinstance(fp, tuple) and len(fp) == 0:
+            return None
+
         if isinstance(fp, tuple):
             fp = fp[0]
 
@@ -134,7 +138,7 @@ class KagImage:
                     continue # cant do anything so ignore
 
                 item.sprite.position = Vec2f(x, y)
-                item.swap_team(item.sprite.team)
+                # team swapping handled automatically so no need to worry about it here
 
                 # account for the saving offsets
                 offset_x, offset_y = -item.pixel_data.offset

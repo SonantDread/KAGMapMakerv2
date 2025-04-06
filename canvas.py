@@ -10,6 +10,7 @@ from datetime import datetime
 from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QShortcut, QKeySequence, QKeyEvent, QCursor
 from PyQt6.QtWidgets import QGraphicsItemGroup, QGraphicsScene, QGraphicsView, QSizePolicy
+from PyQt6.QtOpenGLWidgets import QOpenGLWidget
 
 from base.citem import CItem
 from base.citemlist import CItemList
@@ -25,10 +26,17 @@ class Canvas(QGraphicsView):
     """
     def __init__(self, size: Vec2f) -> None:
         super().__init__()
+        # todo: should be a setting, for now is forced
+        self.gpu_rendering = True
+        # should also be a setting, for now is forced
         self.exec_path = os.path.dirname(os.path.realpath(__file__))
         self.renderer = Renderer()
         self.canvas = QGraphicsScene()
+
+        self.setViewport(QOpenGLWidget())
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
+        self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.BoundingRectViewportUpdate)
+
         self.communicator = Communicator()
         self.setScene(self.canvas)
         self.size = size # map size
@@ -42,6 +50,7 @@ class Canvas(QGraphicsView):
         self.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
         self.setRenderHint(QPainter.RenderHint.TextAntialiasing, False)
+
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) # no scroll bars
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setBackgroundBrush(QColor(165, 189, 200, 255)) # background color

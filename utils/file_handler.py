@@ -19,7 +19,6 @@ class FileHandler:
             "mapmaker_images": os.path.abspath(os.path.join(default_path, "base", "Sprites", "MapMaker")),
             "config_path": os.path.abspath(os.path.join(default_path, "settings", "config.json")),
             "default_config_path": os.path.abspath(os.path.join(default_path, "settings", "readonly_config.json")),
-            "gui_modules_path": os.path.abspath(os.path.join(default_path, "core", "modules")),
             "maps_path": os.path.abspath(os.path.join(default_path, "Maps")),
             "modded_items_path": os.path.abspath(os.path.join(default_path, "Modded")),
             "tilelist_path": os.path.abspath(os.path.join(vanilla_items, "tiles.json")),
