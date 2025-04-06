@@ -72,7 +72,7 @@ class CItemList:
 
         return False
 
-    def does_blob_exist(self, name: Union[str, 'CItem']) -> bool:
+    def does_other_exist(self, name: Union[str, 'CItem']) -> bool:
         if isinstance(name, CItem):
             name = name.name_data.name
 
