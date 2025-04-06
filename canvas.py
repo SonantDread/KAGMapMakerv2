@@ -32,8 +32,11 @@ class Canvas(QGraphicsView):
         self.exec_path = os.path.dirname(os.path.realpath(__file__))
         self.renderer = Renderer()
         self.canvas = QGraphicsScene()
+
         self.setViewport(QOpenGLWidget())
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
+        self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.BoundingRectViewportUpdate)
+
         self.communicator = Communicator()
         self.setScene(self.canvas)
         self.size = size # map size
