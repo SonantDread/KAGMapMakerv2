@@ -183,7 +183,7 @@ class Renderer:
 
     def setup_cursor(self) -> None:
         canvas = self.communicator.get_canvas()
-        cursor_image = self.images.get_image("cursor.png")
+        cursor_image = self.images.get_image("cursor")
         if cursor_image is None:
             raise ValueError("Cursor image not found. Ensure 'cursor.png' asset is available.")
 
