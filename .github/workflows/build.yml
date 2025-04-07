@@ -133,7 +133,11 @@ jobs:
 
       - name: Get latest commit message
         id: commit
-        run: echo "MESSAGE=\"$(git log -1 --pretty=%B)\"" >> $GITHUB_ENV
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          echo "MESSAGE<<EOF" >> $GITHUB_ENV
+          echo "$MSG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
