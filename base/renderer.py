@@ -142,7 +142,7 @@ class Renderer:
             adjusted_y += (w - h) / 2
 
         offset_x, offset_y = placing.sprite.offset
-        pixmap_item.setPos(int(adjusted_x - offset_x), int(adjusted_y - offset_y))
+        pixmap_item.setPos(float(adjusted_x + offset_x), float(adjusted_y + offset_y))
 
         pixmap_item.setZValue(placing.sprite.z)
 
