@@ -112,24 +112,36 @@ class CItemList:
 
     def __create_pixel_color_map(self) -> dict[tuple[int, int, int, int], 'CItem']:
         color_map = {}
+
+        teams = [0, 1, 2, 3, 4, 5, 6, 255] # 255 / -1 == spectator in kag
+        rotations = [0, 90, 180, 270]
+
         for item in self.all_items:
             if item is None or not hasattr(item.pixel_data, 'colors'):
                 continue
 
-            for key, color in item.pixel_data.colors.items():
-                # skip non-color entries
-                if not isinstance(color, list) or len(color) != 4:
-                    continue
+            item_specific_rotations = [item.sprite.rotation]
+            if item.sprite.properties.is_rotatable:
+                item_specific_rotations = rotations
 
-                split = key.split("_")
-                rotation, team = split[0][len("rotation"):], split[1][len("team"):]
+            item_specific_teams = [item.sprite.team]
+            if item.sprite.properties.can_swap_teams:
+                item_specific_teams = teams
 
-                item = item.copy()
-                item.sprite.rotation = int(rotation)
-                item.swap_team(int(team))
+            for r_val in item_specific_rotations:
+                for t_val in item_specific_teams:
+                    variant = item.copy()
 
-                color_tuple = tuple(color) # (a, r, g, b)
-                color_map[color_tuple] = item
+                    variant.sprite.rotation = r_val
+                    variant.swap_team(t_val)
+
+                    final_color_tuple = variant.get_color()
+
+                    if final_color_tuple:
+                        key = tuple(final_color_tuple)
+
+                        if key not in color_map:
+                            color_map[key] = variant
 
         return color_map
 

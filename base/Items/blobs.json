@@ -55,7 +55,9 @@
                     160,
                     159
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true 
         },
         "search_keywords": [
             ""
@@ -1752,6 +1754,12 @@
         "pixel_data": {
             "colors": {
                 "rotation0_team0": [
+                    255,
+                    202,
+                    164,
+                    130
+                ],
+                "rotation0_team-1": [
                     255,
                     202,
                     164,

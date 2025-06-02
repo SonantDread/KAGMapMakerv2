@@ -126,7 +126,7 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                try:
+                try: # todo: try to get rid of this try except block
                     item = self.item_list.get_item_by_color(pixel).copy()
 
                 except:
@@ -134,11 +134,22 @@ class KagImage:
 
                 name = item.name_data.name if item is not None else None
 
+                # skip empty pixels
                 if name == "sky" or name is None:
-                    continue # cant do anything so ignore
+                    continue
 
                 item.sprite.position = Vec2f(x, y)
-                # team swapping handled automatically so no need to worry about it here
+
+                alpha = pixel[0]
+                # team from alpha channel
+                if item.pixel_data.team_from_alpha:
+                    team = item.get_team_from_alpha(alpha)
+                    item.swap_team(team)
+
+                # angle from alpha channel
+                if item.pixel_data.angle_from_alpha and item.sprite.properties.is_rotatable:
+                    rotation = item.get_angle_from_alpha(alpha)
+                    item.sprite.rotation = rotation
 
                 # account for the saving offsets
                 offset_x, offset_y = -item.pixel_data.offset
