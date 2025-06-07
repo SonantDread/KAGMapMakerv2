@@ -438,12 +438,21 @@
         "display_name": "Magazine",
         "section_name": "blob",
         "sprite": {
-            "image": "magazine.png",
+            "image": "magazine_empty.png",
             "z": 500,
             "properties": {
                 "is_rotatable": false,
                 "can_swap_teams": false,
-                "team": 0
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
             },
             "offset": {
                 "x": 0,
@@ -453,7 +462,7 @@
         "pixel_data": {
             "colors": {
                 "rotation0_team0": [
-                    255,
+                    7,
                     255,
                     48,
                     255
