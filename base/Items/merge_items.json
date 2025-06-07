@@ -1,7 +1,7 @@
 [
     {
         "type": "other",
-        "name": "water_backdirt",
+        "name": "water_ground_back",
         "display_name": "Water With Dirt Backwall",
         "section_name": "other",
         "sprite": {

@@ -9,7 +9,7 @@
             "z": 499,
             "properties": {
                 "merges_with": {
-                    "tile_ground_back": "water_backdirt"
+                    "tile_ground_back": "water_ground_back"
                 }
             }
         },
