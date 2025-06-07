@@ -22,7 +22,11 @@ class CItemList:
         Communicator().picked_tiles = self.__get_selected_tiles()
         self.vanilla_blobs: list['CItem'] = self.__setup_blobs()
         self.vanilla_others: list['CItem'] = self.__setup_others()
+
+        self.merge_items: list['CItem'] = self.__setup_merge_items()
+
         tiles, blobs, other = self.__setup_modded_items()
+
         self.modded_tiles: list['CItem'] = tiles
         self.modded_blobs: list['CItem'] = blobs
         self.modded_others: list['CItem'] = other
@@ -32,13 +36,15 @@ class CItemList:
             self.vanilla_others,
             self.modded_tiles,
             self.modded_blobs,
-            self.modded_others
+            self.modded_others,
+            self.merge_items
         ]
         self.all_items = [item for sublist in all_items for item in sublist]
 
         self.pixel_color_map: dict[tuple[int, int, int, int], 'CItem'] = self.__create_pixel_color_map()
-        # todo: these all should be sorted
 
+        # TODO: magazine can support alpha for specific items
+        # TODO: add below items
         # -----
         # "Other" tab:
         # necromancer_teleport
@@ -158,6 +164,10 @@ class CItemList:
 
     def __setup_others(self) -> list['CItem']:
         path = self.file_handler.paths.get("otherlist_path")
+        return self.config_handler.load_modded_items(path)
+
+    def __setup_merge_items(self) -> list['CItem']:
+        path = self.file_handler.paths.get("merge_items_path")
         return self.config_handler.load_modded_items(path)
 
     def __get_selected_tiles(self) -> list['CItem']:

@@ -1,0 +1,106 @@
+[
+    {
+        "type": "other",
+        "name": "water_backdirt",
+        "display_name": "Water With Dirt Backwall",
+        "section_name": "other",
+        "sprite": {
+            "image": "water_ground_back.png",
+            "z": 499,
+            "properties": {
+                "in_picker_menu": false
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    51,
+                    85,
+                    102
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "other",
+        "name": "spikes_ground",
+        "display_name": "Spikes with Dirt Backwall",
+        "section_name": "other",
+        "sprite": {
+            "image": "spikes_ground_back.png",
+            "z": 499,
+            "properties": {
+                "in_picker_menu": false
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    180,
+                    97,
+                    17
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "other",
+        "name": "spikes_castle",
+        "display_name": "Spikes with Stone Backwall",
+        "section_name": "other",
+        "sprite": {
+            "image": "spikes_castle_back.png",
+            "z": 499,
+            "properties": {
+                "in_picker_menu": false
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    180,
+                    42,
+                    94
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "other",
+        "name": "spikes_wood",
+        "display_name": "Spikes With Wood Backwall",
+        "section_name": "other",
+        "sprite": {
+            "image": "spikes_wood_back.png",
+            "z": 499,
+            "properties": {
+                "in_picker_menu": false
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    255,
+                    200,
+                    42,
+                    94
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    }
+]

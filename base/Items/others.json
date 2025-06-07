@@ -29,32 +29,6 @@
     },
     {
         "type": "other",
-        "name": "water_backdirt",
-        "display_name": "Water With Dirt Backwall",
-        "section_name": "other",
-        "sprite": {
-            "image": "water_backdirt.png",
-            "z": 499,
-            "properties": {
-                "in_picker_menu": false
-            }
-        },
-        "pixel_data": {
-            "colors": {
-                "rotation0_team0": [
-                    255,
-                    51,
-                    85,
-                    102
-                ]
-            }
-        },
-        "search_keywords": [
-            ""
-        ]
-    },
-    {
-        "type": "other",
         "name": "redbarrier",
         "display_name": "Red Barrier",
         "section_name": "other",

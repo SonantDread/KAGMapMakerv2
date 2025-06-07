@@ -41,7 +41,7 @@ class Renderer:
         # merge two items if applicable
         did_merge, old_name = False, placing.name_data.name
         tile = canvas.tilemap.get(tm_pos)
-        if placing.is_mergeable() and (tile is not None and tile.is_mergeable()):
+        if tile is not None and (placing.is_mergeable() or tile.is_mergeable()):
             name = placing.merge_with(tile.name_data.name)
             new_item: CItem = self.item_list.get_item_by_name(name)
 

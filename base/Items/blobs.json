@@ -24,40 +24,10 @@
                     80,
                     90,
                     160
-                ],
-                "rotation90_team0": [
-                    255,
-                    80,
-                    90,
-                    159
-                ],
-                "rotation0_team1": [
-                    255,
-                    160,
-                    90,
-                    80
-                ],
-                "rotation90_team1": [
-                    255,
-                    160,
-                    90,
-                    79
-                ],
-                "rotation0_team-1": [
-                    255,
-                    160,
-                    160,
-                    160
-                ],
-                "rotation90_team-1": [
-                    255,
-                    160,
-                    160,
-                    159
                 ]
             },
             "team_from_alpha": true,
-            "angle_from_alpha": true 
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -88,20 +58,9 @@
                     56,
                     76,
                     142
-                ],
-                "rotation0_team1": [
-                    255,
-                    142,
-                    56,
-                    68
-                ],
-                "rotation0_team-1": [
-                    255,
-                    100,
-                    100,
-                    100
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -132,20 +91,9 @@
                     56,
                     76,
                     222
-                ],
-                "rotation0_team1": [
-                    255,
-                    222,
-                    56,
-                    68
-                ],
-                "rotation0_team-1": [
-                    255,
-                    222,
-                    222,
-                    222
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -171,43 +119,15 @@
         },
         "pixel_data": {
             "colors": {
-                "rotation90_team0": [
-                    255,
-                    26,
-                    78,
-                    131
-                ],
                 "rotation0_team0": [
                     255,
                     26,
                     78,
                     130
-                ],
-                "rotation90_team1": [
-                    255,
-                    148,
-                    27,
-                    27
-                ],
-                "rotation0_team1": [
-                    255,
-                    148,
-                    27,
-                    26
-                ],
-                "rotation90_team-1": [
-                    255,
-                    148,
-                    148,
-                    148
-                ],
-                "rotation0_team-1": [
-                    255,
-                    148,
-                    148,
-                    147
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -238,26 +158,9 @@
                     255,
                     146,
                     57
-                ],
-                "rotation90_team0": [
-                    255,
-                    255,
-                    146,
-                    56
-                ],
-                "rotation180_team0": [
-                    255,
-                    255,
-                    146,
-                    55
-                ],
-                "rotation270_team0": [
-                    255,
-                    255,
-                    146,
-                    54
                 ]
-            }
+            },
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -289,7 +192,8 @@
                     255,
                     255
                 ]
-            }
+            },
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -320,50 +224,9 @@
                     127,
                     255,
                     255
-                ],
-                "rotation0_team1": [
-                    255,
-                    126,
-                    255,
-                    255
-                ],
-                "rotation0_team2": [
-                    255,
-                    125,
-                    255,
-                    255
-                ],
-                "rotation0_team3": [
-                    255,
-                    124,
-                    255,
-                    255
-                ],
-                "rotation0_team4": [
-                    255,
-                    123,
-                    255,
-                    255
-                ],
-                "rotation0_team5": [
-                    255,
-                    122,
-                    255,
-                    255
-                ],
-                "rotation0_team6": [
-                    255,
-                    121,
-                    255,
-                    255
-                ],
-                "rotation0_team7": [
-                    255,
-                    120,
-                    255,
-                    255
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -395,7 +258,8 @@
                     255,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -427,7 +291,8 @@
                     255,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -459,7 +324,8 @@
                     255,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -491,7 +357,9 @@
                     0,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -523,7 +391,9 @@
                     16,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -555,7 +425,8 @@
                     32,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -619,7 +490,9 @@
                     64,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -651,7 +524,9 @@
                     80,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -683,7 +558,9 @@
                     96,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -715,7 +592,9 @@
                     112,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -747,7 +626,9 @@
                     128,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -779,7 +660,9 @@
                     144,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -811,7 +694,9 @@
                     160,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -843,7 +728,9 @@
                     176,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -875,7 +762,9 @@
                     192,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -907,7 +796,9 @@
                     208,
                     255
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -939,7 +830,8 @@
                     255,
                     0
                 ]
-            }
+            },
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -971,7 +863,8 @@
                     255,
                     16
                 ]
-            }
+            },
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1067,7 +960,8 @@
                     255,
                     64
                 ]
-            }
+            },
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1099,7 +993,9 @@
                     21,
                     9
                 ]
-            }
+            },
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1116,7 +1012,12 @@
             "properties": {
                 "is_rotatable": false,
                 "can_swap_teams": true,
-                "team": 0
+                "team": 0,
+                "merges_with": {
+                    "tile_ground_back": "spikes_ground",
+                    "tile_castle_back": "spikes_castle",
+                    "tile_wood_back": "spikes_wood"
+                }
             },
             "offset": {
                 "x": 0,
@@ -1131,7 +1032,8 @@
                     42,
                     17
                 ]
-            }
+            },
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""

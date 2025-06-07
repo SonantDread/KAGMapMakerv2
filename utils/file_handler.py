@@ -24,6 +24,7 @@ class FileHandler:
             "tilelist_path": os.path.abspath(os.path.join(vanilla_items, "tiles.json")),
             "bloblist_path": os.path.abspath(os.path.join(vanilla_items, "blobs.json")),
             "otherlist_path": os.path.abspath(os.path.join(vanilla_items, "others.json")),
+            "merge_items_path": os.path.abspath(os.path.join(vanilla_items, "merge_items.json")),
             "team_palette_path": os.path.abspath(os.path.join(default_path, "base", "Sprites", "Default", "TeamPalette.png")),
         }
 
