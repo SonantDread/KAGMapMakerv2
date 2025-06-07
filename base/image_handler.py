@@ -155,7 +155,7 @@ class ImageHandler(metaclass=SingletonMeta):
             # store with path and index as a tuple key
             self._modded_images[0][(path, index)] = image
 
-    def _load_modded_image(self, name: str, team: int, mod_path: str = None) -> QPixmap:
+    def _load_modded_image(self, name: str, team: int, mod_path: str) -> QPixmap:
         # loading a modded image
         if mod_path is not None:
             paths = [

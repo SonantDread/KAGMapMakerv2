@@ -25,6 +25,9 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
 
+      - name: Install jq
+        run: choco install jq
+
       - name: Build executable (Windows)
         run: python .scripts/pyinstaller.py
 
@@ -41,7 +44,7 @@ jobs:
                            --url https://www.virustotal.com/api/v3/files/upload_url \
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
           upload_url=$(echo $response | jq -r '.data')
-          echo "::set-output name=upload_url::$upload_url"
+          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Upload Windows executable to VirusTotal
@@ -51,9 +54,9 @@ jobs:
                            --url ${{ steps.upload_url_windows.outputs.upload_url }} \
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" \
                            --form file=@.scripts/KAGMapMaker.exe)
-          scan_url=$(echo $response | jq -r '.data.id')
-          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_url"
-          echo "::set-output name=scan_url::$full_scan_url"
+          scan_id=$(echo $response | jq -r '.data.id')
+          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
+          echo "scan_url=$full_scan_url" >> $GITHUB_OUTPUT
         shell: bash
 
   build-linux:
@@ -75,6 +78,9 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Build executable (Linux)
         run: python .scripts/pyinstaller.py
 
@@ -91,7 +97,7 @@ jobs:
                            --url https://www.virustotal.com/api/v3/files/upload_url \
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
           upload_url=$(echo $response | jq -r '.data')
-          echo "::set-output name=upload_url::$upload_url"
+          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Upload Linux executable to VirusTotal
@@ -101,9 +107,9 @@ jobs:
                            --url ${{ steps.upload_url_linux.outputs.upload_url }} \
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" \
                            --form file=@.scripts/KAGMapMaker)
-          scan_url=$(echo $response | jq -r '.data.id')
-          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_url"
-          echo "::set-output name=scan_url::$full_scan_url"
+          scan_id=$(echo $response | jq -r '.data.id')
+          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
+          echo "scan_url=$full_scan_url" >> $GITHUB_OUTPUT
         shell: bash
 
   release:
@@ -116,38 +122,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Windows executable
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-executable
-          path: dist/windows
-
-      - name: Download Linux executable
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-executable
-          path: dist/linux
+          path: dist # download all artifacts into a 'dist' directory
 
       - name: Display downloaded files
         run: ls -R dist/
 
       - name: Get latest commit message
         id: commit
-        run: echo "MESSAGE=\"$(git log -1 --pretty=%B)\"" >> $GITHUB_ENV
+        run: echo "MESSAGE<<EOF" >> $GITHUB_ENV && echo "$(git log -1 --pretty=%B)" >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/windows/*
-            dist/linux/*
+            dist/windows-executable/KAGMapMaker.exe
+            dist/linux-executable/KAGMapMaker
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
           body: |
             ${{ env.MESSAGE }}
 
+            ---
             ## VirusTotal Scans
-            Windows: ${{ needs.build-windows.outputs.windows_scan_url }}
-            Linux: ${{ needs.build-linux.outputs.linux_scan_url }}
+            **Windows:** [View Report](${{ needs.build-windows.outputs.windows_scan_url }})
+            **Linux:** [View Report](${{ needs.build-linux.outputs.linux_scan_url }})
           draft: false
           prerelease: false

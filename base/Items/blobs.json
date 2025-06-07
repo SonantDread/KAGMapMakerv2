@@ -13,7 +13,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 3,
+                "x": -3,
                 "y": 0
             }
         },
@@ -24,42 +24,10 @@
                     80,
                     90,
                     160
-                ],
-                "rotation90_team0": [
-                    255,
-                    80,
-                    90,
-                    159
-                ],
-                "rotation0_team1": [
-                    255,
-                    160,
-                    90,
-                    80
-                ],
-                "rotation90_team1": [
-                    255,
-                    160,
-                    90,
-                    79
-                ],
-                "rotation0_team-1": [
-                    255,
-                    160,
-                    160,
-                    160
-                ],
-                "rotation90_team-1": [
-                    255,
-                    160,
-                    160,
-                    159
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -90,24 +58,9 @@
                     56,
                     76,
                     142
-                ],
-                "rotation0_team1": [
-                    255,
-                    142,
-                    56,
-                    68
-                ],
-                "rotation0_team-1": [
-                    255,
-                    100,
-                    100,
-                    100
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -138,24 +91,9 @@
                     56,
                     76,
                     222
-                ],
-                "rotation0_team1": [
-                    255,
-                    222,
-                    56,
-                    68
-                ],
-                "rotation0_team-1": [
-                    255,
-                    222,
-                    222,
-                    222
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -181,47 +119,15 @@
         },
         "pixel_data": {
             "colors": {
-                "rotation90_team0": [
-                    255,
-                    26,
-                    78,
-                    131
-                ],
                 "rotation0_team0": [
                     255,
                     26,
                     78,
                     130
-                ],
-                "rotation90_team1": [
-                    255,
-                    148,
-                    27,
-                    27
-                ],
-                "rotation0_team1": [
-                    255,
-                    148,
-                    27,
-                    26
-                ],
-                "rotation90_team-1": [
-                    255,
-                    148,
-                    148,
-                    148
-                ],
-                "rotation0_team-1": [
-                    255,
-                    148,
-                    148,
-                    147
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -252,30 +158,9 @@
                     255,
                     146,
                     57
-                ],
-                "rotation90_team0": [
-                    255,
-                    255,
-                    146,
-                    56
-                ],
-                "rotation180_team0": [
-                    255,
-                    255,
-                    146,
-                    55
-                ],
-                "rotation270_team0": [
-                    255,
-                    255,
-                    146,
-                    54
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -308,10 +193,7 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -342,54 +224,9 @@
                     127,
                     255,
                     255
-                ],
-                "rotation0_team1": [
-                    255,
-                    126,
-                    255,
-                    255
-                ],
-                "rotation0_team2": [
-                    255,
-                    125,
-                    255,
-                    255
-                ],
-                "rotation0_team3": [
-                    255,
-                    124,
-                    255,
-                    255
-                ],
-                "rotation0_team4": [
-                    255,
-                    123,
-                    255,
-                    255
-                ],
-                "rotation0_team5": [
-                    255,
-                    122,
-                    255,
-                    255
-                ],
-                "rotation0_team6": [
-                    255,
-                    121,
-                    255,
-                    255
-                ],
-                "rotation0_team7": [
-                    255,
-                    120,
-                    255,
-                    255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -422,10 +259,7 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -458,10 +292,7 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -494,10 +325,7 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -530,10 +358,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -566,10 +392,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -602,10 +426,7 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -637,10 +458,6 @@
                     48,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -674,10 +491,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -710,10 +525,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -746,10 +559,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -782,10 +593,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -818,10 +627,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -854,10 +661,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -890,10 +695,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -926,10 +729,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -962,10 +763,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -998,10 +797,8 @@
                     255
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1034,10 +831,7 @@
                     0
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1070,10 +864,7 @@
                     16
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1105,10 +896,6 @@
                     255,
                     32
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1141,10 +928,6 @@
                     255,
                     48
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1178,10 +961,7 @@
                     64
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1201,8 +981,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 3,
-                "y": 24
+                "x": -3,
+                "y": -24
             }
         },
         "pixel_data": {
@@ -1214,10 +994,8 @@
                     9
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true,
+            "angle_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1234,7 +1012,12 @@
             "properties": {
                 "is_rotatable": false,
                 "can_swap_teams": true,
-                "team": 0
+                "team": 0,
+                "merges_with": {
+                    "tile_ground_back": "spikes_ground",
+                    "tile_castle_back": "spikes_castle",
+                    "tile_wood_back": "spikes_wood"
+                }
             },
             "offset": {
                 "x": 0,
@@ -1250,10 +1033,7 @@
                     17
                 ]
             },
-            "offset": {
-                "x": 0,
-                "y": 0
-            }
+            "team_from_alpha": true
         },
         "search_keywords": [
             ""
@@ -1273,8 +1053,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1285,10 +1065,6 @@
                     190,
                     190
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1309,8 +1085,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1321,10 +1097,6 @@
                     255,
                     190
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1345,8 +1117,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1357,10 +1129,6 @@
                     255,
                     190
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1381,8 +1149,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1393,10 +1161,6 @@
                     190,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1417,8 +1181,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1429,10 +1193,6 @@
                     230,
                     230
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1453,8 +1213,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1465,10 +1225,6 @@
                     190,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1489,8 +1245,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1501,10 +1257,6 @@
                     255,
                     239
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1525,8 +1277,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1537,10 +1289,6 @@
                     218,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1561,8 +1309,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1573,10 +1321,6 @@
                     217,
                     237
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1597,8 +1341,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1621,10 +1365,6 @@
                     217,
                     254
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1645,8 +1385,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 48
+                "x": -50,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -1657,10 +1397,6 @@
                     217,
                     217
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1681,8 +1417,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 72
+                "x": -50,
+                "y": -72
             }
         },
         "pixel_data": {
@@ -1693,10 +1429,6 @@
                     255,
                     223
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1717,8 +1449,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 48,
-                "y": 84
+                "x": -48,
+                "y": -84
             }
         },
         "pixel_data": {
@@ -1771,10 +1503,6 @@
                     207,
                     161
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1795,8 +1523,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 74,
-                "y": 69
+                "x": -74,
+                "y": -69
             }
         },
         "pixel_data": {
@@ -1837,10 +1565,6 @@
                     167,
                     146
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": -1
             }
         },
         "search_keywords": [
@@ -1861,8 +1585,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 24,
-                "y": 12
+                "x": -24,
+                "y": -12
             }
         },
         "pixel_data": {
@@ -1873,10 +1597,6 @@
                     255,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1898,7 +1618,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 8
+                "y": -8
             }
         },
         "pixel_data": {
@@ -1909,10 +1629,6 @@
                     226,
                     139
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1933,8 +1649,8 @@
                 "team": -1
             },
             "offset": {
-                "x": 24,
-                "y": 24
+                "x": -24,
+                "y": -24
             }
         },
         "pixel_data": {
@@ -1944,11 +1660,13 @@
                     202,
                     164,
                     130
+                ],
+                "rotation0_team-1": [
+                    255,
+                    202,
+                    164,
+                    130
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -1969,8 +1687,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 34,
-                "y": 196
+                "x": -34,
+                "y": -196
             }
         },
         "pixel_data": {
@@ -1981,10 +1699,6 @@
                     103,
                     34
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2005,8 +1719,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 16
+                "x": -8,
+                "y": -16
             }
         },
         "pixel_data": {
@@ -2017,10 +1731,6 @@
                     126,
                     24
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2041,8 +1751,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 14,
-                "y": 48
+                "x": -14,
+                "y": -48
             }
         },
         "pixel_data": {
@@ -2053,10 +1763,6 @@
                     183,
                     22
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2077,8 +1783,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 4,
-                "y": 6
+                "x": -4,
+                "y": -6
             }
         },
         "pixel_data": {
@@ -2089,10 +1795,6 @@
                     102,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2113,8 +1815,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 2,
-                "y": 21
+                "x": -2,
+                "y": -21
             }
         },
         "pixel_data": {
@@ -2125,10 +1827,6 @@
                     140,
                     40
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2149,8 +1847,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 50,
-                "y": 18
+                "x": -50,
+                "y": -18
             }
         },
         "pixel_data": {
@@ -2161,10 +1859,6 @@
                     175,
                     222
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2185,8 +1879,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 2
+                "x": -8,
+                "y": -2
             }
         },
         "pixel_data": {
@@ -2197,10 +1891,6 @@
                     168,
                     163
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2221,8 +1911,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 32,
-                "y": 42
+                "x": -32,
+                "y": -42
             }
         },
         "pixel_data": {
@@ -2233,10 +1923,6 @@
                     86,
                     70
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2257,8 +1943,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 12
+                "x": -8,
+                "y": -12
             }
         },
         "pixel_data": {
@@ -2269,10 +1955,6 @@
                     38,
                     20
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2293,8 +1975,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 12,
-                "y": 18
+                "x": -12,
+                "y": -18
             }
         },
         "pixel_data": {
@@ -2305,10 +1987,6 @@
                     193,
                     80
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2329,8 +2007,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 16,
-                "y": 8
+                "x": -16,
+                "y": -8
             }
         },
         "pixel_data": {
@@ -2341,10 +2019,6 @@
                     120,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2365,7 +2039,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 24,
+                "x": -24,
                 "y": 0
             }
         },
@@ -2377,10 +2051,6 @@
                     59,
                     253
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2401,8 +2071,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -5,
-                "y": -3
+                "x": 5,
+                "y": 3
             }
         },
         "pixel_data": {
@@ -2413,10 +2083,6 @@
                     231,
                     177
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2437,8 +2103,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 21,
-                "y": 21
+                "x": -21,
+                "y": -21
             }
         },
         "pixel_data": {
@@ -2449,10 +2115,6 @@
                     0,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2473,8 +2135,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 8
+                "x": -8,
+                "y": -8
             }
         },
         "pixel_data": {
@@ -2485,10 +2147,6 @@
                     220,
                     120
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2509,8 +2167,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 1,
-                "y": -6
+                "x": -1,
+                "y": 6
             }
         },
         "pixel_data": {
@@ -2521,10 +2179,6 @@
                     0,
                     180
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2545,8 +2199,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 6,
-                "y": -6
+                "x": -6,
+                "y": 6
             }
         },
         "pixel_data": {
@@ -2557,10 +2211,6 @@
                     136,
                     103
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2581,7 +2231,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 4,
+                "x": -4,
                 "y": 0
             }
         },
@@ -2593,10 +2243,6 @@
                     142,
                     75
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2617,7 +2263,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 1,
+                "x": -1,
                 "y": 0
             }
         },
@@ -2629,10 +2275,6 @@
                     40,
                     80
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2653,8 +2295,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -2,
-                "y": 6
+                "x": 2,
+                "y": -6
             }
         },
         "pixel_data": {
@@ -2665,10 +2307,6 @@
                     241,
                     87
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2690,7 +2328,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 6
+                "y": -6
             }
         },
         "pixel_data": {
@@ -2701,10 +2339,6 @@
                     200,
                     120
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2725,7 +2359,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 1,
+                "x": -1,
                 "y": 0
             }
         },
@@ -2737,10 +2371,6 @@
                     210,
                     70
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2761,8 +2391,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -1,
-                "y": 12
+                "x": 1,
+                "y": -12
             }
         },
         "pixel_data": {
@@ -2773,10 +2403,6 @@
                     160,
                     10
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2797,8 +2423,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -4,
-                "y": 9
+                "x": 4,
+                "y": -9
             }
         },
         "pixel_data": {
@@ -2809,10 +2435,6 @@
                     210,
                     70
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2833,8 +2455,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -1,
-                "y": 15
+                "x": 1,
+                "y": -15
             }
         },
         "pixel_data": {
@@ -2845,10 +2467,6 @@
                     180,
                     10
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2869,8 +2487,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 4,
-                "y": 18
+                "x": -4,
+                "y": -18
             }
         },
         "pixel_data": {
@@ -2881,10 +2499,6 @@
                     230,
                     170
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2905,8 +2519,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 6,
-                "y": 10
+                "x": -6,
+                "y": -10
             }
         },
         "pixel_data": {
@@ -2929,10 +2543,6 @@
                     75,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2953,8 +2563,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 11,
-                "y": 16
+                "x": -11,
+                "y": -16
             }
         },
         "pixel_data": {
@@ -2965,10 +2575,6 @@
                     149,
                     133
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -2989,8 +2595,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 10
+                "x": -8,
+                "y": -10
             }
         },
         "pixel_data": {
@@ -3001,10 +2607,6 @@
                     100,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3025,8 +2627,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 20,
-                "y": 33
+                "x": -20,
+                "y": -33
             }
         },
         "pixel_data": {
@@ -3037,10 +2639,6 @@
                     60,
                     60
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3062,7 +2660,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 24
+                "y": -24
             }
         },
         "pixel_data": {
@@ -3073,10 +2671,6 @@
                     232,
                     184
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3097,8 +2691,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 48,
-                "y": 63
+                "x": -48,
+                "y": -63
             }
         },
         "pixel_data": {
@@ -3109,10 +2703,6 @@
                     229,
                     165
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3133,8 +2723,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 84,
-                "y": 90
+                "x": -84,
+                "y": -90
             }
         },
         "pixel_data": {
@@ -3145,10 +2735,6 @@
                     210,
                     160
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3169,8 +2755,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 48,
-                "y": 12
+                "x": -48,
+                "y": -12
             }
         },
         "pixel_data": {
@@ -3181,10 +2767,6 @@
                     110,
                     155
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3205,8 +2787,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 60,
-                "y": 27
+                "x": -60,
+                "y": -27
             }
         },
         "pixel_data": {
@@ -3217,10 +2799,6 @@
                     158,
                     246
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3241,8 +2819,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 100,
-                "y": 126
+                "x": -100,
+                "y": -126
             }
         },
         "pixel_data": {
@@ -3253,10 +2831,6 @@
                     51,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3277,8 +2851,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 120,
-                "y": 120
+                "x": -120,
+                "y": -120
             }
         },
         "pixel_data": {
@@ -3289,10 +2863,6 @@
                     140,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3313,8 +2883,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 120,
-                "y": 120
+                "x": -120,
+                "y": -120
             }
         },
         "pixel_data": {
@@ -3325,10 +2895,6 @@
                     175,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3349,8 +2915,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 56,
-                "y": 195
+                "x": -56,
+                "y": -195
             }
         },
         "pixel_data": {
@@ -3361,10 +2927,6 @@
                     190,
                     0
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3385,8 +2947,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 12,
-                "y": 9
+                "x": -12,
+                "y": -9
             }
         },
         "pixel_data": {
@@ -3397,10 +2959,6 @@
                     240,
                     160
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3421,8 +2979,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 6
+                "x": -8,
+                "y": -6
             }
         },
         "pixel_data": {
@@ -3433,10 +2991,6 @@
                     190,
                     175
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3457,8 +3011,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 8,
-                "y": 3
+                "x": -8,
+                "y": -3
             }
         },
         "pixel_data": {
@@ -3469,10 +3023,6 @@
                     190,
                     140
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3493,8 +3043,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 10,
-                "y": 33
+                "x": -10,
+                "y": -33
             }
         },
         "pixel_data": {
@@ -3505,10 +3055,6 @@
                     135,
                     255
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [
@@ -3529,8 +3075,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 12,
-                "y": 33
+                "x": -12,
+                "y": -33
             }
         },
         "pixel_data": {
@@ -3541,13 +3087,7 @@
                     58,
                     187
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
-            
-            
         },
         "search_keywords": [
             ""
@@ -3567,8 +3107,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 14,
-                "y": 36
+                "x": -14,
+                "y": -36
             }
         },
         "pixel_data": {
@@ -3579,10 +3119,6 @@
                     140,
                     67
                 ]
-            },
-            "offset": {
-                "x": 0,
-                "y": 0
             }
         },
         "search_keywords": [

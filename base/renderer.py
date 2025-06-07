@@ -41,7 +41,7 @@ class Renderer:
         # merge two items if applicable
         did_merge, old_name = False, placing.name_data.name
         tile = canvas.tilemap.get(tm_pos)
-        if placing.is_mergeable() and (tile is not None and tile.is_mergeable()):
+        if tile is not None and (placing.is_mergeable() or tile.is_mergeable()):
             name = placing.merge_with(tile.name_data.name)
             new_item: CItem = self.item_list.get_item_by_name(name)
 
@@ -142,7 +142,7 @@ class Renderer:
             adjusted_y += (w - h) / 2
 
         offset_x, offset_y = placing.sprite.offset
-        pixmap_item.setPos(int(adjusted_x - offset_x), int(adjusted_y - offset_y))
+        pixmap_item.setPos(float(adjusted_x + offset_x), float(adjusted_y + offset_y))
 
         pixmap_item.setZValue(placing.sprite.z)
 

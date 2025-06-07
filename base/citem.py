@@ -44,6 +44,8 @@ class ModInfo:
 class PixelData:
     colors: dict[str, list[int, int, int, int]]
     offset: Vec2f
+    team_from_alpha: bool = False
+    angle_from_alpha: bool = False
 
 @dataclass
 class CItem:
@@ -85,8 +87,6 @@ class CItem:
             if file_path:
                 mod_dir = os.path.dirname(file_path)
                 # modded item
-                # t*odo: ideally this would use filehandler for this path
-                # but was getting circular import error
                 if FileHandler().paths.get("modded_items_path") in file_path:
                     image = image_handler.get_image(data.get("name"), mod_dir=mod_dir)
                 else:
@@ -96,7 +96,10 @@ class CItem:
             image=image,
             z=sprite_data.get("z", 0),
             properties=sprite_props,
-            offset=offset
+            offset=offset,
+            position=Vec2f(0, 0),
+            team=team,
+            rotation=0
         )
 
         mod_info = ModInfo(
@@ -109,7 +112,9 @@ class CItem:
         offset = pixel_data.get("offset", {"x": 0, "y": 0})
         pixel_colors = PixelData(
             colors=pixel_data.get("colors", {}),
-            offset=Vec2f(offset.get("x", 0), offset.get("y", 0))
+            offset=Vec2f(offset.get("x", 0), offset.get("y", 0)),
+            team_from_alpha=pixel_data.get("team_from_alpha", False),
+            angle_from_alpha=pixel_data.get("angle_from_alpha", False)
         )
 
         name_data = Name(
@@ -134,32 +139,58 @@ class CItem:
 
         return item
 
-    def get_color(self, rotation: int = 0, team: int = 0, rotational_symmetry: bool = False) -> tuple[int, int, int, int]:
+    def get_color(self, rotation: int = None, team: int = None, rotational_symmetry: bool = False) -> tuple[int, int, int, int]:
         """
         Returns an ARGB tuple representing the color for the item.
-
-        Parameters:
-            rotation (int): The rotation for the item.
-            team (int): the team for the item.
-            allowing for easier matching to objects such as doors.
-
-        Returns:
-            The pixel color of the item.
         """
-        colors = self.pixel_data.colors
+        can_rotate = self.sprite.properties.is_rotatable
+        can_swap_teams = self.sprite.properties.can_swap_teams
 
-        full_match: list = colors.get(f'rotation{rotation}_team{team}')
-        if full_match is not None:
-            return tuple(full_match)
+        current_rotation = self.sprite.rotation if rotation is None else rotation
+        current_team = self.sprite.team if team is None else team
 
+        pd = self.pixel_data
+        colors = pd.colors
+
+        # determine rotation key for color lookup
+        lookup_rotation_key = current_rotation
         if rotational_symmetry:
-            rotation = rotation % 180
+            lookup_rotation_key = current_rotation % 180
 
-        match = colors.get(f'rotation{rotation}_team{team}')
-        if match is not None:
-            return tuple(match)
+        # try to get a full match first
+        color_match_key = f'rotation{lookup_rotation_key}_team{current_team}'
+        current_match_argb = colors.get(color_match_key)
 
-        return None
+        # fallback if no direct match
+        if current_match_argb is None:
+            # try with just lookup_rotation_key and team 0 if current_team is not 0
+            if current_team != 0:
+                color_match_key_team0 = f'rotation{lookup_rotation_key}_team0'
+                current_match_argb = colors.get(color_match_key_team0)
+
+            # fallback to first defined color if still no match
+            if current_match_argb is None:
+                current_match_argb = list(colors.values())[0] if colors else None
+                if current_match_argb is None:
+                    # no color definitions found
+                    return None
+
+        # make mutable copy of the ARGB list
+        output_argb = list(current_match_argb)
+        base_alpha = output_argb[0]
+
+        final_alpha = base_alpha
+
+        # encode rotation in alpha channel if rotatable
+        if pd.angle_from_alpha and can_rotate:
+            final_alpha = (final_alpha & ~0x30) | self.get_alpha_from_angle(current_rotation)
+
+        # encode team in alpha channel
+        if pd.team_from_alpha and can_swap_teams:
+            final_alpha = (final_alpha & ~0x0F) | self.get_alpha_from_team(current_team)
+
+        output_argb[0] = final_alpha
+        return tuple(output_argb)
 
     def is_eraser(self) -> bool:
         names = [
@@ -188,6 +219,28 @@ class CItem:
             pixel_data=deepcopy(self.pixel_data),
             search_keywords=deepcopy(self.search_keywords)
         )
+
+    def get_team_from_alpha(self, alpha: int) -> int:
+        alpha &= 0x0F
+        return 0 if (alpha > 7 or alpha < 0) else alpha
+
+    def get_alpha_from_team(self, team: int) -> int:
+        return team if 0 <= team <= 7 else 0x0F
+
+    def get_angle_from_alpha(self, channel: int) -> int:
+        channel &= 0x30
+        return {
+            0x10: 90,
+            0x20: 180,
+            0x30: 270
+        }.get(channel, 0)
+
+    def get_alpha_from_angle(self, angle: int) -> int:
+        return {
+            90: 0x10,
+            180: 0x20,
+            270: 0x30
+            }.get(angle, 0)
 
     def swap_team(self, team: int) -> None:
         """
