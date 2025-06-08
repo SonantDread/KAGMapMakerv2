@@ -95,7 +95,7 @@ class Toolbar(QToolBar):
     def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
-    def _add_checkbox(self, menu: QMenu, text: str, action) -> None:
+    def _add_checkbox(self, menu: QMenu, text: str, action) -> QCheckBox:
         box = QCheckBox(text, self)
         action_widget = QWidgetAction(self)
         action_widget.setDefaultWidget(box)
