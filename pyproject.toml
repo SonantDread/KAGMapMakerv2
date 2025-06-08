@@ -1,0 +1,28 @@
+[project]
+name = "kagmapmakerv2"
+version = "0.1.0"
+description = "A tool for creating maps for the game King Arthur's Gold."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pillow==10.3.0",
+    "PyQt6==6.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "app.py",
+    "core/",
+    "base/",
+    "utils/",
+    "settings/",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pyinstaller",
+]
