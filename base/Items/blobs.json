@@ -158,9 +158,26 @@
                     255,
                     146,
                     57
+                ],
+                "rotation90_team0": [
+                    255,
+                    255,
+                    146,
+                    56
+                ],
+                "rotation180_team0": [
+                    255,
+                    255,
+                    146,
+                    55
+                ],
+                "rotation270_team0": [
+                    255,
+                    255,
+                    146,
+                    54
                 ]
-            },
-            "angle_from_alpha": true
+            }
         },
         "search_keywords": [
             ""
