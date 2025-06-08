@@ -21,9 +21,9 @@
             "colors": {
                 "rotation0_team0": [
                     255,
-                    80,
-                    90,
-                    160
+                    208,
+                    32,
+                    208
                 ]
             },
             "team_from_alpha": true,
@@ -121,9 +121,9 @@
             "colors": {
                 "rotation0_team0": [
                     255,
-                    26,
-                    78,
-                    130
+                    208,
+                    64,
+                    208
                 ]
             },
             "team_from_alpha": true,
