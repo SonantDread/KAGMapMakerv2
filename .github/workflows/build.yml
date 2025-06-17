@@ -35,7 +35,10 @@ jobs:
         run: choco install jq
 
       - name: Build executable (Windows)
-        run: python .scripts/pyinstaller.py
+        run: |
+          .venv\Scripts\Activate.ps1
+          python .scripts/pyinstaller.py
+        shell: pwsh
 
       - name: Upload Windows executable
         uses: actions/upload-artifact@v4
@@ -94,7 +97,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Build executable (Linux)
-        run: python .scripts/pyinstaller.py
+        run: |
+          source .venv/bin/activate
+          python .scripts/pyinstaller.py
 
       - name: Upload Linux executable
         uses: actions/upload-artifact@v4
