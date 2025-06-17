@@ -127,6 +127,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -142,20 +144,34 @@ jobs:
           VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' pyproject.toml)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} already exists. Skipping release."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} does not exist. Proceeding with release."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/windows-executable/KAGMapMaker.exe
-            dist/linux-executable/KAGMapMaker
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           name: Release v${{ steps.get_version.outputs.VERSION }}
           body: |
+            New release based on commit: `${{ github.sha }}`
+
             ${{ github.event.head_commit.message }}
 
             ---
             ## VirusTotal Scans
             **Windows:** [View Report](${{ needs.build-windows.outputs.windows_scan_url }})
             **Linux:** [View Report](${{ needs.build-linux.outputs.linux_scan_url }})
+          files: |
+            dist/windows-executable/KAGMapMaker.exe
+            dist/linux-executable/KAGMapMaker
           draft: false
           prerelease: false
