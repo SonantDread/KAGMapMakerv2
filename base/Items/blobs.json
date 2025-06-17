@@ -21,9 +21,9 @@
             "colors": {
                 "rotation0_team0": [
                     255,
-                    80,
-                    90,
-                    160
+                    208,
+                    32,
+                    208
                 ]
             },
             "team_from_alpha": true,
@@ -121,9 +121,9 @@
             "colors": {
                 "rotation0_team0": [
                     255,
-                    26,
-                    78,
-                    130
+                    208,
+                    64,
+                    208
                 ]
             },
             "team_from_alpha": true,
@@ -158,9 +158,26 @@
                     255,
                     146,
                     57
+                ],
+                "rotation90_team0": [
+                    255,
+                    255,
+                    146,
+                    56
+                ],
+                "rotation180_team0": [
+                    255,
+                    255,
+                    146,
+                    55
+                ],
+                "rotation270_team0": [
+                    255,
+                    255,
+                    146,
+                    54
                 ]
-            },
-            "angle_from_alpha": true
+            }
         },
         "search_keywords": [
             ""
@@ -345,8 +362,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 4.5,
+                "y": -1
             }
         },
         "pixel_data": {
@@ -379,8 +396,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 1.5,
+                "y": -1.25
             }
         },
         "pixel_data": {
@@ -413,8 +430,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": -1.3,
+                "y": -1.3
             }
         },
         "pixel_data": {
@@ -438,12 +455,21 @@
         "display_name": "Magazine",
         "section_name": "blob",
         "sprite": {
-            "image": "magazine.png",
+            "image": "magazine_empty.png",
             "z": 500,
             "properties": {
                 "is_rotatable": false,
                 "can_swap_teams": false,
-                "team": 0
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
             },
             "offset": {
                 "x": 0,
@@ -453,7 +479,7 @@
         "pixel_data": {
             "colors": {
                 "rotation0_team0": [
-                    255,
+                    7,
                     255,
                     48,
                     255
@@ -478,8 +504,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 4.5,
+                "y": -1.5
             }
         },
         "pixel_data": {
@@ -512,8 +538,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 1.7,
+                "y": -1.3
             }
         },
         "pixel_data": {
@@ -546,8 +572,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 4.5,
+                "y": -1.5
             }
         },
         "pixel_data": {
@@ -580,8 +606,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 4.5,
+                "y": -1.3
             }
         },
         "pixel_data": {
@@ -615,7 +641,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 0
+                "y": 1.3
             }
         },
         "pixel_data": {
@@ -648,7 +674,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
+                "x": 7,
                 "y": 0
             }
         },
@@ -682,7 +708,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
+                "x": 1.3,
                 "y": 0
             }
         },
@@ -716,8 +742,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 1.25,
+                "y": 1.75
             }
         },
         "pixel_data": {
@@ -750,8 +776,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": 0
+                "x": 3,
+                "y": 3
             }
         },
         "pixel_data": {
@@ -785,7 +811,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 0
+                "y": 3
             }
         },
         "pixel_data": {
@@ -884,7 +910,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
+                "x": 1.5,
                 "y": 0
             }
         },
@@ -949,7 +975,7 @@
             },
             "offset": {
                 "x": 0,
-                "y": 0
+                "y": -9
             }
         },
         "pixel_data": {
@@ -1524,7 +1550,7 @@
             },
             "offset": {
                 "x": -74,
-                "y": -69
+                "y": -45
             }
         },
         "pixel_data": {
@@ -1617,8 +1643,8 @@
                 "team": 0
             },
             "offset": {
-                "x": 0,
-                "y": -8
+                "x": -13,
+                "y": -9
             }
         },
         "pixel_data": {
@@ -1975,8 +2001,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -12,
-                "y": -18
+                "x": -9,
+                "y": -9
             }
         },
         "pixel_data": {
@@ -2008,7 +2034,7 @@
             },
             "offset": {
                 "x": -16,
-                "y": -8
+                "y": -4.5
             }
         },
         "pixel_data": {
@@ -2071,7 +2097,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 5,
+                "x": 4.5,
                 "y": 3
             }
         },
@@ -2135,8 +2161,8 @@
                 "team": 0
             },
             "offset": {
-                "x": -8,
-                "y": -8
+                "x": -7.5,
+                "y": -9
             }
         },
         "pixel_data": {
@@ -2167,7 +2193,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -1,
+                "x": -1.5,
                 "y": 6
             }
         },
@@ -2231,7 +2257,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -4,
+                "x": -3,
                 "y": 0
             }
         },
@@ -2263,7 +2289,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -1,
+                "x": -1.5,
                 "y": 0
             }
         },
@@ -2295,7 +2321,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 2,
+                "x": 1.5,
                 "y": -6
             }
         },
@@ -2359,7 +2385,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -1,
+                "x": -1.5,
                 "y": 0
             }
         },
@@ -2391,7 +2417,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 1,
+                "x": 1.5,
                 "y": -12
             }
         },
@@ -2423,7 +2449,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 4,
+                "x": 4.5,
                 "y": -9
             }
         },
@@ -2455,7 +2481,7 @@
                 "team": 0
             },
             "offset": {
-                "x": 1,
+                "x": 1.5,
                 "y": -15
             }
         },
@@ -2487,7 +2513,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -4,
+                "x": -4.5,
                 "y": -18
             }
         },
@@ -2884,7 +2910,7 @@
             },
             "offset": {
                 "x": -120,
-                "y": -120
+                "y": -100
             }
         },
         "pixel_data": {
@@ -2915,7 +2941,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -56,
+                "x": -54,
                 "y": -195
             }
         },
@@ -3011,7 +3037,7 @@
                 "team": 0
             },
             "offset": {
-                "x": -8,
+                "x": -9,
                 "y": -3
             }
         },

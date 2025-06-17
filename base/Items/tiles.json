@@ -55,7 +55,7 @@
             "z": -599,
             "properties": {
                 "merges_with": {
-                    "water_air": "water_backdirt"
+                    "water_air": "water_ground_back"
                 }
             }
         },

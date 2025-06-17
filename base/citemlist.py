@@ -3,6 +3,7 @@ from typing import Union
 from utils.config_handler import ConfigHandler
 from utils.file_handler import FileHandler
 from core.communicator import Communicator
+from base.citem import CItem
 
 # indexes in KAG but will also use here to try to keep it similar,
 # can be changed later if its a problem
@@ -18,18 +19,18 @@ class CItemList:
         self.file_handler = FileHandler()
         self.config_handler = ConfigHandler()
 
-        self.vanilla_tiles: list['CItem'] = self.__setup_tiles()
+        self.vanilla_tiles: list[CItem] = self.__setup_tiles()
         Communicator().picked_tiles = self.__get_selected_tiles()
-        self.vanilla_blobs: list['CItem'] = self.__setup_blobs()
-        self.vanilla_others: list['CItem'] = self.__setup_others()
+        self.vanilla_blobs: list[CItem] = self.__setup_blobs()
+        self.vanilla_others: list[CItem] = self.__setup_others()
 
-        self.merge_items: list['CItem'] = self.__setup_merge_items()
+        self.merge_items: list[CItem] = self.__setup_merge_items()
 
         tiles, blobs, other = self.__setup_modded_items()
 
-        self.modded_tiles: list['CItem'] = tiles
-        self.modded_blobs: list['CItem'] = blobs
-        self.modded_others: list['CItem'] = other
+        self.modded_tiles: list[CItem] = tiles
+        self.modded_blobs: list[CItem] = blobs
+        self.modded_others: list[CItem] = other
         all_items = [
             self.vanilla_tiles,
             self.vanilla_blobs,
@@ -41,7 +42,7 @@ class CItemList:
         ]
         self.all_items = [item for sublist in all_items for item in sublist]
 
-        self.pixel_color_map: dict[tuple[int, int, int, int], 'CItem'] = self.__create_pixel_color_map()
+        self.pixel_color_map: dict[tuple[int, int, int, int], CItem] = self.__create_pixel_color_map()
 
         # TODO: magazine can support alpha for specific items
         # TODO: add below items
@@ -52,9 +53,18 @@ class CItemList:
         # mook_archer
         # mook_spawner
         # mook_spawner_10
+        # trader_1 (loadtdmpng)
+        # trader_2
+        # hall
+        # checkpoint (loadchallengepng)
+        # blue_team_scroll (loadwarpng)
+        # red_team_scroll
+        # crappy_scroll
+        # medium_scroll
+        # super_scroll
         # -----
 
-    def does_tile_exist(self, name: Union[str, 'CItem']) -> bool:
+    def does_tile_exist(self, name: Union[str, CItem]) -> bool:
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -66,7 +76,7 @@ class CItemList:
 
         return False
 
-    def does_blob_exist(self, name: Union[str, 'CItem']) -> bool:
+    def does_blob_exist(self, name: Union[str, CItem]) -> bool:
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -78,7 +88,7 @@ class CItemList:
 
         return False
 
-    def does_other_exist(self, name: Union[str, 'CItem']) -> bool:
+    def does_other_exist(self, name: Union[str, CItem]) -> bool:
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -90,16 +100,16 @@ class CItemList:
 
         return False
 
-    def get_item_by_name(self, name: str) -> 'CItem':
+    def get_item_by_name(self, name: str) -> CItem:
         name = str(name)
         for item in self.all_items:
             if item.name_data.name == name:
                 return item
 
-    def get_item_by_color(self, color: tuple[int, int, int, int]) -> 'CItem':
+    def get_item_by_color(self, color: tuple[int, int, int, int]) -> CItem:
         return self.pixel_color_map.get(color)
 
-    def __setup_modded_items(self) -> tuple[list['CItem'], list['CItem'], list['CItem']]:
+    def __setup_modded_items(self) -> tuple[list[CItem], list[CItem], list[CItem]]:
         fh, ch = FileHandler(), ConfigHandler()
         items = fh.get_modded_items_paths()
         items = [item for item in items if not item.split("\\")[-1].strip().startswith("_")]
@@ -116,7 +126,7 @@ class CItemList:
 
         return tiles, blobs, other
 
-    def __create_pixel_color_map(self) -> dict[tuple[int, int, int, int], 'CItem']:
+    def __create_pixel_color_map(self) -> dict[tuple[int, int, int, int], CItem]:
         color_map = {}
 
         teams = [0, 1, 2, 3, 4, 5, 6, 255] # 255 / -1 == spectator in kag
@@ -151,26 +161,26 @@ class CItemList:
 
         return color_map
 
-    def __setup_tiles(self) -> list['CItem']:
+    def __setup_tiles(self) -> list[CItem]:
         path = self.file_handler.paths.get("tilelist_path")
         items = self.config_handler.load_modded_items(path)
         # swap sky from being last to first
         items.insert(0, items.pop())
         return items
 
-    def __setup_blobs(self) -> list['CItem']:
+    def __setup_blobs(self) -> list[CItem]:
         path = self.file_handler.paths.get("bloblist_path")
         return self.config_handler.load_modded_items(path)
 
-    def __setup_others(self) -> list['CItem']:
+    def __setup_others(self) -> list[CItem]:
         path = self.file_handler.paths.get("otherlist_path")
         return self.config_handler.load_modded_items(path)
 
-    def __setup_merge_items(self) -> list['CItem']:
+    def __setup_merge_items(self) -> list[CItem]:
         path = self.file_handler.paths.get("merge_items_path")
         return self.config_handler.load_modded_items(path)
 
-    def __get_selected_tiles(self) -> list['CItem']:
+    def __get_selected_tiles(self) -> list[CItem]:
         t = self.vanilla_tiles
         tiles = []
         for item in t:

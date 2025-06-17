@@ -1,9 +1,10 @@
-name: Build Executables
+name: Build and Release
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -12,18 +13,22 @@ jobs:
       windows_scan_url: ${{ steps.virustotal-windows.outputs.scan_url }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10.6'
 
-      - name: Install dependencies
+      - name: Install uv
         run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install -r requirements.txt
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Install dependencies and pyinstaller
+        run: uv sync --all-extras --system-site-packages
 
       - name: Install jq
         run: choco install jq
@@ -40,24 +45,24 @@ jobs:
       - name: Get upload URL for Windows executable
         id: upload_url_windows
         run: |
-          response=$(curl --request GET \
-                           --url https://www.virustotal.com/api/v3/files/upload_url \
+          response=$(curl --request GET `
+                           --url https://www.virustotal.com/api/v3/files/upload_url `
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
           upload_url=$(echo $response | jq -r '.data')
-          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
-        shell: bash
+          echo "upload_url=$upload_url" >> $env:GITHUB_OUTPUT
+        shell: pwsh
 
       - name: Upload Windows executable to VirusTotal
         id: virustotal-windows
         run: |
-          response=$(curl --request POST \
-                           --url ${{ steps.upload_url_windows.outputs.upload_url }} \
-                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" \
-                           --form file=@.scripts/KAGMapMaker.exe)
+          response=$(curl --request POST `
+                           --url ${{ steps.upload_url_windows.outputs.upload_url }} `
+                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" `
+                           --form file=@".scripts/KAGMapMaker.exe")
           scan_id=$(echo $response | jq -r '.data.id')
           full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
-          echo "scan_url=$full_scan_url" >> $GITHUB_OUTPUT
-        shell: bash
+          echo "scan_url=$full_scan_url" >> $env:GITHUB_OUTPUT
+        shell: pwsh
 
   build-linux:
     runs-on: ubuntu-latest
@@ -65,18 +70,21 @@ jobs:
       linux_scan_url: ${{ steps.virustotal-linux.outputs.scan_url }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10.6'
 
-      - name: Install dependencies
+      - name: Install uv
         run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install -r requirements.txt
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies and pyinstaller
+        run: uv sync --all-extras --system-site-packages
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -98,7 +106,6 @@ jobs:
                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
           upload_url=$(echo $response | jq -r '.data')
           echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Upload Linux executable to VirusTotal
         id: virustotal-linux
@@ -110,44 +117,61 @@ jobs:
           scan_id=$(echo $response | jq -r '.data.id')
           full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
           echo "scan_url=$full_scan_url" >> $GITHUB_OUTPUT
-        shell: bash
 
   release:
     runs-on: ubuntu-latest
     needs: [build-windows, build-linux]
-
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: dist # download all artifacts into a 'dist' directory
+          path: dist
 
       - name: Display downloaded files
         run: ls -R dist/
 
-      - name: Get latest commit message
-        id: commit
-        run: echo "MESSAGE<<EOF" >> $GITHUB_ENV && echo "$(git log -1 --pretty=%B)" >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' pyproject.toml)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} already exists. Skipping release."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} does not exist. Proceeding with release."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/windows-executable/KAGMapMaker.exe
-            dist/linux-executable/KAGMapMaker
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: Release v${{ steps.get_version.outputs.VERSION }}
           body: |
-            ${{ env.MESSAGE }}
+            New release based on commit: `${{ github.sha }}`
+
+            ${{ github.event.head_commit.message }}
 
             ---
             ## VirusTotal Scans
             **Windows:** [View Report](${{ needs.build-windows.outputs.windows_scan_url }})
             **Linux:** [View Report](${{ needs.build-linux.outputs.linux_scan_url }})
+          files: |
+            dist/windows-executable/KAGMapMaker.exe
+            dist/linux-executable/KAGMapMaker
           draft: false
           prerelease: false

@@ -31,30 +31,30 @@ class Toolbar(QToolBar):
         This function creates the menu actions, adds them to their respective menus,
         and connects the actions to their corresponding functions.
         """
-        # file menu
+        # --- file menu ---
         file_menu = QMenu("File", self)
         new_action = QAction("New", self)
         save_action = QAction("Save", self)
         save_as_action = QAction("Save As", self)
         load_action = QAction("Load", self)
-        # render_action = QAction("Render", self)
         test_in_kag = QAction("Test in KAG", self)
         file_menu.addAction(new_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         file_menu.addAction(load_action)
-        # file_menu.addAction(render_action)
+        file_menu.addSeparator()
         file_menu.addAction(test_in_kag)
 
-        # settings menu
+        # --- settings Menu ---
         settings_menu = QMenu("Settings", self)
-        self.mirror_x = self._add_checkbox(settings_menu, "Mirror Over X-Axis", lambda x: self.toggle_mirrored_x(x))
-        self.tilegrid_visible = self._add_checkbox(settings_menu, "Show Grid", lambda x: self.toggle_grid(x))
+        self.mirror_x = self._add_checkbox(settings_menu, "Mirror Over X-Axis", self.toggle_mirrored_x)
 
-        # view menu
+        # --- view Menu ---
         view_menu = QMenu("View", self)
+        self.tilegrid_visible = self._add_checkbox(view_menu, "Show Grid", self.toggle_grid)
+        view_menu.addSeparator()
 
-        # create a submenu for buttons
+        # create a submenu for buttons/panels
         buttons_submenu = QMenu("Buttons", self)
         button1_action = QAction("Button 1", self)
         button2_action = QAction("Button 2", self)
@@ -66,16 +66,18 @@ class Toolbar(QToolBar):
         # add the submenu to the 'View' menu
         view_menu.addMenu(buttons_submenu)
 
-        # connect actions to functions
-        new_action.triggered.connect(lambda: self.kagimage.new_map())
-        save_action.triggered.connect(lambda: self.kagimage.save_map())
+        # --- connect actions to functions ---
+        new_action.triggered.connect(self.kagimage.new_map)
+        save_action.triggered.connect(self.kagimage.save_map)
         save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
-        load_action.triggered.connect(lambda: self.kagimage.load_map())
-        # render_action.triggered.connect(self.render_triggered)
+        load_action.triggered.connect(self.kagimage.load_map)
+        test_in_kag.triggered.connect(self.test_in_kag_triggered)
+
         button1_action.triggered.connect(self.button1_triggered)
         button2_action.triggered.connect(self.button2_triggered)
         button3_action.triggered.connect(self.button3_triggered)
-        test_in_kag.triggered.connect(self.test_in_kag_triggered)
+
+        # --- add menus to toolbar in the desired order ---
 
         # add 'File' menu to toolbar
         self.file_menu = QAction("File", self)
@@ -95,7 +97,7 @@ class Toolbar(QToolBar):
     def _pop_up(self, tabtoopen, trigger):
         return tabtoopen.popup(self.mapToGlobal(self.actionGeometry(trigger).bottomLeft()))
 
-    def _add_checkbox(self, menu: QMenu, text: str, action) -> None:
+    def _add_checkbox(self, menu: QMenu, text: str, action) -> QCheckBox:
         box = QCheckBox(text, self)
         action_widget = QWidgetAction(self)
         action_widget.setDefaultWidget(box)
@@ -103,9 +105,6 @@ class Toolbar(QToolBar):
         box.toggled.connect(action)
 
         return box
-
-    # def render_triggered(self):
-    #     print("Render triggered") # todo: implement this
 
     def toggle_mirrored_x(self, checked: bool) -> None:
         """

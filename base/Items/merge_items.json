@@ -1,7 +1,7 @@
 [
     {
         "type": "other",
-        "name": "water_backdirt",
+        "name": "water_ground_back",
         "display_name": "Water With Dirt Backwall",
         "section_name": "other",
         "sprite": {
@@ -96,6 +96,286 @@
                     200,
                     42,
                     94
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_bombs",
+        "display_name": "Magazine (spawning bombs)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    0,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_waterbombs",
+        "display_name": "Magazine (spawning water bombs)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    1,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_arrows",
+        "display_name": "Magazine (spawning arrows)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    2,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_waterarrows",
+        "display_name": "Magazine (spawning water arrows)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    3,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_firearrows",
+        "display_name": "Magazine (spawning fire arrows)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    4,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_mat_bombarrows",
+        "display_name": "Magazine (spawning bomb arrows)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "burger": "magazine_burger"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    5,
+                    255,
+                    48,
+                    255
+                ]
+            }
+        },
+        "search_keywords": [
+            ""
+        ]
+    },
+    {
+        "type": "blob",
+        "name": "magazine_burger",
+        "display_name": "Magazine (spawning burger)",
+        "section_name": "blob",
+        "sprite": {
+            "image": "magazine.png",
+            "z": 500,
+            "properties": {
+                "is_rotatable": false,
+                "can_swap_teams": false,
+                "team": 0,
+                "merges_with": {
+                    "mat_bombs": "magazine_mat_bombs",
+                    "mat_waterbombs": "magazine_mat_waterbombs",
+                    "mat_arrows": "magazine_mat_arrows",
+                    "mat_waterarrows": "magazine_mat_waterarrows",
+                    "mat_firearrows": "magazine_mat_firearrows",
+                    "mat_bombarrows": "magazine_mat_bombarrows"
+                }
+            },
+            "offset": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "pixel_data": {
+            "colors": {
+                "rotation0_team0": [
+                    6,
+                    255,
+                    48,
+                    255
                 ]
             }
         },
