@@ -53,6 +53,15 @@ class CItemList:
         # mook_archer
         # mook_spawner
         # mook_spawner_10
+        # trader_1 (loadtdmpng)
+        # trader_2
+        # hall
+        # checkpoint (loadchallengepng)
+        # blue_team_scroll (loadwarpng)
+        # red_team_scroll
+        # crappy_scroll
+        # medium_scroll
+        # super_scroll
         # -----
 
     def does_tile_exist(self, name: Union[str, CItem]) -> bool:

@@ -8,7 +8,8 @@ from base.image_handler import ImageHandler
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
 
-image_handler = ImageHandler()
+ih = ImageHandler()
+fh = FileHandler()
 
 @dataclass
 class Name:
@@ -76,21 +77,35 @@ class CItem:
             in_picker_menu=properties.get("in_picker_menu", True)
         )
 
-        # handle image loading for tiles
-        image = sprite_data.get("image")
-        if isinstance(image, (int, str)):
+        # handle image loading
+        image_name_or_index = sprite_data.get("image")
+        if isinstance(image_name_or_index, (int, str)):
             if data.get("type") == "tile":
-                image = int(image)
+                image_name_or_index = int(image_name_or_index)
             else:
-                image = str(image)
+                image_name_or_index = str(image_name_or_index)
 
+            image = None
             if file_path:
-                mod_dir = os.path.dirname(file_path)
                 # modded item
-                if FileHandler().paths.get("modded_items_path") in file_path:
-                    image = image_handler.get_image(data.get("name"), mod_dir=mod_dir)
+                if fh.paths.get("modded_items_path") in file_path:
+                    # find mod root directory instead of the JSON's directory
+                    mod_root_path = None
+                    relative_path = os.path.relpath(file_path, fh.paths.get("modded_items_path"))
+                    path_parts = relative_path.split(os.sep)
+
+                    if path_parts:
+                        mod_folder_name = path_parts[0]
+                        mod_root_path = os.path.join(fh.paths.get("modded_items_path"), mod_folder_name)
+
+                    image = ih.get_image(image_name_or_index, path=mod_root_path)
+
+                # vanilla item
                 else:
-                    image = image_handler.get_image(image)
+                    image = ih.get_image(image_name_or_index)
+
+            else:
+                image = ih.get_image(image_name_or_index)
 
         image = SpriteConfig(
             image=image,
@@ -250,7 +265,7 @@ class CItem:
         if team == 0:
             return
 
-        self.sprite.image = image_handler.get_image(self.name_data.name, team)
+        self.sprite.image = ih.get_image(self.name_data.name, team)
         # update sprite's team
         self.sprite.team = team
 

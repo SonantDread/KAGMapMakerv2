@@ -26,9 +26,7 @@ class Canvas(QGraphicsView):
     """
     def __init__(self, size: Vec2f) -> None:
         super().__init__()
-        # todo: should be a setting, for now is forced
         self.gpu_rendering = True
-        # should also be a setting, for now is forced
         self.exec_path = os.path.dirname(os.path.realpath(__file__))
         self.renderer = Renderer()
         self.canvas = QGraphicsScene()

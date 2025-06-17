@@ -72,18 +72,24 @@ class ImageHandler(metaclass=SingletonMeta):
         if team not in self._modded_images:
             self._modded_images[team] = {}
 
+        # modded item (these get priority)
+        if path is not None:
+            image = self._get_modded_image(name, team, path)
+
+            if image is not None:
+                return image
+
+            fn = os.path.basename(__file__)
+            ln = inspect.currentframe().f_lineno
+            print(f"Modded image not found: '{name}' in path '{path}'. Unable to load in line {ln} of {fn}")
+            return None
+
         # world.png image
         if isinstance(name, int):
             return self._get_image_by_index(name, path)
 
         # make the name more friendly
         name = os.path.splitext(str(name).strip().lower())[0]
-
-        # modded item (these get priority)
-        image = self._get_modded_image(name, team, path)
-
-        if image:
-            return image
 
         # vanilla item
         image = self._get_vanilla_image(name, team)
@@ -106,7 +112,7 @@ class ImageHandler(metaclass=SingletonMeta):
         # image is not loaded
         return self._load_vanilla_image(name, team)
 
-    def _get_modded_image(self, name: str, team: int = 0, path: str = None) -> QPixmap:
+    def _get_modded_image(self, name: Union[str, int], team: int = 0, path: str = None) -> QPixmap:
         # image is loaded
         image = self._modded_images.get(team, {}).get(name)
         if image:
@@ -155,25 +161,50 @@ class ImageHandler(metaclass=SingletonMeta):
             # store with path and index as a tuple key
             self._modded_images[0][(path, index)] = image
 
-    def _load_modded_image(self, name: str, team: int, mod_path: str) -> QPixmap:
+    def _load_modded_image(self, name: Union[str, int], team: int, mod_path: str) -> QPixmap:
         # loading a modded image
-        if mod_path is not None:
-            paths = [
-                os.path.join(mod_path, f"{name}.png"),
-                os.path.join(mod_path, "Sprites", f"{name}.png")
+        if mod_path is None:
+            raise ValueError(f"Mod path cannot be None: {name}")
+
+        # load it by the index in world.png
+        if isinstance(name, int):
+            # attempt to load from the world.png
+            worlds_path = [
+                os.path.join(mod_path, "world.png"),
+                os.path.join(mod_path, "Sprites", "world.png")
             ]
 
-            for path in paths:
-                if os.path.exists(path):
-                    image = Image.open(path).convert("RGBA").toqpixmap()
-                    image = self._swap_sprite_color(image, team)
-                    self._modded_images[team][name] = image
-                    return image
+            # check if world.png currently exists in the mod path
+            for path in worlds_path:
+                if not os.path.exists(path):
+                    continue
 
-            # fallback
-            fallback_path = self._file_handler.get_modded_item_path(f"{name}", mod_path)
-            if fallback_path and os.path.exists(fallback_path):
-                image = Image.open(fallback_path).convert("RGBA").toqpixmap()
+                return self._get_image_by_index(name, path)
+
+            # attempt to locate it within the mod folder
+            for root, _, files in os.walk(mod_path):
+                if "world.png" in files:
+                    return self._get_image_by_index(name, os.path.join(root, "world.png"))
+
+        # attempt to load name as a sprite
+        paths = [
+            os.path.join(mod_path, f"{name}.png"),
+            os.path.join(mod_path, "Sprites", f"{name}.png")
+        ]
+
+        for path in paths:
+            if os.path.exists(path):
+                image = Image.open(path).convert("RGBA").toqpixmap()
+                image = self._swap_sprite_color(image, team)
+                self._modded_images[team][name] = image
+                return image
+
+        # fallback
+        image_filename = f"{os.path.splitext(str(name))[0]}.png"
+        for root, _, files in os.walk(mod_path):
+            if image_filename in files:
+                full_path = os.path.join(root, image_filename)
+                image = Image.open(full_path).convert("RGBA").toqpixmap()
                 image = self._swap_sprite_color(image, team)
                 self._modded_images[team][name] = image
                 return image
@@ -224,7 +255,7 @@ class ImageHandler(metaclass=SingletonMeta):
         print(f"Image not found: world.png. Unable to load in line {ln} of {fn}")
         return None
 
-    #* team swapping code below here
+    #* only team swapping code below here
     def _swap_sprite_color(self, original_image: QPixmap, to_team: int) -> QPixmap:
         """
         Swaps the team of a sprite.
