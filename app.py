@@ -7,7 +7,6 @@ import atexit
 import sys
 import os
 
-from PyQt6.QtCore import QEvent
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
 
 from canvas import Canvas
@@ -41,8 +40,9 @@ class App(QMainWindow):
         self.setCentralWidget(self.main_widget)
 
         # create layout for main widget
-        self.layout = QHBoxLayout(self.main_widget)
-        self.main_widget.setLayout(self.layout)
+        self.main_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
+        self.setLayout(self.main_layout)
+        self.main_widget.setLayout(self.main_layout)
 
         # todo: this should all just be a large widget for the menus, and canvas should be a seperate thing
         # picker menus
@@ -57,7 +57,7 @@ class App(QMainWindow):
         self.canvas = Canvas(Vec2f(200, 80))
 
         # add canvas to layout
-        self.layout.addWidget(self.canvas)
+        self.main_layout.addWidget(self.canvas)
 
         self.communicator = Communicator()
         self.communicator.set_canvas(self.canvas)
@@ -65,7 +65,7 @@ class App(QMainWindow):
         self._announce("RUNNING APP")
         atexit.register(self.save_on_exit)
 
-    def save_on_exit(self) -> None:
+    def save_on_exit(self) -> None: # todo: should be in config handler probably
         """
         Saves the current application configuration on exit.
 
@@ -76,18 +76,6 @@ class App(QMainWindow):
             None
         """
         self.config_handler.save_window_config(self)
-
-    def quit(self, event: QEvent) -> None:
-        """
-        Handles the quit event of the application.
-
-        Prints a message to indicate that the application is quitting.
-
-        Parameters:
-            event (QEvent): The quit event.
-        """
-        self._announce("QUITTING APP")
-        event.accept()
 
     def _announce(self, message) -> None:
         """
