@@ -49,22 +49,22 @@ jobs:
       - name: Get upload URL for Windows executable
         id: upload_url_windows
         run: |
-          response=$(curl --request GET `
-                           --url https://www.virustotal.com/api/v3/files/upload_url `
-                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
-          upload_url=$(echo $response | jq -r '.data')
+          $response = (curl --request GET `
+                            --url https://www.virustotal.com/api/v3/files/upload_url `
+                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}")
+          $upload_url = ($response | jq -r '.data')
           echo "upload_url=$upload_url" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
       - name: Upload Windows executable to VirusTotal
         id: virustotal-windows
         run: |
-          response=$(curl --request POST `
-                           --url ${{ steps.upload_url_windows.outputs.upload_url }} `
-                           --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" `
-                           --form file=@".scripts/KAGMapMaker.exe")
-          scan_id=$(echo $response | jq -r '.data.id')
-          full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
+          $response = (curl --request POST `
+                            --url ${{ steps.upload_url_windows.outputs.upload_url }} `
+                            --header "x-apikey: ${{ secrets.VIRUSTOTAL_API_KEY }}" `
+                            --form file=@".scripts/KAGMapMaker.exe")
+          $scan_id = ($response | jq -r '.data.id')
+          $full_scan_url="https://www.virustotal.com/gui/file-analysis/$scan_id"
           echo "scan_url=$full_scan_url" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
