@@ -25,6 +25,9 @@ jobs:
         run: irm https://astral.sh/uv/install.ps1 | iex
         shell: pwsh
 
+      - name: Create a virtual environment
+        run: uv venv
+
       - name: Install dependencies and pyinstaller
         run: uv pip install -r requirements.txt
 
@@ -80,6 +83,9 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Create a virtual environment
+        run: uv venv
 
       - name: Install dependencies and pyinstaller
         run: uv pip install -r requirements.txt
