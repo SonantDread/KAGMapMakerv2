@@ -6,7 +6,7 @@
   </a>
 </p>
 
-A tool for creating maps for the game King Arthur's Gold.
+**KAGMapMaker** is an unofficial, fan-made tool for creating maps for the game [King Arthur's Gold](https://kag2d.com/). It is not affiliated with the developers of the game in any way.
 
 ---
 
