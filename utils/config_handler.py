@@ -174,11 +174,13 @@ class ConfigHandler:
             # attempt to load existing configuration
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 cfg = json.load(f)
+
         except (FileNotFoundError, json.JSONDecodeError):
             # if user config doesn't exist, load default config
             try:
                 with open(self.readonly_config_path, 'r', encoding='utf-8') as f:
                     cfg = json.load(f)
+
             except (FileNotFoundError, json.JSONDecodeError) as exc:
                 raise SystemExit("Could not find or load configuration file.") from exc
 
@@ -204,6 +206,7 @@ class ConfigHandler:
         try:
             with open(self.config_path, 'w', encoding='utf-8') as f:
                 json.dump(cfg, f, indent=4)
+
         except IOError as exc:
             print(f"Error saving window configuration: {exc}")
 

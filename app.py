@@ -9,7 +9,7 @@ import os
 
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
 
-from canvas import Canvas
+from core.canvas import Canvas
 from core.communicator import Communicator
 from core.toolbar import Toolbar
 from core.gui_module_handler import GUIModuleHandler

@@ -1,5 +1,7 @@
 """
 Handles the rendering of objects for the canvas class.
+This class is responsible for all direct manipulation of the QGraphicsScene
+and synchronizing the visual state with the data model (tilemap).
 """
 
 import inspect
@@ -11,198 +13,150 @@ from PyQt6.QtWidgets import QGraphicsPixmapItem
 from base.citem import CItem
 from base.citemlist import CItemList
 from base.image_handler import ImageHandler
-
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
 
 class Renderer:
     """
     Renders items on the screen for the canvas.
+    It takes the canvas instance as a dependency to directly interact with it.
     """
-    def __init__(self) -> None:
+    def __init__(self, canvas) -> None:
+        """
+        Initializes the Renderer.
+
+        Args:
+            canvas: The main Canvas instance. This is a required dependency.
+        """
+        self.canvas = canvas
         self.communicator = Communicator()
         self.images = ImageHandler()
         self.item_list = CItemList()
         self.cursor_graphics_item = None
 
-    def render_item(self, placing: CItem, pos: Vec2f, tm_pos: Vec2f, eraser: bool, rot: int) -> None:
+    def render_item(self, placing: CItem, scene_pos: Vec2f, grid_pos: Vec2f, eraser: bool, rot: int) -> None:
         """
-        Handles the rendering of an object on the canvas.
+        Handles the complete rendering logic for an item. It erases or places
+        an item, handles merging, and updates both the visual scene and data model.
 
         Args:
-            placing (CItem): The object to render.
-            pos (Vec2f): The position of the object on the canvas.
-            tm_pos (Vec2f): The snapped position of the object on the canvas.
-            eraser (bool): Whether or not to erase the object.
+            placing (CItem): The CItem object to be placed.
+            scene_pos (Vec2f): The target position in scene (pixel) coordinates.
+            grid_pos (Vec2f): The snapped position in grid coordinates.
+            eraser (bool): If True, performs an erase operation.
+            rot (int): The rotation to apply to the item.
         """
-
-        canvas = self.communicator.get_canvas()
-
-        # merge two items if applicable
-        did_merge, old_name = False, placing.name_data.name
-        tile = canvas.tilemap.get(tm_pos)
-        if tile is not None and (placing.is_mergeable() or tile.is_mergeable()):
-            name = placing.merge_with(tile.name_data.name)
-            new_item: CItem = self.item_list.get_item_by_name(name)
-
-            if new_item is None:
-                name = tile.merge_with(placing.name_data.name)
-                new_item: CItem = self.item_list.get_item_by_name(name)
-
-            if new_item is not None:
-                placing: CItem = new_item.copy()
-                did_merge = True
-
-        # items merging into itself dont place
-        if did_merge and old_name == placing.name_data.name:
-            return
-
-        # remove rendered item if it exists
-        if canvas.tilemap.get(tm_pos) is not None:
-            self.remove_existing_item_from_scene(tm_pos)
-
+        # --- HANDLE ERASING ---
+        # if the eraser is active, our only job is to remove the visual item,
+        # the Canvas is responsible for removing the item from the data model (`tilemap`)
         if eraser:
+            if grid_pos in self.canvas.graphics_items:
+                item_to_remove = self.canvas.graphics_items.pop(grid_pos)
+                self.canvas.canvas.removeItem(item_to_remove)
+
             return
 
+        # --- HANDLE PLACING / UPDATING ---
+        # first, remove any old visual item at the target location
+        if grid_pos in self.canvas.graphics_items:
+            old_item = self.canvas.graphics_items.pop(grid_pos)
+            self.canvas.canvas.removeItem(old_item)
+
+        # handle team swapping for the item
         current_team = self.communicator.team
-        can_change_teams = placing.sprite.properties.can_swap_teams
-        if can_change_teams and placing.sprite.team != current_team:
+        if placing.sprite.properties.can_swap_teams and placing.sprite.team != current_team:
             placing.swap_team(current_team)
 
+        # get the pixmap and apply rotation if needed
         pixmap: QPixmap = placing.sprite.image
         if pixmap is None:
             line = inspect.currentframe().f_lineno
             fn = os.path.basename(__file__)
-            print(f"Warning: Failed to get image for {placing} at line {line} of {fn}")
+            print(f"Warning: Failed to get image for {placing.name_data.name} at line {line} of {fn}")
             return
 
         if placing.sprite.properties.is_rotatable:
             pixmap = self._rotate_blob(pixmap, rot)
 
-        pixmap_item = self.add_to_canvas(placing, pixmap, pos, rot)
-
-        if pixmap_item is not None:
-            canvas.tilemap[tm_pos] = placing
-
-    def remove_existing_item_from_scene(self, pos: Vec2f) -> None:
-        """
-        Removes an existing item from the scene at the specified position (in tilemap coordinates).
-
-        Args:
-            pos (tuple): The position of the item to be removed.
-
-        Returns:
-            None
-        """
-        canvas = self.communicator.get_canvas()
-
-        if pos in canvas.tilemap:
-            if pos in canvas.graphics_items:
-                canvas.canvas.removeItem(canvas.graphics_items[pos])
-                del canvas.graphics_items[pos]
-
-            del canvas.tilemap[pos]
-
-    def add_to_canvas(self, placing: CItem, img: QPixmap, pos: Vec2f, rot: int) -> QGraphicsPixmapItem:
-        """
-        Adds an item to the canvas at the specified position.
-
-        Args:
-            img (QPixmap): The pixmap to be added to the canvas.
-            pos (tuple): The position of the item in the canvas.
-            z (int): The z-value of the item.
-            name (str): The name of the item.
-            offset (Vec2f): The offset to apply to the item's position.
-
-        Returns:
-            QGraphicsPixmapItem: The added pixmap item, or None if the pixmap is None.
-        """
-        canvas = self.communicator.get_canvas()
-        x, y = canvas.snap_to_grid(pos)
-        tm_pos = Vec2f(x, y)
-
-        # remove existing item if present
-        if canvas.tilemap.get(pos) is not None:
-            self.remove_existing_item_from_scene(pos)
-
-        if img is None:
-            print(f"Warning: img is None for item {placing.name_data.name} at position {pos}")
-            return None
-
-        # create new item
-        pixmap_item = QGraphicsPixmapItem(img)
-        scale = canvas.default_zoom_scale
+        # --- ADD THE NEW ITEM TO THE SCENE AND UPDATE MODELS ---
+        # create the new QGraphicsPixmapItem
+        pixmap_item = QGraphicsPixmapItem(pixmap)
+        scale = self.canvas.default_zoom_scale
         pixmap_item.setScale(scale)
 
-        adjusted_x, adjusted_y = pos
-
-        w, h = img.width() * scale, img.height() * scale
+        # adjust position for rotation to keep it centered in the grid cell
+        w, h = pixmap.width() * scale, pixmap.height() * scale
+        adjusted_x, adjusted_y = scene_pos.x, scene_pos.y
         if rot in (90, 270):
             adjusted_x += (h - w) / 2
             adjusted_y += (w - h) / 2
 
+        # apply the item's specific pixel offset
         offset_x, offset_y = placing.sprite.offset
         pixmap_item.setPos(float(adjusted_x + offset_x), float(adjusted_y + offset_y))
-
         pixmap_item.setZValue(placing.sprite.z)
 
-        canvas.canvas.addItem(pixmap_item)
-        canvas.graphics_items[tm_pos] = pixmap_item
-
-        return pixmap_item
+        # finally, add the item to the scene and update our tracking dictionaries
+        self.canvas.canvas.addItem(pixmap_item)
+        self.canvas.graphics_items[grid_pos] = pixmap_item
+        self.canvas.tilemap[grid_pos] = placing
 
     def render_cursor(self, pos: Vec2f) -> None:
         """
-        Renders the cursor on the canvas at the given position.
+        Renders the cursor on the canvas at the given scene position.
 
         Args:
             pos (Vec2f): The position where the cursor should be rendered.
         """
-        canvas = self.communicator.get_canvas()
         if self.cursor_graphics_item is None:
             self.setup_cursor()
 
+        # this can fail if the scene was cleared, so we wrap it in a try-except
         try:
+            # main cursor
             self.cursor_graphics_item[0].setPos(pos.x, pos.y)
+            self.cursor_graphics_item[0].show()
 
+            # mirrored cursor
             if self.communicator.settings.get("mirrored over x", False):
-                # calculate mirrored position
-                grid_x = pos.x / canvas.grid_spacing
-                mirrored_grid_x = canvas.size.x - 1 - grid_x
-                mirrored_scene_x = mirrored_grid_x * canvas.grid_spacing
+                grid_x = pos.x / self.canvas.grid_spacing
+                mirrored_grid_x = self.canvas.size.x - 1 - grid_x
+                mirrored_scene_x = mirrored_grid_x * self.canvas.grid_spacing
 
-                # show mirrored cursor
                 self.cursor_graphics_item[1].setPos(mirrored_scene_x, pos.y)
-                self.cursor_graphics_item[1].setOpacity(1)
-            else:
-                self.cursor_graphics_item[1].setOpacity(0)
+                self.cursor_graphics_item[1].show()
 
-        except RuntimeError:
+            else:
+                self.cursor_graphics_item[1].hide()
+
+        except (RuntimeError, IndexError):
+            # underlying C++ object was deleted, likely on a map resize/clear, recreate it
+            self.cursor_graphics_item = None
             self.setup_cursor()
-            self.render_cursor(pos)
 
     def setup_cursor(self) -> None:
-        canvas = self.communicator.get_canvas()
+        """
+        Creates the QGraphicsPixmapItems for the main and mirrored cursors.
+        """
         cursor_image = self.images.get_image("cursor")
         if cursor_image is None:
-            raise ValueError("Cursor image not found. Ensure 'cursor.png' asset is available.")
+            print("Warning: 'cursor.png' not found. Cursor will not be rendered.")
+            return
 
-        # create main cursor
-        main_cursor = QGraphicsPixmapItem(cursor_image)
-        main_cursor.setZValue(1000000)
-        base_scale = canvas.default_zoom_scale
-        main_cursor.setScale(base_scale * (8 / 10))
+        items = []
+        for _ in range(2): # 0 for main, 1 for mirrored
+            cursor = QGraphicsPixmapItem(cursor_image)
+            cursor.setZValue(1_000_000) # ensure cursor is always on top
+            scale = self.canvas.default_zoom_scale * (8 / 10)
+            cursor.setScale(scale)
+            self.canvas.canvas.addItem(cursor)
+            items.append(cursor)
 
-        # create mirrored cursor
-        mirror_cursor = QGraphicsPixmapItem(cursor_image)
-        mirror_cursor.setZValue(1000000)
-        mirror_cursor.setScale(base_scale * (8 / 10))
-        mirror_cursor.setOpacity(0)
+        items[1].hide() # hide mirrored cursor by default
+        self.cursor_graphics_item = items
 
-        canvas.canvas.addItem(main_cursor)
-        canvas.canvas.addItem(mirror_cursor)
-
-        self.cursor_graphics_item = [main_cursor, mirror_cursor]
-
-    def _rotate_blob(self, pixmap: QPixmap, degrees: int) -> None:
+    def _rotate_blob(self, pixmap: QPixmap, degrees: int) -> QPixmap:
+        """Rotates a QPixmap by a given number of degrees."""
+        if degrees == 0:
+            return pixmap
         return pixmap.transformed(QTransform().rotate(degrees))
