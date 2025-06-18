@@ -9,8 +9,9 @@ from utils.vec2f import Vec2f
 from base.citem import CItem
 
 class ConfigHandler:
-    """Handles configuration loading and management for the application."""
-
+    """
+    Handles configuration loading and management for the application.
+    """
     def __init__(self):
         self.fh = FileHandler()
         self.readonly_config_path = self.fh.paths.get("default_config_path")
@@ -34,6 +35,7 @@ class ConfigHandler:
                 config_data = json.load(f)
                 self.loaded_configs[config_name] = config_data
                 return config_data
+
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading configuration file {config_name}: {e}")
             return None
@@ -52,6 +54,7 @@ class ConfigHandler:
         config = self.loaded_configs.get(config_name)
         if config is None:
             return None
+
         return config.get(item_key)
 
     def load_modded_items(self, file_path: str) -> list[CItem]:
@@ -79,6 +82,7 @@ class ConfigHandler:
 
         except FileNotFoundError as exc:
             raise FileNotFoundError(f"Could not find modded item file: {file_path}") from exc
+
         except json.JSONDecodeError as exc:
             raise ValueError(f"Invalid JSON in modded item file: {file_path}") from exc
 
@@ -98,6 +102,7 @@ class ConfigHandler:
                 item for item in config_items
                 if item.mod_info.folder_name == mod_folder_name
             ])
+
         return items
 
     def get_loaded_file_items(self, file_path: str) -> list[CItem]:
@@ -124,6 +129,7 @@ class ConfigHandler:
         for items in self.loaded_citem_configs.values():
             for item in items:
                 mod_folders.add(item.mod_info.folder_name)
+
         return sorted(list(mod_folders))
 
     # fixed old window loading code

@@ -134,7 +134,7 @@ class Toolbar(QToolBar):
 
         kag_script_path = os.path.join(kag_base_path, "Base", "Scripts", "MapMaker_Autostart.as")
         kag_map_path = os.path.join(kag_base_path, "Base", "Maps", "MapMaker_Map.png")
-        autostart_script = os.path.join(fh.paths.get("default_path"), "base", "MapMaker_Autostart.as")
+        autostart_script = os.path.join(fh.paths.get("default_path"), "base", "MapMaker_Autostart.as") # todo: should be in filehandler
 
         # ensure files exist to actually test maps
         if fh.does_path_exist(autostart_script) and not fh.does_path_exist(kag_script_path):
@@ -144,10 +144,11 @@ class Toolbar(QToolBar):
             self.kagimage.save_map(kag_map_path)
 
         try:
+            # windows
             if os.name == "nt":
                 kag_executable = os.path.join(kag_base_path, "KAG.exe")
 
-            # linux / mac (posix)
+            # linux / mac
             else:
                 kag_executable = os.path.join(kag_base_path, "KAG")
 

@@ -119,8 +119,10 @@ class CItemList:
             for item in ch.load_modded_items(mod):
                 if item.type == "tile":
                     tiles.append(item)
+
                 elif item.type == "blob":
                     blobs.append(item)
+
                 else:
                     other.append(item)
 

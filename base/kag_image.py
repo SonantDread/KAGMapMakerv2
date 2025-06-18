@@ -46,6 +46,7 @@ class KagImage:
 
             except ValueError:
                 print("Invalid input. Width and height must be integers.")
+
         else:
             print("New map creation cancelled.")
 
@@ -80,7 +81,7 @@ class KagImage:
                 if color is None:
                     linenum = inspect.currentframe().f_lineno
                     path = os.path.basename(__file__)
-                    # todo: should be 'raise' but we dont have all the sprites yet
+
                     print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
                     continue
 
@@ -200,6 +201,7 @@ class KagImage:
                 filetypes = [("PNG files", "*.png")],
                 initialdir = initialdir
             )
+
         else:
             file_path = filedialog.askopenfilename(
                 title = text,
@@ -239,7 +241,7 @@ class KagImage:
 
         return new_tilemap
 
-class TwoInputDialog(QDialog):
+class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
     """
     Used as the input box for the new map size.
     """

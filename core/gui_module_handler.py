@@ -5,7 +5,6 @@ from core.modules.picker import Picker
 from core.modules.teams import Teams
 from utils.file_handler import FileHandler
 
-
 class GUIModuleHandler:
     def __init__(self, window: QWidget):
         self.fh = FileHandler()

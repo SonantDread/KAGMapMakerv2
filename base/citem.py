@@ -82,6 +82,7 @@ class CItem:
         if isinstance(image_name_or_index, (int, str)):
             if data.get("type") == "tile":
                 image_name_or_index = int(image_name_or_index)
+
             else:
                 image_name_or_index = str(image_name_or_index)
 
@@ -255,7 +256,7 @@ class CItem:
             90: 0x10,
             180: 0x20,
             270: 0x30
-            }.get(angle, 0)
+        }.get(angle, 0)
 
     def swap_team(self, team: int) -> None:
         """

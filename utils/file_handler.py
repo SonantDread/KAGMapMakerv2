@@ -76,15 +76,16 @@ class FileHandler:
         for _, _, files in os.walk(fp):
             if name in files:
                 return True
+
         return False
 
     def get_file_truename(self, fp: str) -> str:
         """
         Returns the actual name of the file provided
-        
+
         Args:
             fp (str): The filepath
-            
+
         Returns:
             str: The name of the file
         """
@@ -112,7 +113,7 @@ class FileHandler:
         return self._get_files_from_dir(self.paths.get("vanilla_items"), lambda x: True)
 
     def get_modded_items_paths(self) -> list[str]:
-        return self._get_files_from_dir(self.paths.get("modded_items_path"), 
+        return self._get_files_from_dir(self.paths.get("modded_items_path"),
                         lambda x: x.split("\\")[-1] != "_ExampleMod")
 
     def _get_files_from_dir(self, fp: str, condition: callable) -> list[str]:

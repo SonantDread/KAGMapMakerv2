@@ -1,16 +1,17 @@
 """
 Handles all image loading.
 """
+import colorsys
 import inspect
+import io
 import os
 from typing import Union
 
 from PIL import Image
-from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtCore import QBuffer, QByteArray
+from PyQt6.QtGui import QImage, QPixmap
+
 from utils.file_handler import FileHandler
-import colorsys
-import io
 
 # acceptable range of colors
 # may need to be changed (or have a different system) in the future but this works for now
@@ -25,7 +26,7 @@ TEAM_HUE_SHIFT = {
     6: 24,   # Blue -> Indigo
 }
 
-class SingletonMeta(type):
+class SingletonMeta(type): # todo: this kind of code should just be in one file
     """
     Used to share code between all instances of the class.
     """
@@ -323,7 +324,7 @@ class ImageHandler(metaclass=SingletonMeta):
         """
         Checks if a color is within the defined blue hue range.
         """
-        h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+        h, s, _ = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
         return BLUE_HUE_RANGE[0] <= h <= BLUE_HUE_RANGE[1] and s > 0.2
 
     def _closest_color(self, target: tuple[int, int, int], color_list: list[tuple[int, int, int]]) -> tuple[int, int, int]:

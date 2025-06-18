@@ -43,7 +43,6 @@ class Picker(QWidget):
 
     def setup_ui(self) -> None:
         size = self._get_tab_size()
-        # TODO: https://chatgpt.com/c/678ae16c-1bf4-800f-9bfc-53302564e25b
         # holds "Vanilla" and "Modded" tabs
         self.tab_holder = QTabWidget(parent=self.parent_widget)
         self.tab_holder.setFixedSize(QtCore.QSize(size,size))

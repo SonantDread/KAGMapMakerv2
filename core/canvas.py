@@ -68,7 +68,7 @@ class Canvas(CanvasInputHandler):
         self.tilemap = {}
         # list of sprites on the canvas
         self.graphics_items = {}
-        
+
         self.grid_manager = GridManager(self)
         self.grid_manager.build_grid()
 
