@@ -3,6 +3,8 @@ import os
 from typing import Optional
 
 from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtCore import QRect
 
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
@@ -71,7 +73,78 @@ class WindowConfigHandler:
     def _set_window_offset_size(self, offset: Vec2f, size: Vec2f) -> None:
         offset_x, offset_y = offset
         width, height = size
+
+        offset_x, offset_y, width, height = self._ensure_window_onscreen(offset, size)
+
         self.window.setGeometry(int(offset_x), int(offset_y), int(width), int(height))
+
+    def _ensure_window_onscreen(self, offset: Vec2f, size: Vec2f) -> list[int, int, int, int]:
+        """
+        Ensures that the window is sufficiently visible on at least one screen.
+
+        If less than 20% of the window's area is visible across all available
+        screens, its position and size are reset to be centered on the
+        primary screen. Otherwise, the original coordinates are returned.
+
+        Returns:
+            A list containing the validated [x, y, width, height].
+        """
+        # define the minimum visibility required to keep the current position
+        min_visibility_threshold = 0.20
+
+        # create a QRect for the proposed window geometry.
+        window_rect = QRect(int(offset.x), int(offset.y), int(size.x), int(size.y))
+        window_area = window_rect.width() * window_rect.height()
+
+        # handle invalid size (e.g., width/height is zero or negative)
+        if window_area <= 0:
+            print("Window has invalid size. Resetting to default.")
+            # trigger the reset logic by treating it as 0% visible
+            visibility_ratio = 0
+
+        else:
+            # calculate the total visible area by checking against all screens
+            total_visible_area = 0
+            screens = QGuiApplication.screens()
+            for screen in screens:
+                # use availableGeometry() to account for taskbars, docks, etc
+                screen_geometry = screen.availableGeometry()
+
+                # find the area of intersection between the window and the screen
+                intersection = window_rect.intersected(screen_geometry)
+
+                # the intersection rect will have a non-positive width/height if no overlap
+                if not intersection.isEmpty():
+                    total_visible_area += intersection.width() * intersection.height()
+
+            visibility_ratio = total_visible_area / window_area
+
+        # check if the visibility ratio is below the threshold
+        if visibility_ratio < min_visibility_threshold:
+            # if the window is mostly off-screen, reset its position and size
+            print("Window is too far offscreen. Resetting position.")
+
+            # get the primary screen to center the window on
+            primary_screen = QGuiApplication.primaryScreen()
+            if not primary_screen:
+                # extremely rare case but good to have a fallback
+                return [100, 100, 1024, 768]
+
+            screen_rect = primary_screen.availableGeometry()
+
+            # set a new, sensible default size (e.g: 75% of the screen)
+            new_width = int(screen_rect.width() * 0.75)
+            new_height = int(screen_rect.height() * 0.75)
+
+            # calculate coordinates to center the new window
+            new_x = screen_rect.x() + (screen_rect.width() - new_width) // 2
+            new_y = screen_rect.y() + (screen_rect.height() - new_height) // 2
+
+            return [new_x, new_y, new_width, new_height]
+
+        else:
+            # the window is sufficiently visible, so return the original coordinates
+            return [int(offset.x), int(offset.y), int(size.x), int(size.y)]
 
     def _get_window_config(self, is_retry: bool = False) -> Optional[dict]:
         paths = [
@@ -152,8 +225,6 @@ class WindowConfigHandler:
 
             with open(config_path, 'w', encoding='utf-8') as f:
                 json.dump(validated_config, f, indent=4)
-
-            print(f"Successfully validated and repaired user config at: {config_path}")
 
         except (json.JSONDecodeError, PermissionError) as e:
             print(f"CRITICAL: Failed to write repaired config to '{config_path}'. Error: {e}")
