@@ -13,7 +13,7 @@ from core.canvas import Canvas
 from core.communicator import Communicator
 from core.toolbar import Toolbar
 from core.gui_module_handler import GUIModuleHandler
-from utils.config_handler import ConfigHandler
+from core.window_config_handler import WindowConfigHandler
 from utils.vec2f import Vec2f
 
 class App(QMainWindow):
@@ -31,8 +31,8 @@ class App(QMainWindow):
         super().__init__()
 
         print("Setting up main window")
-        self.config_handler = ConfigHandler()
-        self.config_handler.load_window_config(self)
+        self.window_config = WindowConfigHandler(self)
+        self.window_config.load_window_config()
 
         print("Loading UI")
         self.main_widget = QWidget(self)
@@ -65,17 +65,12 @@ class App(QMainWindow):
         self._announce("RUNNING APP")
         atexit.register(self.save_on_exit)
 
-    def save_on_exit(self) -> None: # todo: should be in config handler probably
+    def save_on_exit(self) -> None:
         """
         Saves the current application configuration on exit.
-
-        Args:
-            None
-
-        Returns:
-            None
         """
-        self.config_handler.save_window_config(self)
+
+        self.window_config.save_window_config()
 
     def _announce(self, message) -> None:
         """
