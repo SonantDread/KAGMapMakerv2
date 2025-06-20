@@ -4,15 +4,16 @@ Run the map maker in terminal by using 'python app.py'.
 """
 
 import atexit
-import sys
 import os
+import sys
 
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QWidget
 
+from base.kag_image import KagImage
 from core.canvas import Canvas
 from core.communicator import Communicator
-from core.toolbar import Toolbar
 from core.gui_module_handler import GUIModuleHandler
+from core.toolbar import Toolbar
 from core.window_config_handler import WindowConfigHandler
 from utils.vec2f import Vec2f
 
@@ -62,6 +63,12 @@ class App(QMainWindow):
         self.communicator = Communicator()
         self.communicator.set_canvas(self.canvas)
         self.communicator.set_exec_path(os.path.dirname(os.path.abspath(__file__)))
+
+        # --- LOAD LAST SAVED MAP ON STARTUP ---
+        last_map_path = self.communicator.last_saved_map_path
+        if last_map_path:
+            KagImage().load_map(last_map_path)
+
         self._announce("RUNNING APP")
         atexit.register(self.save_on_exit)
 

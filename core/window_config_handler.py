@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtCore import QRect
 
+from core.communicator import Communicator
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
 
@@ -15,6 +16,8 @@ class WindowConfigHandler:
         self.window = window
 
         self.fh = FileHandler()
+        self.communicator = Communicator()
+
         self._ensure_valid_configs()
 
     def save_window_config(self) -> None:
@@ -22,12 +25,7 @@ class WindowConfigHandler:
         if config_path is None:
             raise SyntaxError("ERROR: File Handler does not have the right path.")
 
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                full_config = json.load(f)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            full_config = {}
+        full_config: dict = self._get_config_data() or {}
 
         if 'window' not in full_config or not isinstance(full_config.get('window'), dict):
             full_config['window'] = {}
@@ -45,6 +43,11 @@ class WindowConfigHandler:
             'height': size.y
         }
 
+        last_map = self.communicator.last_saved_map_path
+        # ignore saving a null map path
+        if last_map is not None and last_map != "":
+            full_config['last worked on map'] = last_map
+
         try:
             with open(config_path, 'w', encoding='utf-8') as f:
                 json.dump(full_config, f, indent=4)
@@ -54,18 +57,26 @@ class WindowConfigHandler:
 
     def load_window_config(self) -> None:
         window: QMainWindow = self.window
-        config = self._get_window_config()
+        full_config = self._get_config_data()
 
         window.setWindowTitle("KAG Map Maker")
 
         # don't crash the script, just dont load any configs
-        if config is None:
+        if full_config is None:
             return
 
-        offset = config['offset']
+        self.communicator.last_saved_map_path = full_config.get("last worked on map")
+
+        # safely get the window config using .get() to avoid errors if the key is missing
+        window_config = full_config.get('window')
+        if not window_config:
+            print("Warning: 'window' configuration not found. Using default geometry.")
+            return
+
+        offset = window_config.get('offset', {})
         offset = Vec2f(offset.get('x', 0), offset.get('y', 0))
 
-        size = config['size']
+        size = window_config.get('size', {})
         size = Vec2f(size.get('width', 1920*.75), size.get('height', 1080*.75))
 
         self._set_window_offset_size(offset, size)
@@ -146,7 +157,7 @@ class WindowConfigHandler:
             # the window is sufficiently visible, so return the original coordinates
             return [int(offset.x), int(offset.y), int(size.x), int(size.y)]
 
-    def _get_window_config(self, is_retry: bool = False) -> Optional[dict]:
+    def _get_config_data(self, is_retry: bool = False) -> Optional[dict]:
         paths = [
             self.fh.paths.get("config_path"),
             self.fh.paths.get("default_config_path")
@@ -161,10 +172,9 @@ class WindowConfigHandler:
             try:
                 with open(path, 'r', encoding='utf-8') as f:
                     config = json.load(f)
-                    window_config = config.get('window')
 
-                    if window_config:
-                        return window_config
+                    if config:
+                        return config
 
             # not found? try again
             except (json.JSONDecodeError, KeyError, FileNotFoundError) as exc:
@@ -178,7 +188,7 @@ class WindowConfigHandler:
                 print("Attempting to repair configuration...")
                 self._ensure_valid_configs()
 
-                return self._get_window_config(True)
+                return self._get_config_data(True)
 
         print("Warning: Could not find a valid 'window' configuration.")
         return None

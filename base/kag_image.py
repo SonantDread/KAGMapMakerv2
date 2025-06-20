@@ -15,7 +15,6 @@ from utils.file_handler import FileHandler
 class KagImage:
     def __init__(self) -> None:
         self.communicator = Communicator()
-        self.last_saved_location = None
         self.item_list = CItemList()
         self.file_handler = FileHandler()
 
@@ -51,11 +50,11 @@ class KagImage:
             print("New map creation cancelled.")
 
     def save_map(self, fp: str = None, force_ask: bool = False) -> None:
-        if self.last_saved_location is not None and not force_ask and fp is None:
-            fp = self.last_saved_location
+        if self.communicator.last_saved_map_path is not None and not force_ask and fp is None:
+            fp = self.communicator.last_saved_map_path
 
         if fp is None or fp == "" or force_ask:
-            self.last_saved_location = None
+            self.communicator.last_saved_map_path = None
             fp = self._ask_save_location()
 
         if fp is None or fp == "":
@@ -97,23 +96,24 @@ class KagImage:
         try:
             image.save(fp)
             print(f"Map saved to: {fp}")
-            self.last_saved_location = fp
+            self.communicator.last_saved_map_path = fp
 
         except FileNotFoundError as e:
             print(f"Failed to save image: {e}")
 
-    def load_map(self) -> None:
-        fp = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
+    def load_map(self, fp: str = "") -> None:
         if fp is None or fp == "":
-            print("Map to load not selected. Operation cancelled.")
-            return
+            fp = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
+            if fp is None or fp == "":
+                print("Map to load not selected. Operation cancelled.")
+                return
 
-        # prevent crash
-        if isinstance(fp, tuple) and len(fp) == 0:
-            return None
+            # prevent crash
+            if isinstance(fp, tuple) and len(fp) == 0:
+                return None
 
-        if isinstance(fp, tuple):
-            fp = fp[0]
+            if isinstance(fp, tuple):
+                fp = fp[0]
 
         if not self.file_handler.does_path_exist(fp):
             raise FileNotFoundError(f"File not found: {fp}")
@@ -161,7 +161,7 @@ class KagImage:
 
                 new_tilemap[Vec2f(final_x, final_y)] = item
 
-        self.last_saved_location = fp
+        self.communicator.last_saved_map_path = fp
 
         new_tilemap = self._get_translated_tilemap(new_tilemap)
         canvas.resize_canvas(Vec2f(width, height), new_tilemap)
@@ -176,17 +176,17 @@ class KagImage:
         return (a, r, g, b)
 
     def _ask_save_location(self) -> str:
-        if self.last_saved_location is None:
+        if self.communicator.last_saved_map_path is None:
             filepath = self._ask_location("Save Map As", self.file_handler.get_maps_path(), True)
             if filepath is None or filepath == "":
                 print("Save location not selected. Operation cancelled.")
                 return
 
             else:
-                self.last_saved_location = filepath
+                self.communicator.last_saved_map_path = filepath
 
         else:
-            filepath = self.last_saved_location
+            filepath = self.communicator.last_saved_map_path
 
         if isinstance(filepath, tuple):
             filepath = filepath[0]

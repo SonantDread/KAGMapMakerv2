@@ -26,6 +26,7 @@ class Communicator(metaclass = SingletonMeta):
         self.settings = {}
         self.mouse_pos = () # must be empty tuple
         self.old_mouse_pos = ()
+        self.last_saved_map_path = None
         self.team = 0
 
     def select_item(self, tile: str, idx: int = 0): # 1 = lmb, 0 = rmb, # todo: could be boolean?

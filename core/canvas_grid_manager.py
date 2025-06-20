@@ -17,8 +17,10 @@ class GridManager:
         Builds or rebuilds the tile grid on the canvas by creating grid lines.
         Clears any existing grid lines before drawing new ones.
         """
-        for item in self.grid_group.childItems():
-            self.canvas.canvas.removeItem(item)
+        self.grid_group = QGraphicsItemGroup()
+        self.canvas.canvas.addItem(self.grid_group)
+        is_visible = self.canvas.communicator.settings.get("tile grid visible", False)
+        self.grid_group.setVisible(is_visible)
 
         pen = QPen(Qt.GlobalColor.black)
         pen.setWidth(1)
