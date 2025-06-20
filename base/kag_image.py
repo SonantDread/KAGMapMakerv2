@@ -91,7 +91,23 @@ class KagImage:
             final_x = min(max(pos.x + offset_x, 0), width - 1)
             final_y = min(max(pos.y + offset_y, 0), height - 1)
 
-            image.putpixel((final_x, final_y), self.argb_to_rgba(color))
+            # --- SAVE TREES MULTIPLE BLOCKS TALL
+            color = self.argb_to_rgba(color)
+
+            if item.name_data.name == "tree":
+                for i in range(5):
+                    pos = (final_x, final_y - i)
+                    if self._is_out_of_bounds(pos):
+                        break
+
+                    # only save over blank pixels
+                    if i != 0 and image.getpixel(pos) != sky:
+                        break
+
+                    image.putpixel(pos, color)
+
+            else:
+                image.putpixel((final_x, final_y), color)
 
         try:
             image.save(fp)
@@ -240,6 +256,11 @@ class KagImage:
                     new_tilemap[Vec2f(x, y)] = tilemap[Vec2f(x, y)]
 
         return new_tilemap
+
+    def _is_out_of_bounds(self, pos: tuple) -> bool:
+        x, y = pos
+        size: Vec2f = self.communicator.get_canvas().size
+        return x < 0 or y < 0 or x >= size.x or y >= size.y
 
 class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
     """
