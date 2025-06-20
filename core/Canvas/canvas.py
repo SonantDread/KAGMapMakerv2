@@ -16,10 +16,10 @@ from base.citem import CItem
 from base.citemlist import CItemList
 from base.kag_image import KagImage
 from base.renderer import Renderer
-from core.canvas_input_handler import CanvasInputHandler
-from core.canvas_history_manager import HistoryManager
-from core.canvas_grid_manager import GridManager
-from core.commands import PlaceTileCommand
+from core.Canvas.canvas_input_handler import CanvasInputHandler
+from core.Canvas.canvas_history_manager import HistoryManager
+from core.Canvas.canvas_grid_manager import GridManager
+from core.Canvas.canvas_commands import PlaceTileCommand
 from core.communicator import Communicator
 from utils.vec2f import Vec2f
 

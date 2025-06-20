@@ -1,4 +1,4 @@
-from core.commands import Command
+from core.Canvas.canvas_commands import Command
 
 class HistoryManager:
     """
