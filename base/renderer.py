@@ -14,6 +14,7 @@ from base.citem import CItem
 from base.citemlist import CItemList
 from base.image_handler import ImageHandler
 from core.communicator import Communicator
+from core.renderer_render_overlays import RenderOverlays
 from utils.vec2f import Vec2f
 
 class Renderer:
@@ -33,6 +34,7 @@ class Renderer:
         self.images = ImageHandler()
         self.item_list = CItemList()
         self.cursor_graphics_item = None
+        self.render_overlays = RenderOverlays(self, self.communicator)
 
     def render_item(self, placing: CItem, scene_pos: Vec2f, grid_pos: Vec2f, eraser: bool, rot: int) -> None:
         """
@@ -53,6 +55,7 @@ class Renderer:
             if grid_pos in self.canvas.graphics_items:
                 item_to_remove = self.canvas.graphics_items.pop(grid_pos)
                 self.canvas.canvas.removeItem(item_to_remove)
+                self.render_overlays.on_erase_block(grid_pos)
 
             return
 
@@ -100,6 +103,9 @@ class Renderer:
         self.canvas.canvas.addItem(pixmap_item)
         self.canvas.graphics_items[grid_pos] = pixmap_item
         self.canvas.tilemap[grid_pos] = placing
+
+        self.render_overlays.on_place_block(placing, grid_pos)
+        self.render_overlays.render_extra_overlay()
 
     def render_cursor(self, pos: Vec2f) -> None:
         """

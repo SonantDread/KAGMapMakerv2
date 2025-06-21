@@ -52,6 +52,7 @@ class Toolbar(QToolBar):
         # --- view Menu ---
         view_menu = QMenu("View", self)
         self.tilegrid_visible = self._add_checkbox(view_menu, "Show Grid", self.toggle_grid)
+        self.redbarrier_visible = self._add_checkbox(view_menu, "Show Red Barrier", self.toggle_redbarrier)
         view_menu.addSeparator()
 
         # create a submenu for buttons/panels
@@ -117,6 +118,12 @@ class Toolbar(QToolBar):
 
     def toggle_grid(self, checked: bool) -> None:
         self.communicator.get_canvas().set_grid_visible(checked)
+
+    def toggle_redbarrier(self, checked: bool) -> None:
+        self.communicator.view["redbarrier"] = checked
+
+        overlays = self.communicator.get_canvas().renderer.render_overlays
+        overlays.render_extra_overlay() # force update
 
     def test_in_kag_triggered(self):
         fh = FileHandler()

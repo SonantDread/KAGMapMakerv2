@@ -23,7 +23,12 @@ class Communicator(metaclass = SingletonMeta):
         self.picked_tiles = [] # init in CItemList.py
         self.canvas = None
         self.exec_path = None
+
         self.settings = {}
+        self.view = {
+            "redbarrier": False
+        }
+
         self.mouse_pos = () # must be empty tuple
         self.old_mouse_pos = ()
         self.last_saved_map_path = None

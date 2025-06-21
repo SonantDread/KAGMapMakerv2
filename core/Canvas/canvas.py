@@ -32,8 +32,8 @@ class Canvas(CanvasInputHandler):
         super().__init__()
         self.gpu_rendering = True
         self.exec_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
-        self.renderer = Renderer(self)
         self.canvas = QGraphicsScene()
+        self.renderer = Renderer(self)
 
         self.setViewport(QOpenGLWidget())
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
