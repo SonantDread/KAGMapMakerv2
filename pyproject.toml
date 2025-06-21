@@ -1,6 +1,6 @@
 [project]
 name = "kagmapmakerv2"
-version = "0.1.4"
+version = "0.2.0"
 description = "A tool for creating maps for the game King Arthur's Gold."
 readme = "README.md"
 requires-python = ">=3.8"
