@@ -105,7 +105,6 @@ class Renderer:
         self.canvas.tilemap[grid_pos] = placing
 
         self.render_overlays.on_place_block(placing, grid_pos)
-        self.render_overlays.render_extra_overlay()
 
     def render_cursor(self, pos: Vec2f) -> None:
         """

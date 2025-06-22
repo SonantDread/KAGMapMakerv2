@@ -31,7 +31,8 @@ class Canvas(CanvasInputHandler):
     def __init__(self, size: Vec2f) -> None:
         super().__init__()
         self.gpu_rendering = True
-        self.exec_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
+        exec_path = os.path.dirname(os.path.realpath(__file__))
+        self.exec_path = os.path.join(exec_path, os.path.pardir, os.path.pardir)
         self.canvas = QGraphicsScene()
         self.renderer = Renderer(self)
 
@@ -172,7 +173,16 @@ class Canvas(CanvasInputHandler):
             None
         """
         self.canvas.clear()
+
+        if self.renderer:
+            self.renderer.cursor_graphics_item = None
+
+            if self.renderer.render_overlays:
+                self.renderer.render_overlays.overlay_item = None
+
         self._build_background_rect()
+        self.grid_manager.build_grid()
+        self.renderer.render_overlays.build_overlays()
 
         # clear the graphics_items dictionary
         if hasattr(self, 'graphics_items'):
@@ -188,6 +198,9 @@ class Canvas(CanvasInputHandler):
             scene_pos = Vec2f(x, y) * self.grid_spacing
 
             self.renderer.render_item(item, scene_pos, Vec2f(x, y), False, item.sprite.rotation)
+
+        if self.renderer and self.renderer.render_overlays:
+            self.renderer.render_overlays.render_extra_overlay()
 
     def set_grid_visible(self, show: bool = None) -> None:
         self.grid_manager.set_grid_visible(show)
@@ -231,6 +244,7 @@ class Canvas(CanvasInputHandler):
 
         date_str = timestamp.strftime("%d-%m-%Y")
         path = os.path.join(self.exec_path, "Maps", "Autosave", date_str)
+        print(f'{path=}')
 
         # ensure the directory exists, create it if it doesn't
         os.makedirs(path, exist_ok=True)
@@ -480,11 +494,12 @@ class Canvas(CanvasInputHandler):
             tilemap = {}
 
         self.tilemap = tilemap
+        self.wipe_history()
+
         self.force_rerender()
+
         self.add_panning_space()
         print(f"New map created with dimensions: {size.x}x{size.y}")
-        self.wipe_history()
-        self.grid_manager.build_grid()
 
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """

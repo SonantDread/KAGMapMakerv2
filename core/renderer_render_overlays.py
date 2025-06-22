@@ -18,12 +18,19 @@ class RenderOverlays:
 
         self.redbarrier_sprite: QPixmap = self.renderer.images.get_image('redbarrier')
 
+        self.is_item_in_scene = False
+        self.build_overlays()
+
+        self.last_composite_size = (0, 0) # track size to avoid regenerating the final pixmap
+
+    def build_overlays(self) -> None:
+        # called when map is reset
+        self.is_item_in_scene = False
         self.overlay_item = QGraphicsPixmapItem()
         self.overlay_item.setZValue(900_000) # render on top of most things
         self.overlay_item.hide()
 
-        self.is_item_in_scene = False
-        self.last_composite_size = (0, 0) # track size to avoid regenerating the final pixmap
+        self._ensure_item_in_scene()
 
     def _ensure_item_in_scene(self) -> bool:
         if self.is_item_in_scene:
