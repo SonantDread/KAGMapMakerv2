@@ -53,6 +53,7 @@ class Toolbar(QToolBar):
         view_menu = QMenu("View", self)
         self.tilegrid_visible = self._add_checkbox(view_menu, "Show Grid", self.toggle_grid)
         self.redbarrier_visible = self._add_checkbox(view_menu, "Show Red Barrier", self.toggle_redbarrier)
+        self.redbarrier_visible = self._add_checkbox(view_menu, "Show Non-Mineable Edge Blocks", self.toggle_edge_blocks)
         view_menu.addSeparator()
 
         # create a submenu for buttons/panels
@@ -121,6 +122,12 @@ class Toolbar(QToolBar):
 
     def toggle_redbarrier(self, checked: bool) -> None:
         self.communicator.view["redbarrier"] = checked
+
+        overlays = self.communicator.get_canvas().renderer.render_overlays
+        overlays.render_extra_overlay() # force update
+
+    def toggle_edge_blocks(self, checked: bool) -> None:
+        self.communicator.view["nobuild_edges"] = checked
 
         overlays = self.communicator.get_canvas().renderer.render_overlays
         overlays.render_extra_overlay() # force update

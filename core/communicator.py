@@ -26,7 +26,8 @@ class Communicator(metaclass = SingletonMeta):
 
         self.settings = {}
         self.view = {
-            "redbarrier": False
+            "redbarrier": False,
+            "nobuild_edges": False
         }
 
         self.mouse_pos = () # must be empty tuple

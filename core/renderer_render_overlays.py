@@ -16,16 +16,26 @@ class RenderOverlays:
         self.important_item_names = ["redbarrier"]
         self.items: dict[Vec2f, str] = {}
 
-        self.redbarrier_sprite: QPixmap | None = self.renderer.images.get_image('redbarrier')
+        self.redbarrier_sprite: QPixmap = self.renderer.images.get_image('redbarrier')
 
-        self.barrier_item = QGraphicsPixmapItem()
-        self.barrier_item.setZValue(900_000) # render on top of everything except cursor
-        self.barrier_item.hide()
+        self.overlay_item = QGraphicsPixmapItem()
+        self.overlay_item.setZValue(900_000) # render on top of most things
+        self.overlay_item.hide()
 
-        # track the last rendered size to know when to regenerate the barrier pixmap
-        self.last_barrier_size = (0, 0)
+        self.is_item_in_scene = False
+        self.last_composite_size = (0, 0) # track size to avoid regenerating the final pixmap
 
-        self._is_redbarrier_in_scene = False
+    def _ensure_item_in_scene(self) -> bool:
+        if self.is_item_in_scene:
+            return True
+
+        scene = self.renderer.canvas.canvas
+        if scene:
+            scene.addItem(self.overlay_item)
+            self.is_item_in_scene = True
+            return True
+
+        return False
 
     def on_place_block(self, placing: CItem, grid_pos: Vec2f) -> None:
         name = placing.name_data.name
@@ -33,104 +43,109 @@ class RenderOverlays:
             return
 
         self.items[grid_pos] = name
-        self.update_redbarrier()
+        self.render_extra_overlay() # trigger a redraw
 
     def on_erase_block(self, grid_pos: Vec2f) -> None:
         if self.items.pop(grid_pos, None):
-            self.update_redbarrier()
+            self.render_extra_overlay() # trigger a redraw
 
     def render_extra_overlay(self) -> None:
-        self.update_redbarrier()
-
-    def _ensure_item_in_scene(self) -> bool:
-        if self._is_redbarrier_in_scene:
-            return True
-
-        scene = self.renderer.canvas.canvas
-        if scene:
-            scene.addItem(self.barrier_item)
-            self._is_redbarrier_in_scene = True
-            return True
-
-        # scene is not ready, try again on the next frame
-        return False
-
-    def update_redbarrier(self) -> None:
         if self.redbarrier_sprite is None or not self._ensure_item_in_scene():
             return
 
-        # check for visibility based on communicator state
-        if not self.communicator.view.get("redbarrier", False):
-            self.barrier_item.hide()
-            return
-        self.barrier_item.show()
+        is_redbarrier_visible = self.communicator.view.get("redbarrier", False)
+        is_nobuild_visible = self.communicator.view.get("nobuild_edges", False)
 
-        # calculate the bounds of the barrier in scene coordinates
+        if not is_redbarrier_visible and not is_nobuild_visible:
+            self.overlay_item.hide()
+            return
+
+        self.overlay_item.show()
+
+        map_width_scene = self.canvas.size.x * self.canvas.grid_spacing
+        map_height_scene = self.canvas.size.y * self.canvas.grid_spacing
+
+        # create a single large transparent pixmap to draw everything on
+        composite_pixmap = QPixmap(int(map_width_scene), int(map_height_scene))
+        composite_pixmap.fill(Qt.GlobalColor.transparent)
+
+        painter = QPainter(composite_pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Source)
+
+        # draw the main red barrier if visible
+        if is_redbarrier_visible:
+            self._draw_main_barrier(painter)
+
+        # draw the no-build edge barriers if visible
+        if is_nobuild_visible:
+            self._draw_nobuild_edges(painter)
+
+        painter.end()
+
+        # final combined pixmap on our single item
+        self.overlay_item.setPixmap(composite_pixmap)
+        self.overlay_item.setPos(0, 0) # position the item at the top-left of the scene
+
+    def _draw_main_barrier(self, painter: QPainter):
         map_width_tiles = self.canvas.size.x
         grid_spacing = self.canvas.grid_spacing
 
-        scene_x1, scene_x2 = self._calculate_barrier_bounds_in_scene_coords(
-            map_width_tiles, grid_spacing
-        )
+        scene_x1, scene_x2 = self._calculate_barrier_bounds_in_scene_coords(map_width_tiles, grid_spacing)
 
-        # determine the required pixmap size
-        barrier_width = int(scene_x2 - scene_x1)
-        barrier_height = int(self.canvas.size.y * grid_spacing)
-        current_size = (barrier_width, barrier_height)
+        width = int(scene_x2 - scene_x1)
+        height = int(self.canvas.size.y * grid_spacing)
 
-        # regenerate the barrier's pixmap only if its size has changed
-        if self.last_barrier_size != current_size and barrier_width > 0 and barrier_height > 0:
-            scale = self.canvas.default_zoom_scale
+        if width > 0 and height > 0:
+            tiled_pixmap = self._create_tiled_pixmap(self.redbarrier_sprite, width, height)
+            painter.drawPixmap(int(scene_x1), 0, tiled_pixmap)
 
-            new_pixmap = self._create_tiled_pixmap(
-                source_sprite=self.redbarrier_sprite,
-                width=barrier_width,
-                height=barrier_height,
-                scale=scale
-            )
+    def _draw_nobuild_edges(self, painter: QPainter):
+        map_width_tiles = self.canvas.size.x
+        map_height_tiles = self.canvas.size.y
+        grid_spacing = self.canvas.grid_spacing
+        zone_thickness_grid = 2
 
-            self.barrier_item.setPixmap(new_pixmap)
-            self.last_barrier_size = current_size
+        zone_thickness_scene = zone_thickness_grid * grid_spacing
+        map_width_scene = map_width_tiles * grid_spacing
+        map_height_scene = map_height_tiles * grid_spacing
 
-        # ensure the barrier is positioned correctly
-        self.barrier_item.setPos(scene_x1, 0)
+        edge_configs = {
+            'top': (0, 0, map_width_scene, zone_thickness_scene + (1 * grid_spacing)),
+            'left': (0, 0, zone_thickness_scene, map_height_scene),
+            'right': (map_width_scene - zone_thickness_scene, 0, zone_thickness_scene, map_height_scene),
+        }
+
+        for _, config in edge_configs.items():
+            x, y, width, height = map(int, config)
+            if width > 0 and height > 0:
+                tiled_pixmap = self._create_tiled_pixmap(self.redbarrier_sprite, width, height)
+                painter.drawPixmap(x, y, tiled_pixmap)
 
     def _calculate_barrier_bounds_in_scene_coords(self, map_width_tiles: int, grid_spacing: float) -> tuple[float, float]:
         barrier_markers = [pos for pos, name in self.items.items() if name == "redbarrier"]
-
         if len(barrier_markers) == 2:
-            # use explicit marker positions
             grid_x1, grid_x2 = barrier_markers[0].x, barrier_markers[1].x
             left_grid_x = min(grid_x1, grid_x2)
-            right_grid_x = max(grid_x1, grid_x2) + 1 # +1 to include the tile itself
+            right_grid_x = max(grid_x1, grid_x2) + 1
 
         else:
-            # default percentage-based barrier
             barrier_percent = 0.175
             map_middle_grid = map_width_tiles * 0.5
             barrier_width_grid = math.floor(barrier_percent * map_width_tiles)
-            # add a small offset for odd-width maps to keep it centered
             extra_width_grid = 0.5 if map_width_tiles % 2 == 1 else 0.0
-
             left_grid_x = map_middle_grid - (barrier_width_grid + extra_width_grid)
             right_grid_x = map_middle_grid + (barrier_width_grid + extra_width_grid)
 
-        # convert grid coordinates to scene (pixel) coordinates
-        scene_x1 = left_grid_x * grid_spacing
-        scene_x2 = right_grid_x * grid_spacing
+        return left_grid_x * grid_spacing, right_grid_x * grid_spacing
 
-        return scene_x1, scene_x2
-
-    @staticmethod
-    def _create_tiled_pixmap(source_sprite: QPixmap, width: int, height: int, scale: float) -> QPixmap:
-        # create a new, large, transparent pixmap to draw on
+    def _create_tiled_pixmap(self, source_sprite: QPixmap, width: int, height: int) -> QPixmap:
+        # create a tiled pixmap of a certain size
+        scale = self.canvas.default_zoom_scale
         composite_pixmap = QPixmap(width, height)
         composite_pixmap.fill(Qt.GlobalColor.transparent)
 
-        # prepare to draw on our new large pixmap
         painter = QPainter(composite_pixmap)
 
-        # the barrier sprite should be scaled just like regular tiles
         scaled_sprite = source_sprite.scaled(
             int(source_sprite.width() * scale),
             int(source_sprite.height() * scale)
@@ -139,9 +154,8 @@ class RenderOverlays:
 
         if sprite_w == 0 or sprite_h == 0:
             painter.end()
-            return composite_pixmap # return transparent pixmap if sprite is invalid
+            return composite_pixmap
 
-        # tile the scaled sprite across the large pixmap
         for y in range(0, height, sprite_h):
             for x in range(0, width, sprite_w):
                 painter.drawPixmap(x, y, scaled_sprite)
