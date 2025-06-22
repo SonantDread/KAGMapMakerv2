@@ -72,7 +72,7 @@ class Toolbar(QToolBar):
         new_action.triggered.connect(self.kagimage.new_map)
         save_action.triggered.connect(self.kagimage.save_map)
         save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
-        load_action.triggered.connect(self.kagimage.load_map)
+        load_action.triggered.connect(lambda: self.kagimage.load_map())
         test_in_kag.triggered.connect(self.test_in_kag_triggered)
 
         button1_action.triggered.connect(self.button1_triggered)

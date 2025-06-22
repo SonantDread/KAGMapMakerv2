@@ -124,12 +124,12 @@ class KagImage:
                 print("Map to load not selected. Operation cancelled.")
                 return
 
-            # prevent crash
-            if isinstance(fp, tuple) and len(fp) == 0:
-                return None
+        # prevent crash
+        if isinstance(fp, tuple) and len(fp) == 0:
+            return None
 
-            if isinstance(fp, tuple):
-                fp = fp[0]
+        if isinstance(fp, tuple):
+            fp = fp[0]
 
         if not self.file_handler.does_path_exist(fp):
             raise FileNotFoundError(f"File not found: {fp}")
