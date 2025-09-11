@@ -1,12 +1,12 @@
 # KAGMapMakerV2
 
 <p align="center">
-  <a href="http://unlicense.org/">
-    <img alt="License: Unlicense" src="https://img.shields.io/badge/license-Unlicense-blue.svg">
+  <a href="https://www.gnu.org/licenses/gpl-3.0">
+    <img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
   </a>
 </p>
 
-**KAGMapMaker** is an unofficial, fan-made tool for creating maps for the game [King Arthur's Gold](https://kag2d.com/). It is not affiliated with the developers of the game in any way.
+A tool for creating maps for the game King Arthur's Gold.
 
 ---
 
@@ -122,4 +122,4 @@ Contributions are welcome! If you have found a bug or have a feature request, pl
 
 ## License
 
-This project is released into the public domain. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for details.
