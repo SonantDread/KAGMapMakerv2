@@ -67,6 +67,8 @@ class KagImage:
         sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
         image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y), color=sky)
 
+        redbarrier_min_x, redbarrier_max_x = None, None
+
         for pos, item in tilemap.items():
             if item is None or pos is None:
                 continue
@@ -91,9 +93,17 @@ class KagImage:
             final_x = min(max(pos.x + offset_x, 0), width - 1)
             final_y = min(max(pos.y + offset_y, 0), height - 1)
 
-            # --- SAVE TREES MULTIPLE BLOCKS TALL
             color = self.argb_to_rgba(color)
 
+            if item.name_data.name == "redbarrier":
+                if redbarrier_min_x is None or final_x < redbarrier_min_x[0]:
+                    redbarrier_min_x = (final_x, final_y)
+
+                if redbarrier_max_x is None or final_x > redbarrier_max_x[0]:
+                    redbarrier_max_x = (final_x, final_y)
+                continue
+
+            # --- SAVE TREES MULTIPLE BLOCKS TALL
             if item.name_data.name == "tree":
                 for i in range(5):
                     pos = (final_x, final_y - i)
@@ -110,6 +120,11 @@ class KagImage:
                 image.putpixel((final_x, final_y), color)
 
         try:
+            if redbarrier_min_x is not None and redbarrier_max_x is not None:
+                barrier_color = self.argb_to_rgba(self.item_list.get_item_by_name("redbarrier").get_color())
+                image.putpixel(redbarrier_min_x, barrier_color)
+                image.putpixel(redbarrier_max_x, barrier_color)
+
             image.save(fp)
             print(f"Map saved to: {fp}")
             self.communicator.last_saved_map_path = fp

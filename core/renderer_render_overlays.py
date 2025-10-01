@@ -130,20 +130,19 @@ class RenderOverlays:
 
     def _calculate_barrier_bounds_in_scene_coords(self, map_width_tiles: int, grid_spacing: float) -> tuple[float, float]:
         barrier_markers = [pos for pos, name in self.items.items() if name == "redbarrier"]
-        if len(barrier_markers) == 2:
-            grid_x1, grid_x2 = barrier_markers[0].x, barrier_markers[1].x
-            left_grid_x = min(grid_x1, grid_x2)
-            right_grid_x = max(grid_x1, grid_x2) + 1
+        sorted_barriers = sorted(barrier_markers, key = lambda pos: pos.x)
 
-        else:
+        if len(sorted_barriers) < 2:
             barrier_percent = 0.175
             map_middle_grid = map_width_tiles * 0.5
             barrier_width_grid = math.floor(barrier_percent * map_width_tiles)
             extra_width_grid = 0.5 if map_width_tiles % 2 == 1 else 0.0
             left_grid_x = map_middle_grid - (barrier_width_grid + extra_width_grid)
             right_grid_x = map_middle_grid + (barrier_width_grid + extra_width_grid)
+            return left_grid_x * grid_spacing, right_grid_x * grid_spacing
 
-        return left_grid_x * grid_spacing, right_grid_x * grid_spacing
+        left, right = sorted_barriers[0], sorted_barriers[-1]
+        return left.x * grid_spacing, (right.x + 1) * grid_spacing
 
     def _create_tiled_pixmap(self, source_sprite: QPixmap, width: int, height: int) -> QPixmap:
         # create a tiled pixmap of a certain size
