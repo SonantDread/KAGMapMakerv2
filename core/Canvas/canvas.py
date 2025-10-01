@@ -356,6 +356,7 @@ class Canvas(CanvasInputHandler):
         scene_pos = Vec2f(tilemap_x * self.grid_spacing, tilemap_y * self.grid_spacing)
         if placing_item.sprite.properties.is_rotatable:
             placing_item.sprite.rotation = self.rotation
+
         self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser=False, rot=self.rotation)
 
         # handle mirrored placing
@@ -415,32 +416,35 @@ class Canvas(CanvasInputHandler):
         if add_to_history:
             initial_item = self.communicator.get_selected_tile(click_index).copy()
 
-        # handle the case where an undo/redo action passes a None item (erasing)
+        # erasing
         if initial_item is None:
             initial_item = self.item_list.get_item_by_name('sky').copy()
 
-        # --- perform the merge check to get the final item ---
+        # perform the merge check to get the final item
         final_item = self._get_merged_item(initial_item, grid_pos)
 
-        # --- check if anything needs to be done ---
+        # check if anything needs to be done
         snapped_pos = Vec2f(*grid_pos)
         previous_item = self.tilemap.get(snapped_pos)
 
-        # if the final item is the same as what's already there, do nothing.
-        # this prevents creating unnecessary history entries.
+        # do nothing if the final item is the same as what's already there
         if previous_item and previous_item.name_data.name == final_item.name_data.name:
             # also check rotation for rotatable items
-            if not final_item.sprite.properties.is_rotatable or previous_item.sprite.rotation == self.rotation:
+            can_rotate = final_item.sprite.properties.is_rotatable
+            same_rotation = previous_item.sprite.rotation == final_item.sprite.rotation
+            same_team = previous_item.sprite.team == final_item.sprite.team
+            if (not can_rotate and same_rotation) and same_team:
                 return
 
-        # if the user is trying to erase an empty space, do nothing.
+        # do nothing if the user is trying to erase an empty space
         if previous_item is None and (final_item.is_eraser() or final_item.name_data.name == 'sky'):
             return
 
-        # --- execute the action ---
+        # execute the action
         if not add_to_history:
             # undo/redo
             self.perform_place_item(grid_pos, final_item)
+
         else:
             # this is a new user action, create a command and execute it
             # IMPORTANT: the command stores the state *before* the merge.
