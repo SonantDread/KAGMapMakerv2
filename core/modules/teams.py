@@ -35,7 +35,7 @@ class SelectionButton(QPushButton):
             communicator.team = self.team
 
 class Teams(QWidget):
-    def __init__(self, parent, picker) -> None:
+    def __init__(self, parent, height: int) -> None:
         super().__init__(parent)
         self.setParent(parent)
         self.parent_widget = parent
@@ -45,7 +45,7 @@ class Teams(QWidget):
 
         self.widget = QWidget(self.parent_widget)
         self.widget.setFixedSize(QSize(self._get_tab_size(), BUTTON_HEIGHT * 2))
-        self.widget.move(0, picker.tab_holder.height())
+        self.widget.move(0, height)
 
         self.teams_tab = None
         self.setup_ui()

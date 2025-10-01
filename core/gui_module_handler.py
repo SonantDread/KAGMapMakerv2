@@ -21,8 +21,15 @@ class GUIModuleHandler:
         self.setup_modules()
 
     def setup_modules(self):
+        BUFFER = 20
+        current_height = 0
+
         picker = Picker(self.app_window)
-        teams = Teams(self.app_window, picker)
+        current_height += picker.tab_holder.height() + BUFFER
+
+        teams = Teams(self.app_window, current_height)
+        current_height += teams.widget.height() + BUFFER
+
         # add to layout
         self.container.addWidget(picker)
         self.container.addWidget(teams)

@@ -28,6 +28,7 @@ class SelectionButton(QPushButton):
     def mousePressEvent(self, event) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
             communicator.select_item(self.data, 1)
+
         elif event.button() == Qt.MouseButton.RightButton:
             communicator.select_item(self.data, 0)
 
@@ -60,8 +61,8 @@ class Picker(QWidget):
         self.setup_tabs(self.modded_tab, False)
 
     def setup_tabs(self, tab: QTabWidget, is_vanilla: bool) -> None:
-        tiles_tab =  self._make_scroll_area("Tiles", tab)
-        blobs_tab = self._make_scroll_area("Blobs", tab)
+        tiles_tab  = self._make_scroll_area("Tiles", tab)
+        blobs_tab  = self._make_scroll_area("Blobs", tab)
         colors_tab = self._make_scroll_area("Colors", tab)
         others_tab = self._make_scroll_area("Other", tab)
 
