@@ -53,7 +53,7 @@ class KagImage:
         if self.communicator.last_saved_map_path is not None and not force_ask and fp is None:
             fp = self.communicator.last_saved_map_path
 
-        if fp is None or fp == "" or force_ask:
+        if fp is None or fp == "" or force_ask or isinstance(fp, bool):
             self.communicator.last_saved_map_path = None
             fp = self._ask_save_location()
 
