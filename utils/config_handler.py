@@ -8,7 +8,7 @@ from base.citem import CItem
 
 class ConfigHandler:
     """
-    Handles configuration loading and management for the application.
+    Handles loading configs for JSON files.
     """
     def __init__(self):
         self.fh = FileHandler()
@@ -20,10 +20,6 @@ class ConfigHandler:
     def load_config_file(self, config_path: str, config_name: str) -> dict:
         """
         Loads a configuration file and stores it in loaded_configs.
-
-        Args:
-            config_path (str): Path to the configuration file
-            config_name (str): Name of the configuration file
 
         Returns:
             dict: The loaded configuration data or None if loading fails
@@ -42,10 +38,6 @@ class ConfigHandler:
         """
         Retrieves a specific item from a loaded configuration.
 
-        Args:
-            config_name (str): Name of the configuration file
-            item_key (str): Key to retrieve from the configuration
-
         Returns:
             any: The value associated with the key, or None if not found
         """
@@ -59,15 +51,8 @@ class ConfigHandler:
         """
         Loads modded items from a single JSON file.
 
-        Args:
-            file_path (str): Path to the JSON file containing modded item definitions
-
         Returns:
             List[CItem]: List of parsed modded items
-
-        Raises:
-            FileNotFoundError: If the file doesn't exist
-            ValueError: If the JSON is invalid
         """
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -88,9 +73,6 @@ class ConfigHandler:
         """
         Retrieves all items from a specific mod folder.
 
-        Args:
-            mod_folder_name (str): Name of the mod folder to get items from
-
         Returns:
             List[CItem]: List of items from the specified mod folder
         """
@@ -106,9 +88,6 @@ class ConfigHandler:
     def get_loaded_file_items(self, file_path: str) -> list[CItem]:
         """
         Retrieves all items from a specific loaded file.
-
-        Args:
-            file_path (str): Path to the file to get items from
 
         Returns:
             List[CItem]: List of items from the specified file
