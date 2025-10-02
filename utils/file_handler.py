@@ -6,34 +6,34 @@ from pathlib import Path
 
 class FileHandler:
     """
-    Used to handle file paths and file loading.
+    Handles consistent file paths across the project.
     """
     def __init__(self) -> None:
-        # path to the main folder
-        default_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-        vanilla_items = os.path.abspath(os.path.join(default_path, "base", "Items"))
+        join_path = lambda *parts: os.path.abspath(os.path.join(*parts))
+        # main folder path
+        root = join_path(os.path.dirname(os.path.abspath(__file__)), "..")
+        vanilla_items = join_path(root, "base", "Items")
+        sprites = join_path(root, "base", "Sprites")
+
         self.paths = {
-            "default_path": default_path,
-            "world_path": os.path.abspath(os.path.join(default_path, "base", "Sprites", "Default", "world.png")),
+            "default_path": root,
+            "world_path": join_path(sprites, "Default", "world.png"),
             "vanilla_items": vanilla_items,
-            "mapmaker_images": os.path.abspath(os.path.join(default_path, "base", "Sprites", "MapMaker")),
-            "config_path": os.path.abspath(os.path.join(default_path, "settings", "config.json")),
-            "default_config_path": os.path.abspath(os.path.join(default_path, "settings", "readonly_config.json")),
-            "maps_path": os.path.abspath(os.path.join(default_path, "Maps")),
-            "modded_items_path": os.path.abspath(os.path.join(default_path, "Modded")),
-            "tilelist_path": os.path.abspath(os.path.join(vanilla_items, "tiles.json")),
-            "bloblist_path": os.path.abspath(os.path.join(vanilla_items, "blobs.json")),
-            "otherlist_path": os.path.abspath(os.path.join(vanilla_items, "others.json")),
-            "merge_items_path": os.path.abspath(os.path.join(vanilla_items, "merge_items.json")),
-            "team_palette_path": os.path.abspath(os.path.join(default_path, "base", "Sprites", "Default", "TeamPalette.png")),
+            "mapmaker_images": join_path(sprites, "MapMaker"),
+            "config_path": join_path(root, "settings", "config.json"),
+            "default_config_path": join_path(root, "settings", "readonly_config.json"),
+            "maps_path": join_path(root, "Maps"),
+            "modded_items_path": join_path(root, "Modded"),
+            "tilelist_path": join_path(vanilla_items, "tiles.json"),
+            "bloblist_path": join_path(vanilla_items, "blobs.json"),
+            "otherlist_path": join_path(vanilla_items, "others.json"),
+            "merge_items_path": join_path(vanilla_items, "merge_items.json"),
+            "team_palette_path": join_path(sprites, "Default", "TeamPalette.png"),
         }
 
-    def does_path_exist(self, path: str):
+    def does_path_exist(self, path: str) -> bool:
         """
-        Checks if a given file path exists.
-
-        Args:
-            path (str): The file path to check.
+        Normalizes the provided path and checks if it exists.
 
         Returns:
             bool: True if the path exists, False otherwise.
@@ -43,7 +43,7 @@ class FileHandler:
 
         return os.path.exists(path)
 
-    def get_maps_path(self):
+    def get_maps_path(self) -> str:
         """
         Returns the path to the maps directory.
 
@@ -59,10 +59,6 @@ class FileHandler:
     def does_sprite_exist(self, name: str, fp: str = None) -> bool:
         """
         Checks if a sprite with the given name exists in the sprites directory.
-
-        Args:
-            name (str): The name of the sprite to check for.
-            fp (str): The path to search for the sprite. If None, the default path is used.
 
         Returns:
             bool: True if the sprite exists, False otherwise.
@@ -83,9 +79,6 @@ class FileHandler:
         """
         Returns the actual name of the file provided
 
-        Args:
-            fp (str): The filepath
-
         Returns:
             str: The name of the file
         """
@@ -95,30 +88,34 @@ class FileHandler:
         """
         Returns the full path to the modded item with the given name in the given path
 
-        Args:
-            name (str): The name of the modded item to find
-            fp (str): The path to search for the modded item
-
         Returns:
             str: The full path to the modded item if found, None otherwise
         """
-
         for root, _, files in os.walk(fp):
             if name in files:
                 return os.path.join(root, name)
 
         return None
 
-    def get_vanilla_items_paths(self) -> list[str]:
-        return self._get_files_from_dir(self.paths.get("vanilla_items"), lambda x: True)
+    def get_modded_items_paths(self, fp: str = None) -> list[str]:
+        """
+        Returns a list of all modded item file paths in the modded items directory.
 
-    def get_modded_items_paths(self) -> list[str]:
-        return self._get_files_from_dir(self.paths.get("modded_items_path"),
-                        lambda x: x.split("\\")[-1] != "_ExampleMod")
+        Returns:
+            list[str]: A list of file paths to modded items.
+        """
+        if fp is None:
+            fp = self.paths.get("modded_items_path")
 
-    def _get_files_from_dir(self, fp: str, condition: callable) -> list[str]:
-        files = []
-        for r, _, fn in os.walk(fp):
-            files.extend([os.path.join(r, f.strip()) for f in fn if f.strip().endswith(".json") and condition(r)])
+        blacklisted_folders = ["_ExampleMod"]
+        files: list[str] = []
+
+        for root, _, filenames in os.walk(fp):
+            if any(blacklisted in root.split(os.sep) for blacklisted in blacklisted_folders):
+                continue
+
+            for f in filenames:
+                if f.strip().endswith(".json"):
+                    files.append(os.path.join(root, f.strip()))
 
         return files
