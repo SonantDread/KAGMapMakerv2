@@ -4,7 +4,7 @@ Used to store Vector 2 positions.
 from typing import Union
 class Vec2f:
     """
-    Storse a 2D vector of integer or float.
+    Stores a 2D vector of integer or float.
     """
     def __init__(self, x: Union[float, int] = 0, y: Union[float, int] = 0):
         self.x = x
