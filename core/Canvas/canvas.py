@@ -42,7 +42,7 @@ class Canvas(CanvasInputHandler):
 
         self.communicator = Communicator()
         self.setScene(self.canvas)
-        self.size = size # map size
+        self.size = size # map size #! may conflict with a built in property, so this could need to be a function instead
 
         self.zoom_change_factor = 1.1
 
@@ -429,12 +429,25 @@ class Canvas(CanvasInputHandler):
 
         # do nothing if the final item is the same as what's already there
         if previous_item and previous_item.name_data.name == final_item.name_data.name:
-            # also check rotation for rotatable items
-            can_rotate = final_item.sprite.properties.is_rotatable
-            same_rotation = previous_item.sprite.rotation == final_item.sprite.rotation
-            same_team = previous_item.sprite.team == final_item.sprite.team
-            if (not can_rotate and same_rotation) and same_team:
-                return
+            skip_rest = False
+            mirror = self.communicator.settings.get("mirrored over x", False)
+
+            # skip check if you can place a tile on the other side of the map
+            if mirror:
+                mirrored_x = self.size.x - 1 - snapped_pos.x
+                out_of_bounds = self.is_out_of_bounds(grid_pos)
+                same_pos = mirrored_x == snapped_pos.x
+                if not out_of_bounds and not same_pos:
+                    tile = self.tilemap.get(Vec2f(mirrored_x, snapped_pos.y))
+                    if tile is None:
+                        skip_rest = True
+
+            if not skip_rest:
+                can_rotate = final_item.sprite.properties.is_rotatable
+                same_rotation = previous_item.sprite.rotation == final_item.sprite.rotation
+                same_team = previous_item.sprite.team == final_item.sprite.team
+                if (not can_rotate and same_rotation) and same_team:
+                    return
 
         # do nothing if the user is trying to erase an empty space
         if previous_item is None and (final_item.is_eraser() or final_item.name_data.name == 'sky'):
