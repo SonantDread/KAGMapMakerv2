@@ -25,70 +25,44 @@ class App(QMainWindow):
     for the application to run.
     """
     def __init__(self):
-        """
-        Initializes the App class and sets up the main window.
-        """
-        self._announce("STARTING APP")
         super().__init__()
 
-        print("Setting up main window")
         self.window_config = WindowConfigHandler(self)
         self.window_config.load_window_config()
 
-        print("Loading UI")
         self.main_widget = QWidget(self)
         self.main_widget.setObjectName("MainWidget")
         self.setCentralWidget(self.main_widget)
 
-        # create layout for main widget
         self.main_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.setLayout(self.main_layout)
         self.main_widget.setLayout(self.main_layout)
 
-        # todo: this should all just be a large widget for the menus, and canvas should be a seperate thing
-        # picker menus
+        # left sidebar
         self.ui_layout = GUIModuleHandler(self.main_widget)
 
         self.toolbar = Toolbar(self)
         self.toolbar.setMovable(False)
         self.addToolBar(self.toolbar)
 
-        # load canvas
-        print("Loading Canvas")
         self.canvas = Canvas(Vec2f(200, 80))
-
-        # add canvas to layout
         self.main_layout.addWidget(self.canvas)
 
         self.communicator = Communicator()
         self.communicator.set_canvas(self.canvas)
         self.communicator.set_exec_path(os.path.dirname(os.path.abspath(__file__)))
 
-        # --- LOAD LAST SAVED MAP ON STARTUP ---
         last_map_path = self.communicator.last_saved_map_path
         if last_map_path:
             KagImage().load_map(last_map_path)
 
-        self._announce("RUNNING APP")
         atexit.register(self.save_on_exit)
 
     def save_on_exit(self) -> None:
         """
         Saves the current application configuration on exit.
         """
-
         self.window_config.save_window_config()
-
-    def _announce(self, message) -> None:
-        """
-        Prints a message to indicate an event in the application.
-
-        Parameters:
-            message (str): The message to be printed.
-        """
-        print("============")
-        print(message)
-        print("============")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
