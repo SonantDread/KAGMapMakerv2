@@ -6,6 +6,8 @@ import os
 import shutil
 import subprocess
 
+from tkinter import filedialog
+
 from PyQt6.QtWidgets import QToolBar, QMenu, QCheckBox, QWidgetAction
 from PyQt6.QtGui import QAction
 
@@ -80,7 +82,7 @@ class Toolbar(QToolBar):
         self.addAction(self.file_menu)
 
         self.settings_menu = QAction("Settings", self)
-        self.settings_menu.triggered.connect(lambda:self._pop_up(settings_menu, self.settings_menu))
+        self.settings_menu.triggered.connect(lambda: self._pop_up(settings_menu, self.settings_menu))
         self.addAction(self.settings_menu)
 
         self.view_menu = QAction("View", self)
@@ -136,21 +138,23 @@ class Toolbar(QToolBar):
         fh = FileHandler()
         config_handler = ConfigHandler()
         config_handler.load_config_file(config_handler.config_path, "config.json")
-        kag_base_path = config_handler.get_config_item("config.json", "kag_path") # todo: should have a way to get kag if it isnt at this directory
+        kag_base_path = config_handler.get_config_item("config.json", "kag_path")
 
-        if kag_base_path is None:
+        if kag_base_path is None or kag_base_path == "":
             config_handler.load_config_file(config_handler.readonly_config_path, "config.json")
             kag_base_path = config_handler.get_config_item("readonly_config.json", "kag_path")
 
-        if kag_base_path is None:
-            print("No KAG path found in config file.")
+        if kag_base_path is None or kag_base_path == "":
+            kag_base_path = self.ask_kag_path()
+            kag_base_path = os.path.dirname(kag_base_path) if kag_base_path is not None else None
+
+        if kag_base_path is None or kag_base_path == "":
             return
 
-        kag_script_path = os.path.join(kag_base_path, "Base", "Scripts", "MapMaker_Autostart.as")
-        kag_map_path = os.path.join(kag_base_path, "Base", "Maps", "MapMaker_Map.png")
-        autostart_script = os.path.join(fh.paths.get("default_path"), "base", "MapMaker_Autostart.as") # todo: should be in filehandler
+        kag_script_path = fh.get_kag_autostart_path(kag_base_path)
+        kag_map_path = fh.get_kag_maps_path(kag_base_path)
+        autostart_script = fh.paths.get("autostart_script_path")
 
-        # ensure files exist to actually test maps
         if fh.does_path_exist(autostart_script) and not fh.does_path_exist(kag_script_path):
             shutil.copy(autostart_script, kag_script_path)
 
@@ -158,13 +162,10 @@ class Toolbar(QToolBar):
             self.kagimage.save_map(kag_map_path)
 
         try:
+            kag_executable = os.path.join(kag_base_path, "KAG")
             # windows
             if os.name == "nt":
-                kag_executable = os.path.join(kag_base_path, "KAG.exe")
-
-            # linux / mac
-            else:
-                kag_executable = os.path.join(kag_base_path, "KAG")
+                kag_executable += ".exe"
 
             command = [
                 kag_executable,
@@ -177,6 +178,21 @@ class Toolbar(QToolBar):
 
         except subprocess.CalledProcessError as e:
             print(f"Error executing KAG command: {e}")
+
+    def ask_kag_path(self) -> str | None:
+        """
+        Asks the user to provide the path to their KAG installation.
+
+        Returns:
+            str | None: The path to the KAG installation, or None if the user cancels.
+        """
+        filepath = filedialog.askopenfilename(
+            title = "Please open your KAG executable.",
+            defaultextension = ".exe",
+            filetypes = [("Executeable Files", "*.exe")]
+        )
+
+        return filepath
 
     # def example_checkbox_toggled(self, checked):
     #     print(f"Example Checkbox toggled: {checked}")
