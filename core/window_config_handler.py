@@ -1,3 +1,6 @@
+"""
+Handles the config for the main window.
+"""
 import json
 import os
 from typing import Optional
@@ -10,8 +13,10 @@ from core.communicator import Communicator
 from utils.file_handler import FileHandler
 from utils.vec2f import Vec2f
 
-
 class WindowConfigHandler:
+    """
+    Manages saving and loading the main window's configuration.
+    """
     def __init__(self, window: QMainWindow) -> None:
         self.window = window
 
@@ -21,6 +26,9 @@ class WindowConfigHandler:
         self._ensure_valid_configs()
 
     def save_window_config(self) -> None:
+        """
+        Saves the window's current config to a file.
+        """
         config_path = self.fh.paths.get("config_path")
         if config_path is None:
             raise SyntaxError("ERROR: File Handler does not have the right path.")
@@ -56,18 +64,19 @@ class WindowConfigHandler:
             print(f"ERROR: Failed to save window config to '{config_path}': {e}")
 
     def load_window_config(self) -> None:
+        """
+        Loads the window's config from a file.
+        """
         window: QMainWindow = self.window
         full_config = self._get_config_data()
 
         window.setWindowTitle("KAG Map Maker")
 
-        # don't crash the script, just dont load any configs
         if full_config is None:
             return
 
         self.communicator.last_saved_map_path = full_config.get("last worked on map")
 
-        # safely get the window config using .get() to avoid errors if the key is missing
         window_config = full_config.get('window')
         if not window_config:
             print("Warning: 'window' configuration not found. Using default geometry.")
@@ -77,7 +86,7 @@ class WindowConfigHandler:
         offset = Vec2f(offset.get('x', 0), offset.get('y', 0))
 
         size = window_config.get('size', {})
-        size = Vec2f(size.get('width', 1920*.75), size.get('height', 1080*.75))
+        size = Vec2f(size.get('width', 1920*.75), size.get('height', 1080*.75)) # todo: this should be based on screen size
 
         self._set_window_offset_size(offset, size)
 
@@ -100,17 +109,13 @@ class WindowConfigHandler:
         Returns:
             A list containing the validated [x, y, width, height].
         """
-        # define the minimum visibility required to keep the current position
-        min_visibility_threshold = 0.20
+        min_visibility_threshold = 0.20 # 20%
 
-        # create a QRect for the proposed window geometry.
         window_rect = QRect(int(offset.x), int(offset.y), int(size.x), int(size.y))
         window_area = window_rect.width() * window_rect.height()
 
-        # handle invalid size (e.g., width/height is zero or negative)
         if window_area <= 0:
             print("Window has invalid size. Resetting to default.")
-            # trigger the reset logic by treating it as 0% visible
             visibility_ratio = 0
 
         else:
@@ -120,11 +125,8 @@ class WindowConfigHandler:
             for screen in screens:
                 # use availableGeometry() to account for taskbars, docks, etc
                 screen_geometry = screen.availableGeometry()
-
-                # find the area of intersection between the window and the screen
                 intersection = window_rect.intersected(screen_geometry)
 
-                # the intersection rect will have a non-positive width/height if no overlap
                 if not intersection.isEmpty():
                     total_visible_area += intersection.width() * intersection.height()
 
@@ -132,19 +134,15 @@ class WindowConfigHandler:
 
         # check if the visibility ratio is below the threshold
         if visibility_ratio < min_visibility_threshold:
-            # if the window is mostly off-screen, reset its position and size
-            print("Window is too far offscreen. Resetting position.")
+            print("Window is too far offscreen. Resetting position...")
 
-            # get the primary screen to center the window on
             primary_screen = QGuiApplication.primaryScreen()
             if not primary_screen:
-                # extremely rare case but good to have a fallback
                 return [100, 100, 1024, 768]
 
             screen_rect = primary_screen.availableGeometry()
 
-            # set a new, sensible default size (e.g: 75% of the screen)
-            new_width = int(screen_rect.width() * 0.75)
+            new_width = int(screen_rect.width() * 0.75) # 75%
             new_height = int(screen_rect.height() * 0.75)
 
             # calculate coordinates to center the new window
@@ -153,9 +151,7 @@ class WindowConfigHandler:
 
             return [new_x, new_y, new_width, new_height]
 
-        else:
-            # the window is sufficiently visible, so return the original coordinates
-            return [int(offset.x), int(offset.y), int(size.x), int(size.y)]
+        return [int(offset.x), int(offset.y), int(size.x), int(size.y)]
 
     def _get_config_data(self, is_retry: bool = False) -> Optional[dict]:
         paths = [
@@ -164,11 +160,9 @@ class WindowConfigHandler:
         ]
 
         for path in paths:
-            # should never happen
             if not path:
                 raise SyntaxError("Error in getting FileHandler's paths.")
 
-            # attempt to load the config
             try:
                 with open(path, 'r', encoding='utf-8') as f:
                     config = json.load(f)
@@ -176,7 +170,6 @@ class WindowConfigHandler:
                     if config:
                         return config
 
-            # not found? try again
             except (json.JSONDecodeError, KeyError, FileNotFoundError) as exc:
                 # corrupt or wrong structure
                 print(f"Invalid config file at '{path}': {exc}")
@@ -207,10 +200,10 @@ class WindowConfigHandler:
                 default_cfg = json.load(f)
 
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"CRITICAL: Cannot load default config template from '{default_config_path}'. Aborting repair. Error: {e}")
+            print(f"CRITICAL: Cannot load default config from '{default_config_path}'. Error: {e}")
             return
 
-        # attempt to load user's config, if its bad use a blank dictionary
+        # attempt to load user's config
         user_cfg = {}
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
@@ -222,9 +215,8 @@ class WindowConfigHandler:
 
         # missing or corrupt
         except (FileNotFoundError, json.JSONDecodeError):
-            print(f"User config at '{config_path}' is missing or corrupt. Will create a new one.")
+            print(f"User config at '{config_path}' is missing or corrupt. Recreating...")
 
-        # recursively validate and merge the user config against the default template
         validated_config = self._validate_and_merge(default_cfg, user_cfg)
 
         # write the corrected configuration back to the user's file
@@ -245,21 +237,16 @@ class WindowConfigHandler:
         for key, template_value in template.items():
             user_value = user_data.get(key)
 
-            # the template value is a nested dictionary
+            # nested dictionary
             if isinstance(template_value, dict):
-                # if user's value is also a dict, recurse into it, otherwise treat as invalid
                 user_nested_dict = user_value if isinstance(user_value, dict) else {}
                 validated_output[key] = self._validate_and_merge(template_value, user_nested_dict)
 
-            # the template value is a primitive (string, int, bool, list, etc).
             else:
-                # check if the user's value has the same type as the template's value
                 if isinstance(user_value, type(template_value)):
-                    # types match, keep user's
                     validated_output[key] = user_value
 
                 else:
-                    # keep default, type mismatch
                     validated_output[key] = template_value
 
         # add keys that are in the user's config but not in the template
