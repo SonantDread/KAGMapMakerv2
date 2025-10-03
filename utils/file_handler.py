@@ -9,26 +9,26 @@ class FileHandler:
     Handles consistent file paths across the project.
     """
     def __init__(self) -> None:
-        join_path = lambda *parts: os.path.abspath(os.path.join(*parts))
+        join_paths = lambda *parts: os.path.abspath(os.path.join(*parts))
         # main folder path
-        root = join_path(os.path.dirname(os.path.abspath(__file__)), "..")
-        vanilla_items = join_path(root, "base", "Items")
-        sprites = join_path(root, "base", "Sprites")
+        root = join_paths(os.path.dirname(os.path.abspath(__file__)), "..")
+        vanilla_items = join_paths(root, "base", "Items")
+        sprites = join_paths(root, "base", "Sprites")
 
         self.paths = {
             "default_path": root,
-            "world_path": join_path(sprites, "Default", "world.png"),
+            "world_path": join_paths(sprites, "Default", "world.png"),
             "vanilla_items": vanilla_items,
-            "mapmaker_images": join_path(sprites, "MapMaker"),
-            "config_path": join_path(root, "settings", "config.json"),
-            "default_config_path": join_path(root, "settings", "readonly_config.json"),
-            "maps_path": join_path(root, "Maps"),
-            "modded_items_path": join_path(root, "Modded"),
-            "tilelist_path": join_path(vanilla_items, "tiles.json"),
-            "bloblist_path": join_path(vanilla_items, "blobs.json"),
-            "otherlist_path": join_path(vanilla_items, "others.json"),
-            "merge_items_path": join_path(vanilla_items, "merge_items.json"),
-            "team_palette_path": join_path(sprites, "Default", "TeamPalette.png"),
+            "mapmaker_images": join_paths(sprites, "MapMaker"),
+            "config_path": join_paths(root, "settings", "config.json"),
+            "default_config_path": join_paths(root, "settings", "readonly_config.json"),
+            "maps_path": join_paths(root, "Maps"),
+            "modded_items_path": join_paths(root, "Modded"),
+            "tilelist_path": join_paths(vanilla_items, "tiles.json"),
+            "bloblist_path": join_paths(vanilla_items, "blobs.json"),
+            "otherlist_path": join_paths(vanilla_items, "others.json"),
+            "merge_items_path": join_paths(vanilla_items, "merge_items.json"),
+            "team_palette_path": join_paths(sprites, "Default", "TeamPalette.png"),
         }
 
     def does_path_exist(self, path: str) -> bool:

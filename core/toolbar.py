@@ -1,5 +1,5 @@
 """
-The toolbar for the file, settings, view, etc.
+The toolbar for the file, settings and view.
 """
 
 import os
@@ -31,13 +31,19 @@ class Toolbar(QToolBar):
         This function creates the menu actions, adds them to their respective menus,
         and connects the actions to their corresponding functions.
         """
-        # --- file menu ---
         file_menu = QMenu("File", self)
         new_action = QAction("New", self)
         save_action = QAction("Save", self)
         save_as_action = QAction("Save As", self)
         load_action = QAction("Load", self)
         test_in_kag = QAction("Test in KAG", self)
+
+        new_action.triggered.connect(self.kagimage.new_map)
+        save_action.triggered.connect(self.kagimage.save_map)
+        save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
+        load_action.triggered.connect(lambda: self.kagimage.load_map())
+        test_in_kag.triggered.connect(self.test_in_kag_triggered)
+
         file_menu.addAction(new_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
@@ -45,53 +51,38 @@ class Toolbar(QToolBar):
         file_menu.addSeparator()
         file_menu.addAction(test_in_kag)
 
-        # --- settings Menu ---
         settings_menu = QMenu("Settings", self)
         self.mirror_x = self._add_checkbox(settings_menu, "Mirror Over X-Axis", self.toggle_mirrored_x)
 
-        # --- view Menu ---
         view_menu = QMenu("View", self)
         self.tilegrid_visible = self._add_checkbox(view_menu, "Show Grid", self.toggle_grid)
         self.redbarrier_visible = self._add_checkbox(view_menu, "Show Red Barrier", self.toggle_redbarrier)
         self.redbarrier_visible = self._add_checkbox(view_menu, "Show Non-Mineable Edge Blocks", self.toggle_edge_blocks)
-        view_menu.addSeparator()
+        # view_menu.addSeparator()
 
-        # create a submenu for buttons/panels
-        buttons_submenu = QMenu("Buttons", self)
-        button1_action = QAction("Button 1", self)
-        button2_action = QAction("Button 2", self)
-        button3_action = QAction("Button 3", self)
-        buttons_submenu.addAction(button1_action)
-        buttons_submenu.addAction(button2_action)
-        buttons_submenu.addAction(button3_action)
+        # buttons_submenu = QMenu("Buttons", self)
+        # button1_action = QAction("Button 1", self)
+        # button2_action = QAction("Button 2", self)
+        # button3_action = QAction("Button 3", self)
 
-        # add the submenu to the 'View' menu
-        view_menu.addMenu(buttons_submenu)
+        # button1_action.triggered.connect(self.button1_triggered)
+        # button2_action.triggered.connect(self.button2_triggered)
+        # button3_action.triggered.connect(self.button3_triggered)
 
-        # --- connect actions to functions ---
-        new_action.triggered.connect(self.kagimage.new_map)
-        save_action.triggered.connect(self.kagimage.save_map)
-        save_as_action.triggered.connect(lambda: self.kagimage.save_map(force_ask=True))
-        load_action.triggered.connect(lambda: self.kagimage.load_map())
-        test_in_kag.triggered.connect(self.test_in_kag_triggered)
+        # buttons_submenu.addAction(button1_action)
+        # buttons_submenu.addAction(button2_action)
+        # buttons_submenu.addAction(button3_action)
 
-        button1_action.triggered.connect(self.button1_triggered)
-        button2_action.triggered.connect(self.button2_triggered)
-        button3_action.triggered.connect(self.button3_triggered)
+        # view_menu.addMenu(buttons_submenu)
 
-        # --- add menus to toolbar in the desired order ---
-
-        # add 'File' menu to toolbar
         self.file_menu = QAction("File", self)
         self.file_menu.triggered.connect(lambda: self._pop_up(file_menu, self.file_menu))
         self.addAction(self.file_menu)
 
-        # add 'Settings' menu to toolbar
         self.settings_menu = QAction("Settings", self)
         self.settings_menu.triggered.connect(lambda:self._pop_up(settings_menu, self.settings_menu))
         self.addAction(self.settings_menu)
 
-        # add 'View' menu to toolbar
         self.view_menu = QAction("View", self)
         self.view_menu.triggered.connect(lambda: self._pop_up(view_menu, self.view_menu))
         self.addAction(self.view_menu)
@@ -111,28 +102,37 @@ class Toolbar(QToolBar):
     def toggle_mirrored_x(self, checked: bool) -> None:
         """
         Toggles the mirrored over x setting based on checkbox state.
-
-        Args:
-            checked (bool): The new state of the checkbox
         """
         self.communicator.settings['mirrored over x'] = checked
 
     def toggle_grid(self, checked: bool) -> None:
+        """
+        Toggle's the canvas's grid visibility.
+        """
         self.communicator.get_canvas().set_grid_visible(checked)
 
     def toggle_redbarrier(self, checked: bool) -> None:
+        """
+        Toggle's the canvas's red barrier visibility.
+        """
         self.communicator.view["redbarrier"] = checked
 
         overlays = self.communicator.get_canvas().renderer.render_overlays
         overlays.render_extra_overlay() # force update
 
     def toggle_edge_blocks(self, checked: bool) -> None:
+        """
+        Toggle's the visibility of the canvas's nobuild area on the edges of the map.
+        """
         self.communicator.view["nobuild_edges"] = checked
 
         overlays = self.communicator.get_canvas().renderer.render_overlays
         overlays.render_extra_overlay() # force update
 
     def test_in_kag_triggered(self):
+        """
+        Opens KAG to test the current map on the canvas.
+        """
         fh = FileHandler()
         config_handler = ConfigHandler()
         config_handler.load_config_file(config_handler.config_path, "config.json")
@@ -178,14 +178,14 @@ class Toolbar(QToolBar):
         except subprocess.CalledProcessError as e:
             print(f"Error executing KAG command: {e}")
 
-    def example_checkbox_toggled(self, checked):
-        print(f"Example Checkbox toggled: {checked}")
+    # def example_checkbox_toggled(self, checked):
+    #     print(f"Example Checkbox toggled: {checked}")
 
-    def button1_triggered(self):
-        print("Button 1 clicked")
+    # def button1_triggered(self):
+    #     print("Button 1 clicked")
 
-    def button2_triggered(self):
-        print("Button 2 clicked")
+    # def button2_triggered(self):
+    #     print("Button 2 clicked")
 
-    def button3_triggered(self):
-        print("Button 3 clicked")
+    # def button3_triggered(self):
+    #     print("Button 3 clicked")
