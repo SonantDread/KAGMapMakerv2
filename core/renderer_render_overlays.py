@@ -1,3 +1,6 @@
+"""
+Manages rendering of red barriers and no-build zones on the map.
+"""
 import math
 
 from PyQt6.QtCore import Qt
@@ -8,6 +11,9 @@ from base.citem import CItem
 from utils.vec2f import Vec2f
 
 class RenderOverlays:
+    """
+    Renders extra items over the canvas.
+    """
     def __init__(self, renderer, communicator) -> None:
         self.renderer = renderer
         self.communicator = communicator
@@ -21,10 +27,10 @@ class RenderOverlays:
         self.is_item_in_scene = False
         self.build_overlays()
 
-        self.last_composite_size = (0, 0) # track size to avoid regenerating the final pixmap
-
     def build_overlays(self) -> None:
-        # called when map is reset
+        """
+        Sets up the graphics item for overlays.
+        """
         self.is_item_in_scene = False
         self.overlay_item = QGraphicsPixmapItem()
         self.overlay_item.setZValue(900_000) # render on top of most things
@@ -45,6 +51,9 @@ class RenderOverlays:
         return False
 
     def on_place_block(self, placing: CItem, grid_pos: Vec2f) -> None:
+        """
+        Redraw's the overlay if a renderable item is placed.
+        """
         name = placing.name_data.name
         if name not in self.important_item_names:
             return
@@ -53,10 +62,16 @@ class RenderOverlays:
         self.render_extra_overlay() # trigger a redraw
 
     def on_erase_block(self, grid_pos: Vec2f) -> None:
+        """
+        Erases the item from the overlay if it was renderable.
+        """
         if self.items.pop(grid_pos, None):
             self.render_extra_overlay() # trigger a redraw
 
     def render_extra_overlay(self) -> None:
+        """
+        Handles the logic to correctly display the red barrier and no-build edges.
+        """
         if self.redbarrier_sprite is None or not self._ensure_item_in_scene():
             return
 
@@ -72,18 +87,15 @@ class RenderOverlays:
         map_width_scene = self.canvas.size.x * self.canvas.grid_spacing
         map_height_scene = self.canvas.size.y * self.canvas.grid_spacing
 
-        # create a single large transparent pixmap to draw everything on
         composite_pixmap = QPixmap(int(map_width_scene), int(map_height_scene))
         composite_pixmap.fill(Qt.GlobalColor.transparent)
 
         painter = QPainter(composite_pixmap)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Source)
 
-        # draw the main red barrier if visible
         if is_redbarrier_visible:
             self._draw_main_barrier(painter)
 
-        # draw the no-build edge barriers if visible
         if is_nobuild_visible:
             self._draw_nobuild_edges(painter)
 
@@ -91,7 +103,7 @@ class RenderOverlays:
 
         # final combined pixmap on our single item
         self.overlay_item.setPixmap(composite_pixmap)
-        self.overlay_item.setPos(0, 0) # position the item at the top-left of the scene
+        self.overlay_item.setPos(0, 0)
 
     def _draw_main_barrier(self, painter: QPainter):
         map_width_tiles = self.canvas.size.x
@@ -107,14 +119,13 @@ class RenderOverlays:
             painter.drawPixmap(int(scene_x1), 0, tiled_pixmap)
 
     def _draw_nobuild_edges(self, painter: QPainter):
-        map_width_tiles = self.canvas.size.x
-        map_height_tiles = self.canvas.size.y
+        width, height = self.canvas.size
         grid_spacing = self.canvas.grid_spacing
         zone_thickness_grid = 2
 
         zone_thickness_scene = zone_thickness_grid * grid_spacing
-        map_width_scene = map_width_tiles * grid_spacing
-        map_height_scene = map_height_tiles * grid_spacing
+        map_width_scene = width * grid_spacing
+        map_height_scene = height * grid_spacing
 
         edge_configs = {
             'top': (0, 0, map_width_scene, zone_thickness_scene + (1 * grid_spacing)),
@@ -145,7 +156,6 @@ class RenderOverlays:
         return left.x * grid_spacing, (right.x + 1) * grid_spacing
 
     def _create_tiled_pixmap(self, source_sprite: QPixmap, width: int, height: int) -> QPixmap:
-        # create a tiled pixmap of a certain size
         scale = self.canvas.default_zoom_scale
         composite_pixmap = QPixmap(width, height)
         composite_pixmap.fill(Qt.GlobalColor.transparent)
