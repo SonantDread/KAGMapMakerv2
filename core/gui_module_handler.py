@@ -1,3 +1,6 @@
+"""
+Manages the left sidebar.
+"""
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 
@@ -6,6 +9,9 @@ from core.modules.teams import Teams
 from utils.file_handler import FileHandler
 
 class GUIModuleHandler:
+    """
+    Sets up the left sidebar and handles the layout.
+    """
     def __init__(self, window: QWidget):
         self.fh = FileHandler()
         self.app_window = window
@@ -21,16 +27,18 @@ class GUIModuleHandler:
         self.setup_modules()
 
     def setup_modules(self):
-        BUFFER = 20
+        """
+        Creates the left sidebar.
+        """
+        buffer = 20
         current_height = 0
 
         picker = Picker(self.app_window)
-        current_height += picker.tab_holder.height() + BUFFER
+        current_height += picker.tab_holder.height() + buffer
 
         teams = Teams(self.app_window, current_height)
-        current_height += teams.widget.height() + BUFFER
+        current_height += teams.widget.height() + buffer
 
-        # add to layout
         self.container.addWidget(picker)
         self.container.addWidget(teams)
 
