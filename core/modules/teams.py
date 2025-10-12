@@ -1,3 +1,6 @@
+"""
+Manages team swapping on the left sidebar.
+"""
 from PIL import Image
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QPixmap, QIcon
@@ -35,6 +38,9 @@ class SelectionButton(QPushButton):
             communicator.team = self.team
 
 class Teams(QWidget):
+    """
+    Manages the team selection buttons on the left sidebar.
+    """
     def __init__(self, parent, height: int) -> None:
         super().__init__(parent)
         self.setParent(parent)
@@ -51,6 +57,9 @@ class Teams(QWidget):
         self.setup_ui()
 
     def setup_ui(self) -> None:
+        """
+        Sets up the main UI for the teams tab.
+        """
         teams_tab = QGridLayout(parent=self.widget)
         teams_tab.setSpacing(0)
         teams_tab.setContentsMargins(0, 0, 0, 0)
