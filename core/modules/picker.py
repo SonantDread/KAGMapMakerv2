@@ -1,5 +1,5 @@
 """
-Handles the GUI of selecting blocks, blobs and everything else.
+Handles the selecting of blocks, blobs, colors and other items.
 """
 
 from PIL import Image
@@ -23,8 +23,6 @@ class SelectionButton(QPushButton):
         self.setToolTip(str(self.data.name_data.display_name))
         self.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
 
-        # todo: https://chatgpt.com/c/678aa424-ca4c-800f-972d-c43efdd5b203
-
     def mousePressEvent(self, event) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
             communicator.select_item(self.data, 1)
@@ -33,6 +31,9 @@ class SelectionButton(QPushButton):
             communicator.select_item(self.data, 0)
 
 class Picker(QWidget):
+    """
+    Manages the buttons for picking items on the left sidebar.
+    """
     def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setParent(parent)
@@ -43,12 +44,13 @@ class Picker(QWidget):
         self.setup_ui()
 
     def setup_ui(self) -> None:
+        """
+        Sets up the main UI for the picking items menu.
+        """
         size = self._get_tab_size()
-        # holds "Vanilla" and "Modded" tabs
         self.tab_holder = QTabWidget(parent=self.parent_widget)
         self.tab_holder.setFixedSize(QtCore.QSize(size,size))
 
-        # the actual vanilla and modded tabs
         self.vanilla_tab = QTabWidget(parent=self.tab_holder)
         self.vanilla_tab.setFixedSize(QtCore.QSize(size,size))
         self.tab_holder.addTab(self.vanilla_tab, "Vanilla")
@@ -57,10 +59,10 @@ class Picker(QWidget):
         self.modded_tab.setFixedSize(QtCore.QSize(size,size))
         self.tab_holder.addTab(self.modded_tab, "Modded")
 
-        self.setup_tabs(self.vanilla_tab, True)
-        self.setup_tabs(self.modded_tab, False)
+        self._setup_tabs(self.vanilla_tab, True)
+        self._setup_tabs(self.modded_tab, False)
 
-    def setup_tabs(self, tab: QTabWidget, is_vanilla: bool) -> None:
+    def _setup_tabs(self, tab: QTabWidget, is_vanilla: bool) -> None:
         tiles_tab  = self._make_scroll_area("Tiles", tab)
         blobs_tab  = self._make_scroll_area("Blobs", tab)
         colors_tab = self._make_scroll_area("Colors", tab)
@@ -88,7 +90,6 @@ class Picker(QWidget):
         self._setup_items(tiles_tab, tiles)
         self._setup_items(blobs_tab, blobs)
 
-        # need a new item list to prevent overwriting the other one
         all_colors = tiles + blobs + others
 
         colors = []
@@ -107,6 +108,8 @@ class Picker(QWidget):
 
     def _setup_items(self, tab: QScrollArea, items: list[CItem]) -> None:
         x, y = 0, 0
+        max_buttons = 5
+        spacing = 5
         # basically use a qwidget to hold the grid so we can actually place it in the scroll area
         content_widget = QWidget()
         grid = QGridLayout(content_widget)
@@ -125,15 +128,12 @@ class Picker(QWidget):
 
             grid.addWidget(button, y, x)
             x += 1
-            if x >= 5: # max buttons
+            if x >= max_buttons:
                 x = 0
                 y += 1
 
-        # height needed for all items
         rows_needed = y + (1 if x > 0 else 0)
-        # add extra space at the bottom (half a button height)
-        # columns * (button height + spacing) + half button height
-        min_height = (rows_needed * (BUTTON_HEIGHT + 5)) + (BUTTON_HEIGHT // 2)
+        min_height = (rows_needed * (BUTTON_HEIGHT + spacing)) + (BUTTON_HEIGHT // 2)
         content_widget.setMinimumHeight(min_height)
 
         content_widget.setLayout(grid)
