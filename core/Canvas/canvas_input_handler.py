@@ -36,7 +36,7 @@ class CanvasInputHandler(QGraphicsView):
         ...
 
     @abstractmethod
-    def add_item(self, pos, button):
+    def draw_to_cursor(self, pos, button):
         ...
 
     @abstractmethod
@@ -150,7 +150,7 @@ class CanvasInputHandler(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self._holding_lmb = True
 
-            # direct call to bypass add_item restrictions
+            # direct call to bypass draw_to_cursor restrictions
             grid_pos = self.get_grid_pos(event)
             self.place_item(grid_pos, 1)
 
@@ -204,10 +204,10 @@ class CanvasInputHandler(QGraphicsView):
         same_tile = pos == old_pos
 
         if self._holding_lmb and not same_tile:
-            self.add_item(event, 1)
+            self.draw_to_cursor(event, 1)
 
         elif self._holding_rmb and not same_tile:
-            self.add_item(event, 0)
+            self.draw_to_cursor(event, 0)
 
         viewport = self.viewport()
 

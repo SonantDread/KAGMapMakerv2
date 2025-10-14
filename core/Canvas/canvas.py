@@ -235,42 +235,35 @@ class Canvas(CanvasInputHandler):
         rect.setZValue(-1000000)
         self.canvas.addItem(rect)
 
-    def add_item(self, event, click_index: int) -> None:
+    def draw_to_cursor(self, event, click_index: int) -> None:
         """
-        Requests to add an item at a position, and interpolates to draw a line
-        of items between the last position and the current one.
+        Draws a line from the cursor's last position to its current position.
+        Used to prevent gaps when the user is drawing quickly.
         """
-        recent_pos = self.communicator.mouse_pos
+        old_pos = self.communicator.mouse_pos
         pos = self.get_grid_pos(event)
 
-        # if the mouse hasn't moved to a new grid cell, do nothing.
-        if pos == recent_pos:
+        if pos == old_pos:
             return
 
-        # check if the positions are valid before proceeding
-        # the 'or not recent_pos' part handles the very first click of a drag
-        if not pos or not recent_pos:
+        if not pos or not old_pos:
             return
 
-        # --- line drawing logic ---
-        delta = (pos[0] - recent_pos[0], pos[1] - recent_pos[1])
+        delta = (pos[0] - old_pos[0], pos[1] - old_pos[1])
         steps = max(abs(delta[0]), abs(delta[1]))
 
-        # if the mouse only moved one cell away, just place one item
         if steps <= 1:
             self.place_item(pos, click_index)
 
         else:
-            # draw a line of tiles between the last point and the current one
             for i in range(steps + 1):
-                # linear interpolation to find each point on the line
-                x = round(recent_pos[0] + i * delta[0] / steps)
-                y = round(recent_pos[1] + i * delta[1] / steps)
+                # linear interpolation
+                x = round(old_pos[0] + i * delta[0] / steps)
+                y = round(old_pos[1] + i * delta[1] / steps)
                 grid_pos = (x, y)
 
                 self.place_item(grid_pos, click_index)
 
-        # update the mouse position after the line has been drawn
         self.update_mouse_pos(event)
 
     def perform_place_item(self, grid_pos: tuple, placing_item: CItem):
