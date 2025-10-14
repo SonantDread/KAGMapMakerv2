@@ -27,8 +27,8 @@ class GridManager:
         # prevent grid lines being different sizes
         pen.setCosmetic(True)
 
-        width = self.canvas.size.x * self.canvas.grid_spacing
-        height = self.canvas.size.y * self.canvas.grid_spacing
+        width = self.canvas.map_size.x * self.canvas.grid_spacing
+        height = self.canvas.map_size.y * self.canvas.grid_spacing
 
         # vertical lines
         for x in range(0, width + 1, self.canvas.grid_spacing):

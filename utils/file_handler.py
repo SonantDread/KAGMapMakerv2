@@ -17,6 +17,7 @@ class FileHandler:
 
         config_path = join_paths(root, "settings", "config.json")
         default_config_path = join_paths(root, "settings", "readonly_config.json")
+        maps_path = join_paths(root, "Maps")
 
         self.paths = {
             "default_path": root,
@@ -25,7 +26,8 @@ class FileHandler:
             "mapmaker_images": join_paths(sprites, "MapMaker"),
             "config_path": config_path,
             "default_config_path": default_config_path,
-            "maps_path": join_paths(root, "Maps"),
+            "maps_path": maps_path,
+            "autosave_path": join_paths(maps_path, "Autosave"),
             "modded_items_path": join_paths(root, "Modded"),
             "tilelist_path": join_paths(vanilla_items, "tiles.json"),
             "bloblist_path": join_paths(vanilla_items, "blobs.json"),

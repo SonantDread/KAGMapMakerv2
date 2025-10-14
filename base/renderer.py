@@ -125,7 +125,7 @@ class Renderer:
             # mirrored cursor
             if self.communicator.settings.get("mirrored over x", False):
                 grid_x = pos.x / self.canvas.grid_spacing
-                mirrored_grid_x = self.canvas.size.x - 1 - grid_x
+                mirrored_grid_x = self.canvas.map_size.x - 1 - grid_x
                 mirrored_scene_x = mirrored_grid_x * self.canvas.grid_spacing
 
                 self.cursor_graphics_item[1].setPos(mirrored_scene_x, pos.y)

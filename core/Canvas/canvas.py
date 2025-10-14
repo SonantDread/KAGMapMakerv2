@@ -1,5 +1,5 @@
 """
-Used to display images and interact with the map.
+Used to interact with the map.
 """
 
 import atexit
@@ -16,25 +16,26 @@ from base.citem import CItem
 from base.citemlist import CItemList
 from base.kag_image import KagImage
 from base.renderer import Renderer
+
+from core.communicator import Communicator
 from core.Canvas.canvas_input_handler import CanvasInputHandler
 from core.Canvas.canvas_history_manager import HistoryManager
 from core.Canvas.canvas_grid_manager import GridManager
 from core.Canvas.canvas_commands import PlaceTileCommand
-from core.communicator import Communicator
+
 from utils.vec2f import Vec2f
+from utils.file_handler import FileHandler
 
 class Canvas(CanvasInputHandler):
     """
     The main drawing and interaction surface within the map maker.
-    It manages the display and manipulation of map elements while handling user input.
+    Manages the manipulation of map elements, handling user input.
     """
-    def __init__(self, size: Vec2f) -> None:
+    def __init__(self, map_size: Vec2f) -> None:
         super().__init__()
-        self.gpu_rendering = True
-        exec_path = os.path.dirname(os.path.realpath(__file__))
-        self.exec_path = os.path.join(exec_path, os.path.pardir, os.path.pardir)
         self.canvas = QGraphicsScene()
         self.renderer = Renderer(self)
+        self.file_handler = FileHandler()
 
         self.setViewport(QOpenGLWidget())
         self.canvas.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex) # disable warnings
@@ -42,13 +43,12 @@ class Canvas(CanvasInputHandler):
 
         self.communicator = Communicator()
         self.setScene(self.canvas)
-        self.size = size # map size #! may conflict with a built in property, so this could need to be a function instead
+        self.map_size = map_size
 
         self.zoom_change_factor = 1.1
+        self.default_zoom_scale = 3
 
-        self.default_zoom_scale = 3 # scales zoom level up from small to comfortable
-
-        self.setMouseTracking(True) # allow for constant update of cursor position (mouseMoveEvent)
+        self.setMouseTracking(True) # constant update of mouseMoveEvent
         self.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
         self.setRenderHint(QPainter.RenderHint.TextAntialiasing, False)
@@ -62,10 +62,9 @@ class Canvas(CanvasInputHandler):
         self.grid_spacing = math.floor(self.default_zoom_scale * 8)
 
         self.history_manager = HistoryManager()
-
         self._build_background_rect()
 
-        # list of CItems
+        # list of CItem
         self.tilemap = {}
         # list of sprites on the canvas
         self.graphics_items = {}
@@ -76,44 +75,45 @@ class Canvas(CanvasInputHandler):
         self.item_list = CItemList()
         self.rotation = 0
 
-        # save map on exiting the app
         atexit.register(self._save_map_at_exit, datetime.now())
-
-        # create shortcuts for handling key events
         self.create_shortcuts()
-
         self.add_panning_space()
 
     def recenter_canvas(self) -> None:
-        self.centerOn(self.size.x * self.grid_spacing / 2, self.size.y * self.grid_spacing / 2)
+        """
+        Centers the view of the canvas to the center.
+        """
+        pos_x = self.map_size.x * self.grid_spacing / 2
+        pos_y = self.map_size.y * self.grid_spacing / 2
+        self.centerOn(pos_x, pos_y)
 
-    def add_panning_space(self):
-        # internal map size
-        internal_map_width = self.size.x * self.grid_spacing
-        internal_map_height = self.size.y * self.grid_spacing
+    def add_panning_space(self) -> None:
+        """
+        Adds extra panning space to the canvas so users don't feel locked.
+        """
+        map_width = self.map_size.x * self.grid_spacing
+        map_height = self.map_size.y * self.grid_spacing
 
-        # desired view size (ie: viewport size)
         desired_view_width = self.viewport().width()
         desired_view_height = self.viewport().height()
 
-        # calculate the extra space for panning
         s = .8 # as a percentage
         extra_width = desired_view_width * s
         extra_height = desired_view_height * s
 
-        # set the scene rect to allow panning
-        self.scene().setSceneRect(
+        scene = self.scene()
+        scene.setSceneRect(
             -extra_width, -extra_height,
-            internal_map_width + 2 * extra_width,
-            internal_map_height + 2 * extra_height
+            map_width + 2 * extra_width,
+            map_height + 2 * extra_height
         )
 
-        self.setSceneRect(self.scene().sceneRect())
-        self.centerOn(internal_map_width / 2, internal_map_height / 2)
+        self.setSceneRect(scene.sceneRect())
+        self.centerOn(map_width / 2, map_height / 2)
 
-    def create_shortcuts(self):
+    def create_shortcuts(self) -> None:
         """
-        Creates global shortcuts to rotation.
+        Binds keyboard shortcuts to canvas actions.
         """
         # r key
         r_shortcut = QShortcut(QKeySequence(Qt.Key.Key_R), self)
@@ -137,9 +137,6 @@ class Canvas(CanvasInputHandler):
         """
         Undoes the last action performed on the canvas.
         Moves back one step in the canvas history if available.
-
-        Returns:
-            None
         """
         self.history_manager.undo()
 
@@ -147,30 +144,18 @@ class Canvas(CanvasInputHandler):
         """
         Redoes the previously undone action on the canvas.
         Moves forward one step in the canvas history if available.
-
-        Returns:
-            None
         """
         self.history_manager.redo()
 
     def wipe_history(self) -> None:
         """
         Wipes future history entries when a new action is performed after undoing.
-
-        Returns:
-            None
         """
         self.history_manager.clear()
 
     def force_rerender(self) -> None:
         """
         Re-renders the entire canvas by re-drawing all items in the tilemap.
-
-        Args:
-            None
-
-        Returns:
-            None
         """
         self.canvas.clear()
 
@@ -184,7 +169,6 @@ class Canvas(CanvasInputHandler):
         self.grid_manager.build_grid()
         self.renderer.render_overlays.build_overlays()
 
-        # clear the graphics_items dictionary
         if hasattr(self, 'graphics_items'):
             self.graphics_items.clear()
 
@@ -194,26 +178,21 @@ class Canvas(CanvasInputHandler):
             if pos is None or item is None:
                 continue
 
-            x, y = pos
-            scene_pos = Vec2f(x, y) * self.grid_spacing
-
-            self.renderer.render_item(item, scene_pos, Vec2f(x, y), False, item.sprite.rotation)
+            scene_pos = pos * self.grid_spacing
+            self.renderer.render_item(item, scene_pos, pos, False, item.sprite.rotation)
 
         if self.renderer and self.renderer.render_overlays:
             self.renderer.render_overlays.render_extra_overlay()
 
     def set_grid_visible(self, show: bool = None) -> None:
+        """
+        Sets the visibility of the grid on the canvas.
+        """
         self.grid_manager.set_grid_visible(show)
 
     def rotate(self, rev: bool) -> None:
         """
         Rotates the selected item by 90 degrees, either clockwise or counter-clockwise.
-
-        Args:
-            rev (bool): Whether to rotate clockwise (True) or counter-clockwise (False).
-
-        Returns:
-            None
         """
         r = self.rotation
         add = -90 if rev else 90
@@ -230,23 +209,14 @@ class Canvas(CanvasInputHandler):
     def _save_map_at_exit(self, timestamp: datetime) -> None:
         """
         Save the map at the specified timestamp if the map is not blank.
-
-        Args:
-            timestamp (datetime): The timestamp to use for the file name.
-
-        Returns:
-            None
         """
-        # check if map is blank
         if not self.tilemap:
             print("Map is blank. Not saving.")
             return
 
         date_str = timestamp.strftime("%d-%m-%Y")
-        path = os.path.join(self.exec_path, "Maps", "Autosave", date_str)
-        print(f'{path=}')
+        path = os.path.join(self.file_handler.paths.get("autosave_path"), date_str)
 
-        # ensure the directory exists, create it if it doesn't
         os.makedirs(path, exist_ok=True)
 
         file_name = timestamp.strftime("%d-%m-%Y_%H-%M-%S")
@@ -257,15 +227,9 @@ class Canvas(CanvasInputHandler):
     def _build_background_rect(self) -> None:
         """
         Builds a background rectangle for the canvas.
-
-        Args:
-            None
-
-        Returns:
-            None
         """
         background_color = QColor(200, 220, 240)
-        width, height = self.size.x * self.grid_spacing, self.size.y * self.grid_spacing
+        width, height = self.map_size * self.grid_spacing
         pen = QPen(Qt.GlobalColor.transparent)
         rect = self.canvas.addRect(0, 0, width, height, pen, QBrush(background_color))
         rect.setZValue(-1000000)
@@ -339,7 +303,7 @@ class Canvas(CanvasInputHandler):
 
             # handle mirrored erasing
             if mirror:
-                mirrored_x = self.size.x - 1 - tilemap_x
+                mirrored_x = self.map_size.x - 1 - tilemap_x
                 if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
                     mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
                     # calculate scene position for the mirrored tile as well
@@ -361,7 +325,7 @@ class Canvas(CanvasInputHandler):
 
         # handle mirrored placing
         if mirror:
-            mirrored_x = self.size.x - 1 - tilemap_x
+            mirrored_x = self.map_size.x - 1 - tilemap_x
             if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
                 mirrored_scene_pos = Vec2f(mirrored_x * self.grid_spacing, scene_pos.y)
                 mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
@@ -434,7 +398,7 @@ class Canvas(CanvasInputHandler):
 
             # skip check if you can place a tile on the other side of the map
             if mirror:
-                mirrored_x = self.size.x - 1 - snapped_pos.x
+                mirrored_x = self.map_size.x - 1 - snapped_pos.x
                 out_of_bounds = self.is_out_of_bounds(grid_pos)
                 same_pos = mirrored_x == snapped_pos.x
                 if not out_of_bounds and not same_pos:
@@ -506,7 +470,7 @@ class Canvas(CanvasInputHandler):
         self.communicator.mouse_pos = self.get_grid_pos(event)
 
     def resize_canvas(self, size: Vec2f, tilemap: dict[Vec2f, CItem] = None) -> None:
-        self.size = size
+        self.map_size = size
         if tilemap is None:
             tilemap = {}
 
@@ -529,7 +493,7 @@ class Canvas(CanvasInputHandler):
             bool: True if the position is out of bounds, False otherwise.
         """
         x, y = pos
-        return x < 0 or y < 0 or x >= self.size.x or y >= self.size.y
+        return x < 0 or y < 0 or x >= self.map_size.x or y >= self.map_size.y
 
     def get_cursor_pos_on_canvas(self) -> QPoint:
         return self.mapFromGlobal(QCursor.pos())

@@ -84,8 +84,8 @@ class RenderOverlays:
 
         self.overlay_item.show()
 
-        map_width_scene = self.canvas.size.x * self.canvas.grid_spacing
-        map_height_scene = self.canvas.size.y * self.canvas.grid_spacing
+        map_width_scene = self.canvas.map_size.x * self.canvas.grid_spacing
+        map_height_scene = self.canvas.map_size.y * self.canvas.grid_spacing
 
         composite_pixmap = QPixmap(int(map_width_scene), int(map_height_scene))
         composite_pixmap.fill(Qt.GlobalColor.transparent)
@@ -106,20 +106,20 @@ class RenderOverlays:
         self.overlay_item.setPos(0, 0)
 
     def _draw_main_barrier(self, painter: QPainter):
-        map_width_tiles = self.canvas.size.x
+        map_width_tiles = self.canvas.map_size.x
         grid_spacing = self.canvas.grid_spacing
 
         scene_x1, scene_x2 = self._calculate_barrier_bounds_in_scene_coords(map_width_tiles, grid_spacing)
 
         width = int(scene_x2 - scene_x1)
-        height = int(self.canvas.size.y * grid_spacing)
+        height = int(self.canvas.map_size.y * grid_spacing)
 
         if width > 0 and height > 0:
             tiled_pixmap = self._create_tiled_pixmap(self.redbarrier_sprite, width, height)
             painter.drawPixmap(int(scene_x1), 0, tiled_pixmap)
 
     def _draw_nobuild_edges(self, painter: QPainter):
-        width, height = self.canvas.size
+        width, height = self.canvas.map_size
         grid_spacing = self.canvas.grid_spacing
         zone_thickness_grid = 2
 

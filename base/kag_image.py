@@ -65,7 +65,7 @@ class KagImage:
         canvas = self.communicator.get_canvas()
         tilemap = self._get_translated_tilemap(canvas.tilemap)
         sky = self.argb_to_rgba(self.item_list.get_item_by_name("sky").get_color())
-        image = Image.new("RGBA", size=(canvas.size.x, canvas.size.y), color=sky)
+        image = Image.new("RGBA", size=(canvas.map_size.x, canvas.map_size.y), color=sky)
 
         redbarrier_min_x, redbarrier_max_x = None, None
 
@@ -87,7 +87,7 @@ class KagImage:
                     continue
 
             offset_x, offset_y = item.pixel_data.offset
-            width, height = canvas.size
+            width, height = canvas.map_size
 
             # clamp coords to map size
             final_x = min(max(pos.x + offset_x, 0), width - 1)
@@ -274,7 +274,7 @@ class KagImage:
 
     def _is_out_of_bounds(self, pos: tuple) -> bool:
         x, y = pos
-        size: Vec2f = self.communicator.get_canvas().size
+        size: Vec2f = self.communicator.get_canvas().map_size
         return x < 0 or y < 0 or x >= size.x or y >= size.y
 
 class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
