@@ -1,18 +1,18 @@
 """
 Handles the history for the canvas.
 """
-from core.Canvas.canvas_commands import Command
+from core.Canvas.canvas_commands import PlaceTileCommand
 
 class HistoryManager:
     """
     Manages a stack of commands for undo and redo functionality.
     """
     def __init__(self):
-        self._history: list[Command] = []
+        self._history: list[PlaceTileCommand] = []
         # points to the last executed command
         self._index: int = -1
 
-    def execute_command(self, command: Command):
+    def execute_command(self, command: PlaceTileCommand):
         """
         Executes a new command and adds it to the history.
         This will clear any 'redo' history.
