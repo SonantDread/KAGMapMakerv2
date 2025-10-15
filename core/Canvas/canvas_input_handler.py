@@ -68,13 +68,13 @@ class CanvasInputHandler(QGraphicsView):
             self._holding_lmb = True
 
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 1)
+            self.place_item(grid_pos)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self._holding_rmb = True
 
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 0)
+            self.place_item(grid_pos)
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self._last_pan_point = event.pos()
@@ -152,13 +152,13 @@ class CanvasInputHandler(QGraphicsView):
 
             # direct call to bypass draw_to_cursor restrictions
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 1)
+            self.place_item(grid_pos)
 
         elif event.button() == Qt.MouseButton.RightButton:
             self._holding_rmb = True
 
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos, 0)
+            self.place_item(grid_pos)
 
     def mouseReleaseEvent(self, event) -> None:
         """

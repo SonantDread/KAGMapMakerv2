@@ -34,7 +34,7 @@ class PlaceTileCommand(Command):
         """
         Executes the placement of the new tile.
         """
-        self.canvas.perform_place_item(self.grid_pos, self.new_item)
+        self.canvas.place_item(self.grid_pos, self.new_item, add_to_history=False)
 
     def undo(self) -> None:
         """
@@ -45,4 +45,4 @@ class PlaceTileCommand(Command):
         if item_to_restore is None:
             item_to_restore = self.canvas.item_list.get_item_by_name('sky').copy()
 
-        self.canvas.perform_place_item(self.grid_pos, item_to_restore)
+        self.canvas.place_item(self.grid_pos, item_to_restore, add_to_history=False)

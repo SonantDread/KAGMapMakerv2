@@ -253,7 +253,7 @@ class Canvas(CanvasInputHandler):
         steps = max(abs(delta[0]), abs(delta[1]))
 
         if steps <= 1:
-            self.place_item(pos, click_index)
+            self.place_item(pos, click_index=click_index)
 
         else:
             for i in range(steps + 1):
@@ -262,69 +262,9 @@ class Canvas(CanvasInputHandler):
                 y = round(old_pos[1] + i * delta[1] / steps)
                 grid_pos = (x, y)
 
-                self.place_item(grid_pos, click_index)
+                self.place_item(grid_pos, click_index=click_index)
 
         self.update_mouse_pos(event)
-
-    def perform_place_item(self, grid_pos: tuple, placing_item: CItem):
-        """
-        The RAW action of placing a tile. It modifies the tilemap and calls the renderer.
-        """
-        placing_item = placing_item.copy()
-        eraser: bool = placing_item.is_eraser()
-        mirror = self.communicator.settings.get("mirrored over x", False)
-
-        if self.is_out_of_bounds(grid_pos):
-            return
-
-        tilemap_x, tilemap_y = grid_pos
-        snapped_pos = Vec2f(tilemap_x, tilemap_y)
-
-        # --- ERASE LOGIC ---
-        if eraser:
-            if snapped_pos not in self.tilemap:
-                return # nothing to erase
-
-            # update data
-            self.tilemap.pop(snapped_pos)
-
-            # calculate scene position
-            scene_pos = Vec2f(tilemap_x * self.grid_spacing, tilemap_y * self.grid_spacing)
-
-            # call renderer with the 'eraser' item and the calculated scene_pos
-            self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser=True, rot=0)
-
-            # handle mirrored erasing
-            if mirror:
-                mirrored_x = self.map_size.x - 1 - tilemap_x
-                if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
-                    mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
-                    # calculate scene position for the mirrored tile as well
-                    mirrored_scene_pos = Vec2f(mirrored_x * self.grid_spacing, tilemap_y * self.grid_spacing)
-                    self.renderer.render_item(placing_item, mirrored_scene_pos, mirrored_snapped_pos, eraser=True, rot=0)
-
-            return
-
-        # --- PLACE LOGIC ---
-        # update data
-        self.tilemap[snapped_pos] = placing_item
-
-        # update renderer (visual)
-        scene_pos = Vec2f(tilemap_x * self.grid_spacing, tilemap_y * self.grid_spacing)
-        if placing_item.sprite.properties.is_rotatable:
-            placing_item.sprite.rotation = self.rotation
-
-        self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser=False, rot=self.rotation)
-
-        # handle mirrored placing
-        if mirror:
-            mirrored_x = self.map_size.x - 1 - tilemap_x
-            if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
-                mirrored_scene_pos = Vec2f(mirrored_x * self.grid_spacing, scene_pos.y)
-                mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
-                mirrored_item = placing_item.copy()
-
-                self.renderer.render_item(mirrored_item, mirrored_scene_pos, mirrored_snapped_pos, eraser=False, rot=self.rotation)
 
     def _get_merged_item(self, placing_item: CItem, grid_pos: tuple) -> CItem:
         """
@@ -359,67 +299,90 @@ class Canvas(CanvasInputHandler):
         # return the original if merge fails to produce a valid item
         return placing_item
 
-    def place_item(self, grid_pos, click_index: int, item: CItem = None, add_to_history: bool = True) -> None:
+    def place_item(self, grid_pos, item: CItem = None, click_index: int = 1, add_to_history: bool = True) -> None:
         """
-        Creates a PlaceTileCommand and executes it via the history manager.
-        Handles high-level logic like merging before performing the action.
+        Handles placing or erasing tiles, merging logic, mirroring and history management.
+        Ignores 'item' parameter if 'add_to_history' is True and 'item' is None.
         """
         if self.is_out_of_bounds(grid_pos):
             return
 
-        # --- determine the initial item to place ---
-        initial_item = item
-        # new action from the user
-        if add_to_history:
-            initial_item = self.communicator.get_selected_tile(click_index).copy()
+        mirror = self.communicator.settings.get("mirrored over x", False)
 
-        # erasing
-        if initial_item is None:
-            initial_item = self.item_list.get_item_by_name('sky').copy()
+        placing_item = item
+        if add_to_history and placing_item is None:
+            placing_item = self.communicator.get_selected_tile(click_index).copy()
 
-        # perform the merge check to get the final item
-        final_item = self._get_merged_item(initial_item, grid_pos)
+        if placing_item is None:
+            placing_item = self.item_list.get_item_by_name('sky').copy()
 
-        # check if anything needs to be done
         snapped_pos = Vec2f(*grid_pos)
-        previous_item = self.tilemap.get(snapped_pos)
+        prev_item = self.tilemap.get(snapped_pos)
+        final_item = self._get_merged_item(placing_item, grid_pos)
 
-        # do nothing if the final item is the same as what's already there
-        if previous_item and previous_item.name_data.name == final_item.name_data.name:
+        # redundant placement check
+        if prev_item and prev_item.name_data.name == final_item.name_data.name:
             skip_rest = False
-            mirror = self.communicator.settings.get("mirrored over x", False)
-
-            # skip check if you can place a tile on the other side of the map
             if mirror:
                 mirrored_x = self.map_size.x - 1 - snapped_pos.x
-                out_of_bounds = self.is_out_of_bounds(grid_pos)
-                same_pos = mirrored_x == snapped_pos.x
-                if not out_of_bounds and not same_pos:
-                    tile = self.tilemap.get(Vec2f(mirrored_x, snapped_pos.y))
-                    if tile is None:
+                if not self.is_out_of_bounds((mirrored_x, snapped_pos.y)) and mirrored_x != snapped_pos.x:
+                    mirrored_tile = self.tilemap.get(Vec2f(mirrored_x, snapped_pos.y))
+                    if mirrored_tile is None:
                         skip_rest = True
 
             if not skip_rest:
                 can_rotate = final_item.sprite.properties.is_rotatable
-                same_rotation = previous_item.sprite.rotation == final_item.sprite.rotation
-                same_team = previous_item.sprite.team == final_item.sprite.team
+                same_rotation = prev_item.sprite.rotation == final_item.sprite.rotation
+                same_team = prev_item.sprite.team == final_item.sprite.team
                 if (not can_rotate and same_rotation) and same_team:
                     return
 
-        # do nothing if the user is trying to erase an empty space
-        if previous_item is None and (final_item.is_eraser() or final_item.name_data.name == 'sky'):
+        # skip erasing empty space
+        if prev_item is None and final_item.is_eraser():
             return
 
-        # execute the action
-        if not add_to_history:
-            # undo/redo
-            self.perform_place_item(grid_pos, final_item)
+        if add_to_history:
+            command = PlaceTileCommand(self, grid_pos, final_item, prev_item)
+            self.history_manager.execute_command(command)
+            return
+
+        # place/erase
+        placing_item = final_item.copy()
+        eraser = placing_item.is_eraser()
+
+        tilemap_x, tilemap_y = grid_pos
+        snapped_pos = Vec2f(tilemap_x, tilemap_y)
+        scene_pos = Vec2f(tilemap_x * self.grid_spacing, tilemap_y * self.grid_spacing)
+
+        if eraser:
+            if snapped_pos not in self.tilemap:
+                return
+
+            self.tilemap.pop(snapped_pos, None)
 
         else:
-            # this is a new user action, create a command and execute it
-            # IMPORTANT: the command stores the state *before* the merge.
-            command = PlaceTileCommand(self, grid_pos, final_item, previous_item)
-            self.history_manager.execute_command(command)
+            if placing_item.sprite.properties.is_rotatable:
+                placing_item.sprite.rotation = self.rotation
+
+            self.tilemap[snapped_pos] = placing_item
+
+        self.renderer.render_item(placing_item, scene_pos, snapped_pos, eraser, self.rotation)
+
+        if not mirror:
+            return
+
+        mirrored_x = self.map_size.x - 1 - tilemap_x
+        if not self.is_out_of_bounds((mirrored_x, tilemap_y)) and mirrored_x != tilemap_x:
+            mirrored_snapped_pos = Vec2f(mirrored_x, tilemap_y)
+            mirrored_scene_pos = Vec2f(mirrored_x * self.grid_spacing, tilemap_y * self.grid_spacing)
+            mirrored_item = placing_item.copy()
+
+            if eraser:
+                self.tilemap.pop(mirrored_snapped_pos, None)
+            else:
+                self.tilemap[mirrored_snapped_pos] = mirrored_item
+
+            self.renderer.render_item(mirrored_item, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
 
     def snap_to_grid(self, pos) -> tuple:
         """

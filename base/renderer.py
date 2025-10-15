@@ -102,7 +102,6 @@ class Renderer:
         # finally, add the item to the scene and update our tracking dictionaries
         self.canvas.canvas.addItem(pixmap_item)
         self.canvas.graphics_items[grid_pos] = pixmap_item
-        self.canvas.tilemap[grid_pos] = placing
 
         self.render_overlays.on_place_block(placing, grid_pos)
 
