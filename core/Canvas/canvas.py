@@ -274,29 +274,22 @@ class Canvas(CanvasInputHandler):
         snapped_pos = Vec2f(*grid_pos)
         tile_at_pos = self.tilemap.get(snapped_pos)
 
-        # no existing tile, or items are not mergeable
         if not tile_at_pos or not (placing_item.is_mergeable() or tile_at_pos.is_mergeable()):
-            return placing_item # return the original item
+            return placing_item
 
-        # --- perform merge logic ---
-        # try merging the new tile onto the old one
         merged_name = placing_item.merge_with(tile_at_pos.name_data.name)
         new_item = self.item_list.get_item_by_name(merged_name)
 
-        # if that didn't work, try merging the old item onto the new one
         if new_item is None:
             merged_name = tile_at_pos.merge_with(placing_item.name_data.name)
             new_item = self.item_list.get_item_by_name(merged_name)
 
         if new_item:
             if new_item.name_data.name == tile_at_pos.name_data.name:
-                # return the existing tile to signify no change
                 return tile_at_pos
 
-            # return the new, merged item
             return new_item.copy()
 
-        # return the original if merge fails to produce a valid item
         return placing_item
 
     def place_item(self, grid_pos, item: CItem = None, click_index: int = 1, add_to_history: bool = True) -> None:
@@ -387,12 +380,6 @@ class Canvas(CanvasInputHandler):
     def snap_to_grid(self, pos) -> tuple:
         """
         Snaps a given position to the nearest grid point.
-
-        Args:
-            pos (tuple): The position to be snapped to the grid.
-
-        Returns:
-            tuple: The snapped position as a tuple of two integers.
         """
         x, y = pos
         return (int(x // self.grid_spacing), int(y // self.grid_spacing))
@@ -400,32 +387,21 @@ class Canvas(CanvasInputHandler):
     def get_grid_pos(self, event) -> tuple:
         """
         Gets the grid position of the given event.
-
-        Args:
-            event: The event to get the grid position from.
-
-        Returns:
-            tuple: The grid position as a tuple of two integers.
         """
-
         pos = self.mapToScene(event.pos())
         return self.snap_to_grid((pos.x(), pos.y()))
 
     def update_mouse_pos(self, event) -> None:
         """
         Updates the mouse position to the given event.
-
-        Args:
-            event: The event to update the mouse position to.
-
-        Returns:
-            None
         """
-
         self.communicator.old_mouse_pos = self.communicator.mouse_pos
         self.communicator.mouse_pos = self.get_grid_pos(event)
 
     def resize_canvas(self, size: Vec2f, tilemap: dict[Vec2f, CItem] = None) -> None:
+        """
+        Creates a new map with the specified size and optional map data.
+        """
         self.map_size = size
         if tilemap is None:
             tilemap = {}
@@ -441,15 +417,12 @@ class Canvas(CanvasInputHandler):
     def is_out_of_bounds(self, pos: tuple) -> bool:
         """
         Check if the given position is out of bounds.
-
-        Args:
-            pos (tuple): The position to check, represented as a tuple of (x, y) coordinates.
-
-        Returns:
-            bool: True if the position is out of bounds, False otherwise.
         """
         x, y = pos
         return x < 0 or y < 0 or x >= self.map_size.x or y >= self.map_size.y
 
     def get_cursor_pos_on_canvas(self) -> QPoint:
+        """
+        Retrives the cursor position on the canvas.
+        """
         return self.mapFromGlobal(QCursor.pos())
