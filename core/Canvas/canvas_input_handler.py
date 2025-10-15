@@ -1,4 +1,6 @@
-from abc import abstractmethod
+"""
+Handles inputs directly on the canvas.
+"""
 from typing import Optional
 
 from PyQt6.QtCore import Qt
@@ -8,6 +10,9 @@ from PyQt6.QtWidgets import QGraphicsView
 from utils.vec2f import Vec2f
 
 class CanvasInputHandler(QGraphicsView):
+    """
+    Handles PyQt6 events for the canvas.
+    """
     def __init__(self, *args, **kwargs)-> None:
         super().__init__(*args, **kwargs)
         self._holding_lmb = False
@@ -16,47 +21,9 @@ class CanvasInputHandler(QGraphicsView):
         self._holding_space = False
         self._last_pan_point = None
 
-        # --- DUMMY VARIABLES (to prevent errors) ---
-        self.communicator = None
-        self.renderer = None
-        self.grid_spacing = None
-        self.zoom_change_factor = None
-
-    # --- DUMMY EVENTS (to prevent errors) ---
-    @abstractmethod
-    def update_mouse_pos(self, event):
-        ...
-
-    @abstractmethod
-    def get_grid_pos(self, event) -> Vec2f:
-        ...
-
-    @abstractmethod
-    def place_item(self, grid_pos: tuple, click_index: int, item = None, add_to_history: bool = True) -> None:
-        ...
-
-    @abstractmethod
-    def draw_to_cursor(self, pos, button):
-        ...
-
-    @abstractmethod
-    def get_cursor_pos_on_canvas(self):
-        ...
-
-    @abstractmethod
-    def snap_to_grid(self, pos: tuple) -> Vec2f:
-        ...
-
-    # --- ONLY PYQT6 EVENT HANDLES BELOW THIS ---
     def mousePressEvent(self, event) -> None:
         """
         Handles mouse press events on the canvas.
-
-        Parameters:
-            event: A Qt mouse event object containing information about the mouse press.
-
-        Returns:
-            None
         """
         if event is None:
             return
@@ -83,12 +50,6 @@ class CanvasInputHandler(QGraphicsView):
     def resizeEvent(self, event) -> None:
         """
         Handles the resize event of the QGraphicsView to adjust the scene accordingly.
-
-        Parameters:
-            event: A Qt resize event object containing information about the resize.
-
-        Returns:
-            None
         """
         if event is None:
             return
@@ -98,12 +59,6 @@ class CanvasInputHandler(QGraphicsView):
     def keyPressEvent(self, event: Optional[QKeyEvent]):
         """
         Handles key press events on the canvas.
-
-        Args:
-            event: The key event to handle.
-
-        Returns:
-            None
         """
         if event is None:
             return
@@ -115,34 +70,17 @@ class CanvasInputHandler(QGraphicsView):
     def keyReleaseEvent(self, event: Optional[QKeyEvent]):
         """
         Handles key release events on the canvas.
-
-        Args:
-            event: The key event to handle.
-
-        Returns:
-            None
         """
         if event is None:
             return
 
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self._holding_space = False
-            self.setCursor(Qt.CursorShape.ArrowCursor)
-            self.setDragMode(QGraphicsView.DragMode.NoDrag)
-
-            viewport = self.viewport()
-            if viewport is not None:
-                viewport.unsetCursor()
+            self._set_cursor()
 
     def mouseDoubleClickEvent(self, event) -> None:
         """
         Handles mouse press events on the canvas.
-
-        Parameters:
-            event: A Qt mouse event object containing information about the mouse press.
-
-        Returns:
-            None
         """
         if event is None:
             return
@@ -150,7 +88,6 @@ class CanvasInputHandler(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self._holding_lmb = True
 
-            # direct call to bypass draw_to_cursor restrictions
             grid_pos = self.get_grid_pos(event)
             self.place_item(grid_pos)
 
@@ -163,12 +100,6 @@ class CanvasInputHandler(QGraphicsView):
     def mouseReleaseEvent(self, event) -> None:
         """
         Handles mouse release events on the canvas.
-
-        Parameters:
-            event: A Qt mouse event object containing information about the mouse release.
-
-        Returns:
-            None
         """
         if event is None:
             return
@@ -178,7 +109,6 @@ class CanvasInputHandler(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             self._holding_lmb = False
 
-        # elif to prevent placing two tiles at once
         elif event.button() == Qt.MouseButton.RightButton:
             self._holding_rmb = False
 
@@ -188,18 +118,12 @@ class CanvasInputHandler(QGraphicsView):
     def mouseMoveEvent(self, event) -> None:
         """
         Handles mouse movement events on the canvas.
-
-        Parameters:
-            event: A Qt mouse event object containing information about the mouse move.
-
-        Returns:
-            None
         """
         if event is None:
             return
 
         pos = self.get_grid_pos(event)
-        old_pos = self.communicator.old_mouse_pos if self.communicator is not None else None
+        old_pos = self.communicator.old_mouse_pos
 
         same_tile = pos == old_pos
 
@@ -221,7 +145,6 @@ class CanvasInputHandler(QGraphicsView):
                 delta = event.pos() - self._last_pan_point
                 self._last_pan_point = event.pos()
 
-                # scroll view accordingly
                 h_scroll = self.horizontalScrollBar()
                 v_scroll = self.verticalScrollBar()
                 if h_scroll is not None:
@@ -231,10 +154,7 @@ class CanvasInputHandler(QGraphicsView):
                     v_scroll.setValue(v_scroll.value() - delta.y())
 
         else:
-            self.setCursor(Qt.CursorShape.ArrowCursor) # todo: should be a function that is called here & in mouseReleaseEvent
-            self.setDragMode(QGraphicsView.DragMode.NoDrag)
-            if viewport is not None:
-                viewport.unsetCursor()
+            self._set_cursor()
 
         # render the cursor
         scene_pos = self.mapToScene(event.pos())
@@ -243,16 +163,19 @@ class CanvasInputHandler(QGraphicsView):
             grid_spacing = self.grid_spacing if self.grid_spacing is not None else 1
             self.renderer.render_cursor(Vec2f(x * grid_spacing, y * grid_spacing))
 
+    def _set_cursor(self) -> None:
+        """
+        Sets the cursor to an ArrowCursor and prevents dragging.
+        """
+        viewport = self.viewport()
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        self.setDragMode(QGraphicsView.DragMode.NoDrag)
+        if viewport is not None:
+            viewport.unsetCursor()
+
     def wheelEvent(self, event) -> None:
         """
-        Handles wheel events on the canvas,
-        allowing for zooming and panning without snapping to edges.
-
-        Parameters:
-            event: A Qt event object containing information about the wheel event.
-
-        Returns:
-            None
+        Handles wheel events on the canvas, allowing for zooming and panning.
         """
         if event is None:
             return
