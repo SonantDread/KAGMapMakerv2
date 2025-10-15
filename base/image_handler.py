@@ -16,17 +16,8 @@ from utils.file_handler import FileHandler
 # acceptable range of colors
 # may need to be changed (or have a different system) in the future but this works for now
 BLUE_HUE_RANGE = (150 / 360.0, 235 / 360.0)
-TEAM_HUE_SHIFT = {
-    0: 0,    # No shift
-    1: 157,  # Blue -> Red
-    2: 244,  # Blue -> Green
-    3: 73,   # Blue -> Purple
-    4: 177,  # Blue -> Gold
-    5: 322,  # Blue -> Teal
-    6: 24,   # Blue -> Indigo
-}
 
-class SingletonMeta(type): # todo: this kind of code should just be in one file
+class SingletonMeta(type):
     """
     Used to share code between all instances of the class.
     """
@@ -67,6 +58,9 @@ class ImageHandler(metaclass=SingletonMeta):
         }
 
     def get_image(self, name: Union[str, int], team: int = 0, path: str = None) -> QPixmap:
+        """
+        Gets an image from the loaded cache.
+        """
         if team not in self._vanilla_images:
             self._vanilla_images[team] = {}
 
@@ -92,34 +86,27 @@ class ImageHandler(metaclass=SingletonMeta):
         # make the name more friendly
         name = os.path.splitext(str(name).strip().lower())[0]
 
-        # vanilla item
         image = self._get_vanilla_image(name, team)
-
         if image:
             return image
 
-        # image not found
         fn = os.path.basename(__file__)
         ln = inspect.currentframe().f_lineno
         print(f"Image not found: {name}. Unable to load in line {ln} of {fn}")
         return None
 
     def _get_vanilla_image(self, name: str, team: int = 0) -> QPixmap:
-        # image is loaded
         image = self._vanilla_images.get(team, {}).get(name)
         if image:
             return image
 
-        # image is not loaded
         return self._load_vanilla_image(name, team)
 
     def _get_modded_image(self, name: Union[str, int], team: int = 0, path: str = None) -> QPixmap:
-        # image is loaded
         image = self._modded_images.get(team, {}).get(name)
         if image:
             return image
 
-        # image is not loaded
         return self._load_modded_image(name, team, path)
 
     def _get_image_by_index(self, index: int, world_path: str) -> QPixmap:
@@ -130,11 +117,10 @@ class ImageHandler(metaclass=SingletonMeta):
         if world_path is not None and (world_path, index) in self._modded_images[0]:
             return self._modded_images[0][(world_path, index)]
 
-        # vanilla image
         is_vanilla_image = world_path is None
         if is_vanilla_image:
             path = self._file_handler.paths.get("world_path")
-        # modded image
+
         else:
             path = self._get_world_path(world_path)
 
@@ -158,36 +144,30 @@ class ImageHandler(metaclass=SingletonMeta):
         is_vanilla = path is None
         if is_vanilla:
             self._vanilla_images[0][index] = image
+
         else:
-            # store with path and index as a tuple key
             self._modded_images[0][(path, index)] = image
 
     def _load_modded_image(self, name: Union[str, int], team: int, mod_path: str) -> QPixmap:
-        # loading a modded image
         if mod_path is None:
             raise ValueError(f"Mod path cannot be None: {name}")
 
-        # load it by the index in world.png
         if isinstance(name, int):
-            # attempt to load from the world.png
             worlds_path = [
                 os.path.join(mod_path, "world.png"),
                 os.path.join(mod_path, "Sprites", "world.png")
             ]
 
-            # check if world.png currently exists in the mod path
             for path in worlds_path:
                 if not os.path.exists(path):
                     continue
 
                 return self._get_image_by_index(name, path)
 
-            # attempt to locate it within the mod folder
             for root, _, files in os.walk(mod_path):
                 if "world.png" in files:
                     return self._get_image_by_index(name, os.path.join(root, "world.png"))
 
-        # attempt to load name as a sprite
         paths = [
             os.path.join(mod_path, f"{name}.png"),
             os.path.join(mod_path, "Sprites", f"{name}.png")
@@ -200,7 +180,6 @@ class ImageHandler(metaclass=SingletonMeta):
                 self._modded_images[team][name] = image
                 return image
 
-        # fallback
         image_filename = f"{os.path.splitext(str(name))[0]}.png"
         for root, _, files in os.walk(mod_path):
             if image_filename in files:
@@ -230,7 +209,6 @@ class ImageHandler(metaclass=SingletonMeta):
         if not world_path:
             return None
 
-        # path is to a file
         if os.path.isfile(world_path):
             return world_path
 
@@ -243,25 +221,21 @@ class ImageHandler(metaclass=SingletonMeta):
             if os.path.isfile(path):
                 return path
 
-        # fallback
         print(f"Could not find world.png at '{world_path}'. Attempting to use fallback...")
         for root, _, files in os.walk(world_path):
             for file in files:
                 if file == "world.png":
                     return os.path.join(root, file)
 
-        # image wasn't found
         fn = os.path.basename(__file__)
         ln = inspect.currentframe().f_lineno
         print(f"Image not found: world.png. Unable to load in line {ln} of {fn}")
         return None
 
-    #* only team swapping code below here
     def _swap_sprite_color(self, original_image: QPixmap, to_team: int) -> QPixmap:
         """
         Swaps the team of a sprite.
         """
-        # no change needed
         if to_team == 0:
             return original_image
 
@@ -274,13 +248,11 @@ class ImageHandler(metaclass=SingletonMeta):
         width, height = pil_image.size
         new_image: Image = pil_image.copy()
 
-        # prevent invalid team indices
         if to_team < 0 or to_team > 7:
             to_team = 7
 
         palette = self._get_team_palette()
 
-        # ensure valid palettes exist
         if to_team not in palette:
             return
 
@@ -292,11 +264,9 @@ class ImageHandler(metaclass=SingletonMeta):
             for x in range(width):
                 r, g, b, a = pil_image.getpixel((x, y))
 
-                # skip transparent pixels
                 if a == 0:
                     continue
 
-                # only swap team colored pixels
                 if not self._is_team_color(r, g, b):
                     continue
 
