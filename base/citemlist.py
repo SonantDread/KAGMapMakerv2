@@ -1,3 +1,6 @@
+"""
+Manages the creation of every tile and blob.
+"""
 from typing import Union
 
 from utils.config_handler import ConfigHandler
@@ -15,6 +18,9 @@ from base.citem import CItem
 # 1500 = in front of spikes
 
 class CItemList:
+    """
+    Creates a list of every item available.
+    """
     def __init__(self) -> None:
         self.file_handler = FileHandler()
         self.config_handler = ConfigHandler()
@@ -65,6 +71,9 @@ class CItemList:
         # -----
 
     def does_tile_exist(self, name: Union[str, CItem]) -> bool:
+        """
+        Checks if the provided name or item exists as a tile.
+        """
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -77,6 +86,9 @@ class CItemList:
         return False
 
     def does_blob_exist(self, name: Union[str, CItem]) -> bool:
+        """
+        Checks if the provided name or item exists as a blob.
+        """
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -89,6 +101,9 @@ class CItemList:
         return False
 
     def does_other_exist(self, name: Union[str, CItem]) -> bool:
+        """
+        Checks if the provided name or item exists in the other category.
+        """
         if isinstance(name, CItem):
             name = name.name_data.name
 
@@ -101,12 +116,18 @@ class CItemList:
         return False
 
     def get_item_by_name(self, name: str) -> CItem:
+        """
+        Returns the CItem from a name.
+        """
         name = str(name)
         for item in self.all_items:
             if item.name_data.name == name:
                 return item
 
     def get_item_by_color(self, color: tuple[int, int, int, int]) -> CItem:
+        """
+        Returns an item by it's color tuple.
+        """
         return self.pixel_color_map.get(color)
 
     def __setup_modded_items(self) -> tuple[list[CItem], list[CItem], list[CItem]]:
