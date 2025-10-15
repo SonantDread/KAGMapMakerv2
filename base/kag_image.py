@@ -1,3 +1,6 @@
+"""
+Handles the conversion of formats between the map maker and KAG.
+"""
 import inspect
 import os
 from tkinter import filedialog
@@ -13,6 +16,9 @@ from utils.vec2f import Vec2f
 from utils.file_handler import FileHandler
 
 class KagImage:
+    """
+    Handles saving and loading maps.
+    """
     def __init__(self) -> None:
         self.communicator = Communicator()
         self.item_list = CItemList()
@@ -20,36 +26,32 @@ class KagImage:
 
     def new_map(self) -> None:
         """
-        Used to create a new KAG map.
-
-        Args:
-            None
-
-        Returns:
-            None
+        Used to create a new map.
         """
         dialog = TwoInputDialog()
         result = dialog.exec()
 
-        if result == QDialog.DialogCode.Accepted:
-            width, height = dialog.get_inputs()
-            try:
-                width = re.sub(r"[^0-9]+", "", width)
-                height = re.sub(r"[^0-9]+", "", height)
-
-                width = abs(int(width))
-                height = abs(int(height))
-                canvas = self.communicator.get_canvas()
-                canvas.resize_canvas(Vec2f(width, height))
-                canvas.recenter_canvas()
-
-            except ValueError:
-                print("Invalid input. Width and height must be integers.")
-
-        else:
+        if result != QDialog.DialogCode.Accepted:
             print("New map creation cancelled.")
 
+        width, height = dialog.get_inputs()
+        try:
+            width = re.sub(r"[^0-9]+", "", width)
+            height = re.sub(r"[^0-9]+", "", height)
+
+            width = abs(int(width))
+            height = abs(int(height))
+            canvas = self.communicator.get_canvas()
+            canvas.resize_canvas(Vec2f(width, height))
+            canvas.recenter_canvas()
+
+        except ValueError:
+            print("Invalid input. Width and height must be integers.")
+
     def save_map(self, fp: str = None, force_ask: bool = False) -> None:
+        """
+        Saves the map back to a PNG file.
+        """
         if self.communicator.last_saved_map_path is not None and not force_ask and fp is None:
             fp = self.communicator.last_saved_map_path
 
@@ -83,7 +85,7 @@ class KagImage:
                     linenum = inspect.currentframe().f_lineno
                     path = os.path.basename(__file__)
 
-                    print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} from mod: {item.mod_info.folder_name}")
+                    print(f"Item not found: '{item.name_data.name}' | Unable to load in line {linenum} of {path} (from mod: {item.mod_info.folder_name})")
                     continue
 
             offset_x, offset_y = item.pixel_data.offset
@@ -101,16 +103,16 @@ class KagImage:
 
                 if redbarrier_max_x is None or final_x > redbarrier_max_x[0]:
                     redbarrier_max_x = (final_x, final_y)
+
                 continue
 
-            # --- SAVE TREES MULTIPLE BLOCKS TALL
+            # save trees multiple blocks tall
             if item.name_data.name == "tree":
                 for i in range(5):
                     pos = (final_x, final_y - i)
                     if self._is_out_of_bounds(pos):
                         break
 
-                    # only save over blank pixels
                     if i != 0 and image.getpixel(pos) != sky:
                         break
 
@@ -133,6 +135,9 @@ class KagImage:
             print(f"Failed to save image: {e}")
 
     def load_map(self, fp: str = "") -> None:
+        """
+        Loads a map from a PNG file.
+        """
         if fp is None or fp == "":
             fp = self._ask_location("Load Map", self.file_handler.get_maps_path(), False)
             if fp is None or fp == "":
@@ -141,7 +146,7 @@ class KagImage:
 
         # prevent crash
         if isinstance(fp, tuple) and len(fp) == 0:
-            return None
+            return
 
         if isinstance(fp, tuple):
             fp = fp[0]
@@ -158,32 +163,30 @@ class KagImage:
         for x in range(width):
             for y in range(height):
                 pixel = self.rgba_to_argb(tilemap.getpixel((x, y)))
-                try: # todo: try to get rid of this try except block
-                    item = self.item_list.get_item_by_color(pixel).copy()
+                item = self.item_list.get_item_by_color(pixel)
+                if item:
+                    item = item.copy()
 
-                except:
+                else:
+                    print(f"Invalid pixel: {pixel}")
                     continue
 
                 name = item.name_data.name if item is not None else None
 
-                # skip empty pixels
                 if name == "sky" or name is None:
                     continue
 
                 item.sprite.position = Vec2f(x, y)
 
                 alpha = pixel[0]
-                # team from alpha channel
                 if item.pixel_data.team_from_alpha:
                     team = item.get_team_from_alpha(alpha)
                     item.swap_team(team)
 
-                # angle from alpha channel
                 if item.pixel_data.angle_from_alpha and item.sprite.properties.is_rotatable:
                     rotation = item.get_angle_from_alpha(alpha)
                     item.sprite.rotation = rotation
 
-                # account for the saving offsets
                 offset_x, offset_y = -item.pixel_data.offset
 
                 # clamp coords to map size
@@ -199,10 +202,16 @@ class KagImage:
         canvas.recenter_canvas()
 
     def argb_to_rgba(self, argb: tuple) -> tuple:
+        """
+        Converts an ARGB tuple to an RGBA tuple.
+        """
         a, r, g, b = argb
         return (r, g, b, a)
 
     def rgba_to_argb(self, rgba: tuple) -> tuple:
+        """
+        Converts an RGBA tuple to an ARGB tuple.
+        """
         r, g, b, a = rgba
         return (a, r, g, b)
 
@@ -213,8 +222,7 @@ class KagImage:
                 print("Save location not selected. Operation cancelled.")
                 return
 
-            else:
-                self.communicator.last_saved_map_path = filepath
+            self.communicator.last_saved_map_path = filepath
 
         else:
             filepath = self.communicator.last_saved_map_path
@@ -253,22 +261,22 @@ class KagImage:
             return None
 
         new_tilemap = {}
-
         for pos, item in tilemap.items():
             if item is not None and pos is not None:
-                # add non-tree items directly to the new tilemap
                 if item.name_data.name != "tree":
                     new_tilemap[pos] = item
+
                 else:
-                    # handle trees specially
                     x, y = pos
 
-                    # find the lowest pixel of the tree (to place it properly)
-                    while tilemap.get(Vec2f(x, y + 1)) is not None and tilemap.get(Vec2f(x, y + 1)).name_data.name == "tree":
+                    # find the lowest pixel of the tree
+                    tile = Vec2f(x, y + 1)
+                    while tilemap.get(tile) is not None and tilemap.get(tile).name_data.name == "tree":
                         y += 1
+                        tile.y += 1
 
-                    # add the bottom-most tree pixel
-                    new_tilemap[Vec2f(x, y)] = tilemap[Vec2f(x, y)]
+                    pos = Vec2f(x, y)
+                    new_tilemap[pos] = tilemap[pos]
 
         return new_tilemap
 
@@ -277,7 +285,7 @@ class KagImage:
         size: Vec2f = self.communicator.get_canvas().map_size
         return x < 0 or y < 0 or x >= size.x or y >= size.y
 
-class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
+class TwoInputDialog(QDialog):
     """
     Used as the input box for the new map size.
     """
@@ -287,7 +295,6 @@ class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
         self.setWindowTitle("New Map")
         self.setFixedSize(300, 150)
 
-        # create widgets
         width_label = QLabel("Width:")
         height_label = QLabel("Height:")
         self.width_input = QLineEdit()
@@ -295,11 +302,9 @@ class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
         ok_button = QPushButton("Continue")
         cancel_button = QPushButton("Cancel")
 
-        # connect buttons to signals
         ok_button.clicked.connect(self.accept)
         cancel_button.clicked.connect(self.reject)
 
-        # create layout
         width_layout = QHBoxLayout()
         width_layout.addWidget(width_label)
         width_layout.addWidget(self.width_input)
@@ -323,9 +328,5 @@ class TwoInputDialog(QDialog): # todo: maybe this should be in a different file?
         """
         Retrieves the text input from the width and height input fields
         and returns them as a tuple of strings.
-
-        Returns:
-            tuple: A tuple containing the text from the width input field
-            and the text from the height input field.
         """
         return (self.width_input.text(), self.height_input.text())
