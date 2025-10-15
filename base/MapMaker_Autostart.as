@@ -1,6 +1,5 @@
 /*
 Script for https://github.com/SonantDread/KAGMapMakerv2
-Used to make the 'Test in KAG' button work.
 */
 #include "Default/DefaultStart.as"
 #include "Default/DefaultLoaders.as"
@@ -20,8 +19,7 @@ void InitializeGame()
 	getRules().AddScript("AutoRebuild.as");
 
 	CMap@ map = getMap();
-	if (map !is null)
-	{
-		LoadMap("Maps/MapMaker.png");
-	}
+	if (map is null) return
+
+	LoadMap("Maps/MapMaker.png");
 }
