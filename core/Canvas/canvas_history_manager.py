@@ -1,3 +1,6 @@
+"""
+Handles the history for the canvas.
+"""
 from core.Canvas.canvas_commands import Command
 
 class HistoryManager:
