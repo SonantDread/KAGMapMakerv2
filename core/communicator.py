@@ -3,6 +3,8 @@ Used for all files to communicate between each other
 All data in this class is shared.
 """
 
+from utils.vec2f import Vec2f
+
 class SingletonMeta(type):
     """
     Used to share code between all instances of the class.
@@ -30,8 +32,8 @@ class Communicator(metaclass = SingletonMeta):
             "nobuild_edges": False
         }
 
-        self.mouse_pos = () # must be empty tuple
-        self.old_mouse_pos = ()
+        self.mouse_pos = Vec2f()
+        self.old_mouse_pos = Vec2f()
         self.last_saved_map_path = None
         self.team = 0
 

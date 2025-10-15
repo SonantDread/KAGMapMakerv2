@@ -1,5 +1,5 @@
 """
-Used to store Vector 2 positions.
+Used to store 2D vector positions.
 """
 from typing import Union
 class Vec2f:

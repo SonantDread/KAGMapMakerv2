@@ -249,8 +249,8 @@ class Canvas(CanvasInputHandler):
         if not pos or not old_pos:
             return
 
-        delta = (pos[0] - old_pos[0], pos[1] - old_pos[1])
-        steps = max(abs(delta[0]), abs(delta[1]))
+        delta = Vec2f(pos.x - old_pos.x, pos.y - old_pos.y)
+        steps = max(abs(delta.x), abs(delta.y))
 
         if steps <= 1:
             self.place_item(pos, click_index=click_index)
@@ -258,15 +258,15 @@ class Canvas(CanvasInputHandler):
         else:
             for i in range(steps + 1):
                 # linear interpolation
-                x = round(old_pos[0] + i * delta[0] / steps)
-                y = round(old_pos[1] + i * delta[1] / steps)
+                x = round(old_pos.x + i * delta.x / steps)
+                y = round(old_pos.y + i * delta.y / steps)
                 grid_pos = (x, y)
 
                 self.place_item(grid_pos, click_index=click_index)
 
         self.update_mouse_pos(event)
 
-    def _get_merged_item(self, placing_item: CItem, grid_pos: tuple) -> CItem:
+    def _get_merged_item(self, placing_item: CItem, grid_pos: Vec2f) -> CItem:
         """
         Checks if a tile should be merged and returns the final CItem to be placed.
         Returns the original item if no merge occurs.
@@ -292,7 +292,7 @@ class Canvas(CanvasInputHandler):
 
         return placing_item
 
-    def place_item(self, grid_pos, item: CItem = None, click_index: int = 1, add_to_history: bool = True) -> None:
+    def place_item(self, grid_pos: Vec2f, item: CItem = None, click_index: int = 1, add_to_history: bool = True) -> None:
         """
         Handles placing or erasing tiles, merging logic, mirroring and history management.
         Ignores 'item' parameter if 'add_to_history' is True and 'item' is None.
@@ -377,14 +377,14 @@ class Canvas(CanvasInputHandler):
 
             self.renderer.render_item(mirrored_item, mirrored_scene_pos, mirrored_snapped_pos, eraser, self.rotation)
 
-    def snap_to_grid(self, pos) -> tuple:
+    def snap_to_grid(self, pos) -> Vec2f:
         """
         Snaps a given position to the nearest grid point.
         """
         x, y = pos
-        return (int(x // self.grid_spacing), int(y // self.grid_spacing))
+        return Vec2f(int(x // self.grid_spacing), int(y // self.grid_spacing))
 
-    def get_grid_pos(self, event) -> tuple:
+    def get_grid_pos(self, event) -> Vec2f:
         """
         Gets the grid position of the given event.
         """
@@ -414,7 +414,7 @@ class Canvas(CanvasInputHandler):
         self.add_panning_space()
         print(f"New map created with dimensions: {size.x}x{size.y}")
 
-    def is_out_of_bounds(self, pos: tuple) -> bool:
+    def is_out_of_bounds(self, pos: Vec2f) -> bool:
         """
         Check if the given position is out of bounds.
         """

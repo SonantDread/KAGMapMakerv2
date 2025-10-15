@@ -22,7 +22,7 @@ class PlaceTileCommand(Command):
     """
     A command to place (or erase) a single tile on the canvas.
     """
-    def __init__(self, canvas, grid_pos: tuple, new_item, previous_item):
+    def __init__(self, canvas, grid_pos: 'Vec2f', new_item, previous_item):
         self.canvas = canvas
         self.grid_pos = grid_pos
         # the tile being placed

@@ -198,7 +198,7 @@ class CanvasInputHandler(QGraphicsView):
         if event is None:
             return
 
-        pos = Vec2f(*self.get_grid_pos(event))
+        pos = self.get_grid_pos(event)
         old_pos = self.communicator.old_mouse_pos if self.communicator is not None else None
 
         same_tile = pos == old_pos
