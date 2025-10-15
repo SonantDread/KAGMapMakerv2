@@ -74,7 +74,7 @@ class CanvasInputHandler(QGraphicsView):
             self._holding_rmb = True
 
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos)
+            self.place_item(grid_pos, click_index=0)
 
         if event.button() == Qt.MouseButton.MiddleButton:
             self._last_pan_point = event.pos()
@@ -158,7 +158,7 @@ class CanvasInputHandler(QGraphicsView):
             self._holding_rmb = True
 
             grid_pos = self.get_grid_pos(event)
-            self.place_item(grid_pos)
+            self.place_item(grid_pos, click_index=0)
 
     def mouseReleaseEvent(self, event) -> None:
         """
