@@ -152,7 +152,8 @@ class KagImage:
             fp = fp[0]
 
         if not self.file_handler.does_path_exist(fp):
-            raise FileNotFoundError(f"File not found: {fp}")
+            print(f"File not found: {fp}")
+            return
 
         canvas = self.communicator.get_canvas()
         tilemap = Image.open(fp).convert("RGBA")
