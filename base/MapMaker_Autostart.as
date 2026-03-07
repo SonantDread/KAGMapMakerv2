@@ -19,7 +19,7 @@ void InitializeGame()
 	getRules().AddScript("AutoRebuild.as");
 
 	CMap@ map = getMap();
-	if (map is null) return
+	if (map is null) return;
 
 	LoadMap("Maps/MapMaker.png");
 }
