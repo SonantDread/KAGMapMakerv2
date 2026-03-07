@@ -6,7 +6,7 @@ from PIL import Image
 from PyQt6 import QtCore
 from PyQt6.QtCore import QPoint, Qt, QSize
 from PyQt6.QtGui import QPixmap, QIcon
-from PyQt6.QtWidgets import QGridLayout, QPushButton, QScrollArea, QTabWidget, QWidget
+from PyQt6.QtWidgets import QGridLayout, QPushButton, QScrollArea, QTabWidget, QWidget, QLineEdit, QVBoxLayout
 
 from base.citem import CItem
 from base.citemlist import CItemList
@@ -41,26 +41,49 @@ class Picker(QWidget):
         self.offset = QPoint()
 
         self.tab_holder = self.vanilla_tab = self.modded_tab = None
+        self.search_box = None
+
+        self.vanilla_items = {"tiles": [], "blobs": [], "colors": [], "others": []}
+        self.modded_items = {"tiles": [], "blobs": [], "colors": [], "others": []}
+        self.vanilla_tab_widgets = {}
+        self.modded_tab_widgets = {}
+
         self.setup_ui()
 
     def setup_ui(self) -> None:
         """
         Sets up the main UI for the picking items menu.
         """
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(5)
+
         size = self._get_tab_size()
+        tab_height = size - 48
+
         self.tab_holder = QTabWidget(parent=self.parent_widget)
-        self.tab_holder.setFixedSize(QtCore.QSize(size,size))
+        self.tab_holder.setFixedSize(QtCore.QSize(size, tab_height))
 
         self.vanilla_tab = QTabWidget(parent=self.tab_holder)
-        self.vanilla_tab.setFixedSize(QtCore.QSize(size,size))
+        self.vanilla_tab.setFixedSize(QtCore.QSize(size, tab_height))
         self.tab_holder.addTab(self.vanilla_tab, "Vanilla")
 
         self.modded_tab = QTabWidget(parent=self.tab_holder)
-        self.modded_tab.setFixedSize(QtCore.QSize(size,size))
+        self.modded_tab.setFixedSize(QtCore.QSize(size, tab_height))
         self.tab_holder.addTab(self.modded_tab, "Modded")
 
         self._setup_tabs(self.vanilla_tab, True)
         self._setup_tabs(self.modded_tab, False)
+
+        main_layout.addWidget(self.tab_holder)
+
+        self.search_box = QLineEdit(self)
+        self.search_box.setPlaceholderText("Search items...")
+        self.search_box.setFixedWidth(size)
+        self.search_box.textChanged.connect(self._on_search_text_changed)
+        main_layout.addWidget(self.search_box)
+
+        self.setLayout(main_layout)
 
     def _setup_tabs(self, tab: QTabWidget, is_vanilla: bool) -> None:
         tiles_tab  = self._make_scroll_area("Tiles", tab)
@@ -78,14 +101,28 @@ class Picker(QWidget):
         if is_vanilla:
             tiles, blobs = itemlist.vanilla_tiles, itemlist.vanilla_blobs
             others = itemlist.vanilla_others
+            items_dict = self.vanilla_items
+            tab_widgets = self.vanilla_tab_widgets
 
         else:
             tiles, blobs = itemlist.modded_tiles, itemlist.modded_blobs
             others = itemlist.modded_others
+            items_dict = self.modded_items
+            tab_widgets = self.modded_tab_widgets
 
         tiles = [item for item in tiles if item.is_in_picker_menu()]
         blobs = [blob for blob in blobs if blob.is_in_picker_menu()]
         others = [other for other in others if other.is_in_picker_menu()]
+
+        items_dict["tiles"] = tiles
+        items_dict["blobs"] = blobs
+        items_dict["others"] = others
+
+        tab_widgets["tiles"] = tiles_tab
+        tab_widgets["blobs"] = blobs_tab
+        tab_widgets["colors"] = colors_tab
+        tab_widgets["others"] = others_tab
+        tab_widgets["tab"] = tab
 
         self._setup_items(tiles_tab, tiles)
         self._setup_items(blobs_tab, blobs)
@@ -103,6 +140,7 @@ class Picker(QWidget):
 
             colors.append(item)
 
+        items_dict["colors"] = colors
         self._setup_items(colors_tab, colors)
         self._setup_items(others_tab, others)
 
@@ -164,6 +202,101 @@ class Picker(QWidget):
     def _bad_item(self, item: CItem) -> bool:
         name = item.name_data.name
         return name == "" or name is None
+
+    def _on_search_text_changed(self, text: str) -> None:
+        """
+        Handles search text changes and filters items in real-time.
+        """
+        search_text = text.strip().lower()
+
+        if not search_text:
+            # clear search
+            current_tab_index = self.tab_holder.currentIndex()
+            is_vanilla = current_tab_index == 0
+
+            if is_vanilla:
+                self._repopulate_tabs(self.vanilla_items, self.vanilla_tab_widgets)
+
+            else:
+                self._repopulate_tabs(self.modded_items, self.modded_tab_widgets)
+
+        else:
+            # search
+            current_tab_index = self.tab_holder.currentIndex()
+            is_vanilla = current_tab_index == 0
+
+            if is_vanilla:
+                items_dict = self.vanilla_items
+                tab_widgets = self.vanilla_tab_widgets
+
+            else:
+                items_dict = self.modded_items
+                tab_widgets = self.modded_tab_widgets
+
+            best_match_tab = self._apply_search_filter(search_text, items_dict, tab_widgets)
+
+            if best_match_tab is not None:
+                current_subtab = tab_widgets["tab"]
+                current_subtab.setCurrentIndex(best_match_tab)
+
+    def _apply_search_filter(self, search_text: str, items_dict: dict, tab_widgets: dict) -> int:
+        """
+        Filters items based on search text and updates tabs.
+        Returns the index of the best matching tab (excluding colors tab).
+        """
+        search_text = search_text.lower()
+        best_match_tab = None
+
+        for tab_name in ["tiles", "blobs", "colors", "others"]:
+            if tab_name not in items_dict:
+                continue
+
+            original_items = items_dict[tab_name]
+            filtered_items = []
+
+            for item in original_items:
+                if search_text in item.name_data.display_name.lower():
+                    filtered_items.append(item)
+                    # exact match
+                    if tab_name != "colors" and (best_match_tab is None or item.name_data.display_name.lower().startswith(search_text)):
+                        best_match_tab = self._get_tab_index(tab_name)
+
+                    continue
+
+                if search_text in item.name_data.name.lower():
+                    filtered_items.append(item)
+                    if tab_name != "colors" and best_match_tab is None:
+                        best_match_tab = self._get_tab_index(tab_name)
+
+                    continue
+
+                for keyword in item.search_keywords:
+                    if search_text in keyword.lower():
+                        filtered_items.append(item)
+                        if tab_name != "colors" and best_match_tab is None:
+                            best_match_tab = self._get_tab_index(tab_name)
+
+                        break
+
+            if tab_name in tab_widgets:
+                self._setup_items(tab_widgets[tab_name], filtered_items)
+
+        return best_match_tab
+
+    def _repopulate_tabs(self, items_dict: dict, tab_widgets: dict) -> None:
+        """
+        Repopulates all tabs with their full item lists (clears search filter).
+        """
+        for tab_name in ["tiles", "blobs", "colors", "others"]:
+            if tab_name in items_dict and tab_name in tab_widgets:
+                self._setup_items(tab_widgets[tab_name], items_dict[tab_name])
+
+    def _get_tab_index(self, tab_name: str) -> int:
+        """
+        Returns the tab index for a given tab name.
+        """
+        tab_map = {"tiles": 0, "blobs": 1, "colors": 2, "others": 3}
+        return tab_map.get(tab_name, 0)
 
     def _get_tab_size(self) -> int:
         return int(BUTTON_WIDTH * 5 + 48) # button size, button amount and scrollbar width

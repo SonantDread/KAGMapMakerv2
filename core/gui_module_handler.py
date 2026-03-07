@@ -34,7 +34,7 @@ class GUIModuleHandler:
         current_height = 0
 
         picker = Picker(self.app_window)
-        current_height += picker.tab_holder.height() + buffer
+        current_height += picker.tab_holder.height() + buffer + 16
 
         teams = Teams(self.app_window, current_height)
         current_height += teams.widget.height() + buffer
